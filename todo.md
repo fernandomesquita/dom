@@ -1,6 +1,6 @@
 # TODO - Sistema DOM-EARA V4
 
-## ETAPA 1: Fundação - Backend, Login & DevOps (EM ANDAMENTO)
+## ETAPA 1: Fundação - Backend, Login & DevOps (✅ CONCLUÍDA)
 
 ### Setup Inicial
 - [x] Inicializar projeto web full-stack
@@ -15,7 +15,7 @@
 - [ ] Tabela `refresh_tokens` com rotação obrigatória
 - [ ] Rate limiting com exponential backoff
 - [ ] Matriz de error codes padronizados
-- [ ] CPF opcional no cadastro
+- [x] CPF opcional no cadastro
 - [ ] Webhook de bounce para emails (Resend)
 
 ### Desenvolvimento (Backend)
@@ -53,6 +53,13 @@
 - [ ] Adicionar etapa de linting automático (ESLint)
 - [ ] Configurar etapa de testes automatizados
 - [ ] Configurar deploy automático (Vercel + Railway)
+
+### Documentação do Projeto
+- [x] Criar ERROS-CRITICOS.md (nunca sobrescrever)
+- [x] Criar LEIA-ME-DIARIAMENTE.md (sumário executivo)
+- [x] Criar CHANGELOG.md (histórico progressivo)
+- [x] Documentar erro crítico: Sistema NÃO usa OAuth
+- [x] Atualizar todo.md com progresso da Etapa 1
 
 ---
 
