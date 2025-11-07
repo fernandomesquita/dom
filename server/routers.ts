@@ -1,6 +1,9 @@
 import { systemRouter } from "./_core/systemRouter";
 import { router } from "./_core/trpc";
 import { authRouter } from "./routers/auth";
+import { disciplinasRouter } from "./routers/disciplinas";
+import { assuntosRouter } from "./routers/assuntos";
+import { topicosRouter } from "./routers/topicos";
 
 /**
  * Sistema DOM - Routers principais
@@ -12,9 +15,11 @@ import { authRouter } from "./routers/auth";
 export const appRouter = router({
   system: systemRouter,
   auth: authRouter,
+  disciplinas: disciplinasRouter,
+  assuntos: assuntosRouter,
+  topicos: topicosRouter,
 
   // TODO: Adicionar routers de funcionalidades conforme desenvolvimento
-  // disciplinas: disciplinasRouter,
   // materiais: materiaisRouter,
   // questoes: questoesRouter,
   // forum: forumRouter,

@@ -166,3 +166,113 @@
 ---
 
 **Última atualização:** 07 de Novembro de 2025
+
+
+## ETAPA 2: Árvore de Conhecimento (🚧 EM ANDAMENTO)
+
+### Análise e Planejamento
+- [x] Ler especificação completa da Árvore de Conhecimento
+- [x] Criar documento de análise detalhada
+- [x] Atualizar plano de trabalho
+- [x] Adicionar tarefas ao todo.md
+
+### Atualização do Schema
+- [x] Adicionar campo `slug` às tabelas (disciplines, topics, subtopics)
+- [x] Adicionar campo `createdBy` para auditoria
+- [x] Renomear `order` para `sortOrder` (evitar palavra reservada SQL)
+- [x] Adicionar campo `disciplineId` denormalizado em subtopics
+- [x] Criar migration com índices otimizados
+- [x] Executar migration no banco de dados
+
+### Backend - Utilitários
+- [x] Criar `server/_core/slug-generator.ts` (gerar slugs URL-friendly)
+- [ ] Criar `server/db-helpers/validate-hierarchy.ts` (validar coerência hierárquica)
+- [x] Adicionar acesso ao banco no contexto tRPC
+
+### Backend - CRUD Disciplinas
+- [x] Criar `server/routers/disciplinas.ts`
+- [x] Endpoint: `create` - Criar disciplina
+- [x] Endpoint: `getAll` - Listar com paginação
+- [x] Endpoint: `getByIdOrSlug` - Buscar por ID ou slug
+- [x] Endpoint: `update` - Atualizar disciplina
+- [x] Endpoint: `delete` - Soft delete (validar assuntos ativos)
+- [x] Endpoint: `reorder` - Reordenar em batch
+- [x] Endpoint: `getStats` - Estatísticas
+- [x] Validações: código único, slug único
+- [ ] Testes unitários
+
+### Backend - CRUD Assuntos
+- [x] Criar `server/routers/assuntos.ts`
+- [x] Endpoint: `create` - Criar assunto (validar disciplina)
+- [x] Endpoint: `getByDiscipline` - Listar por disciplina com paginação
+- [x] Endpoint: `getByIdOrSlug` - Buscar por ID ou slug
+- [x] Endpoint: `update` - Atualizar assunto
+- [x] Endpoint: `delete` - Soft delete (validar tópicos ativos)
+- [x] Endpoint: `reorder` - Reordenar dentro da disciplina
+- [x] Endpoint: `getStats` - Estatísticas por disciplina
+- [x] Validações: código único por escopo, disciplina existe
+- [ ] Testes unitários
+
+### Backend - CRUD Tópicos
+- [x] Criar `server/routers/topicos.ts`
+- [x] Endpoint: `create` - Criar tópico (validar assunto, atualizar disciplineId)
+- [x] Endpoint: `getByAssunto` - Listar por assunto com paginação
+- [x] Endpoint: `getByDiscipline` - Listar por disciplina (usar disciplineId denormalizado)
+- [x] Endpoint: `getByIdOrSlug` - Buscar por ID ou slug
+- [x] Endpoint: `update` - Atualizar tópico
+- [x] Endpoint: `delete` - Soft delete (validar materiais/questões)
+- [x] Endpoint: `reorder` - Reordenar dentro do assunto
+- [x] Endpoint: `getStats` - Estatísticas por assunto
+- [x] Validações: código único por escopo, assunto existe, hierarquia coerente
+- [ ] Testes unitários
+
+### Frontend - Componentes Compartilhados
+- [ ] Criar `client/src/components/TreeView.tsx` (árvore expansível)
+- [ ] Criar `client/src/components/DisciplinaCard.tsx`
+- [ ] Criar `client/src/components/TopicoCard.tsx`
+- [ ] Criar `client/src/components/SubtopicoCard.tsx`
+- [ ] Criar `client/src/components/NodeModal.tsx` (criar/editar)
+- [ ] Implementar drag & drop para reordenação
+
+### Frontend - Interface Admin
+- [ ] Criar página `/admin/arvore-conhecimento`
+- [ ] Implementar toolbar de ações (nova disciplina, expandir/colapsar, busca)
+- [ ] Implementar TreeView com disciplinas/tópicos/subtópicos
+- [ ] Implementar modal de criação de disciplina
+- [ ] Implementar modal de edição de disciplina
+- [ ] Implementar modal de criação de tópico
+- [ ] Implementar modal de edição de tópico
+- [ ] Implementar modal de criação de subtópico
+- [ ] Implementar modal de edição de subtópico
+- [ ] Implementar reordenação com drag & drop
+- [ ] Implementar soft delete com confirmação
+- [ ] Implementar filtro de busca em tempo real
+- [ ] Implementar toggle "Mostrar Inativos"
+- [ ] Adicionar indicadores de quantidade (ex: "5 tópicos")
+
+### Frontend - Interface Aluno
+- [ ] Criar página `/arvore-conhecimento`
+- [ ] Implementar TreeView read-only
+- [ ] Implementar painel de detalhes
+- [ ] Mostrar descrição completa
+- [ ] Links para materiais relacionados
+- [ ] Links para questões relacionadas
+- [ ] Preparar estrutura para indicadores de progresso (futuro)
+
+### Testes e Validações
+- [ ] Testar CRUD completo de disciplinas
+- [ ] Testar CRUD completo de tópicos
+- [ ] Testar CRUD completo de subtópicos
+- [ ] Testar validações de hierarquia
+- [ ] Testar soft delete em cascata
+- [ ] Testar reordenação
+- [ ] Testar performance com dados reais (meta: < 300ms p95)
+- [ ] Testar geração de slugs
+- [ ] Testar códigos únicos por escopo
+
+### Documentação
+- [ ] Atualizar CHANGELOG.md com Etapa 2
+- [ ] Documentar decisões arquiteturais em ERROS-CRITICOS.md (se necessário)
+- [ ] Criar checkpoint da Etapa 2
+
+---

@@ -1,7 +1,7 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { User } from "../../drizzle/schema";
 import { extractTokenFromHeader, extractTokenFromCookie, verifyAccessToken } from "./auth";
-import { getUserById } from "../db";
+import { getUserById, getDb } from "../db";
 
 /**
  * Sistema DOM - Contexto tRPC com Autenticação Simples
@@ -14,6 +14,7 @@ export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
   res: CreateExpressContextOptions["res"];
   user: User | null;
+  db: NonNullable<Awaited<ReturnType<typeof getDb>>>;
 };
 
 export async function createContext(
@@ -45,9 +46,16 @@ export async function createContext(
     user = null;
   }
 
+  const db = await getDb();
+  
+  if (!db) {
+    throw new Error('[Context] Database not available');
+  }
+  
   return {
     req: opts.req,
     res: opts.res,
     user,
+    db,
   };
 }

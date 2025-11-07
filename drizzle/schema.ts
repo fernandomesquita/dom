@@ -161,47 +161,64 @@ export const webhooksPagarme = mysqlTable("webhooks_pagarme", {
 
 export const disciplinas = mysqlTable("disciplinas", {
   id: varchar("id", { length: 36 }).primaryKey(),
+  codigo: varchar("codigo", { length: 20 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull(),
   nome: varchar("nome", { length: 100 }).notNull(),
   descricao: text("descricao"),
   corHex: varchar("cor_hex", { length: 7 }).default("#4F46E5").notNull(),
   icone: varchar("icone", { length: 50 }),
-  ordem: int("ordem").default(0).notNull(),
+  sortOrder: int("sort_order").default(0).notNull(),
   ativo: boolean("ativo").default(true).notNull(),
+  createdBy: varchar("created_by", { length: 36 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
-  ativoIdx: index("idx_ativo").on(table.ativo),
-  ordemIdx: index("idx_ordem").on(table.ordem),
+  codigoIdx: uniqueIndex("idx_disciplinas_codigo").on(table.codigo),
+  slugIdx: uniqueIndex("idx_disciplinas_slug").on(table.slug),
+  ativoSortIdx: index("idx_disciplinas_ativo_sort").on(table.ativo, table.sortOrder),
+  nomeIdx: index("idx_disciplinas_nome").on(table.nome),
 }));
 
 export const assuntos = mysqlTable("assuntos", {
   id: varchar("id", { length: 36 }).primaryKey(),
   disciplinaId: varchar("disciplina_id", { length: 36 }).notNull(),
+  codigo: varchar("codigo", { length: 20 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull(),
   nome: varchar("nome", { length: 150 }).notNull(),
   descricao: text("descricao"),
-  ordem: int("ordem").default(0).notNull(),
+  sortOrder: int("sort_order").default(0).notNull(),
   ativo: boolean("ativo").default(true).notNull(),
+  createdBy: varchar("created_by", { length: 36 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
-  disciplinaIdIdx: index("idx_disciplina_id").on(table.disciplinaId),
-  ativoIdx: index("idx_ativo").on(table.ativo),
-  ordemIdx: index("idx_ordem").on(table.ordem),
+  disciplinaIdIdx: index("idx_assuntos_disciplina").on(table.disciplinaId),
+  disciplinaCodigoIdx: uniqueIndex("idx_assuntos_disciplina_codigo").on(table.disciplinaId, table.codigo),
+  disciplinaSlugIdx: uniqueIndex("idx_assuntos_disciplina_slug").on(table.disciplinaId, table.slug),
+  disciplinaSortIdx: index("idx_assuntos_disciplina_sort").on(table.disciplinaId, table.sortOrder),
+  nomeIdx: index("idx_assuntos_nome").on(table.nome),
 }));
 
 export const topicos = mysqlTable("topicos", {
   id: varchar("id", { length: 36 }).primaryKey(),
   assuntoId: varchar("assunto_id", { length: 36 }).notNull(),
+  disciplinaId: varchar("disciplina_id", { length: 36 }).notNull(),
+  codigo: varchar("codigo", { length: 20 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull(),
   nome: varchar("nome", { length: 200 }).notNull(),
   descricao: text("descricao"),
-  ordem: int("ordem").default(0).notNull(),
+  sortOrder: int("sort_order").default(0).notNull(),
   ativo: boolean("ativo").default(true).notNull(),
+  createdBy: varchar("created_by", { length: 36 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
-  assuntoIdIdx: index("idx_assunto_id").on(table.assuntoId),
-  ativoIdx: index("idx_ativo").on(table.ativo),
-  ordemIdx: index("idx_ordem").on(table.ordem),
+  assuntoIdIdx: index("idx_topicos_assunto").on(table.assuntoId),
+  disciplinaIdIdx: index("idx_topicos_disciplina").on(table.disciplinaId),
+  assuntoCodigoIdx: uniqueIndex("idx_topicos_assunto_codigo").on(table.assuntoId, table.codigo),
+  assuntoSlugIdx: uniqueIndex("idx_topicos_assunto_slug").on(table.assuntoId, table.slug),
+  assuntoSortIdx: index("idx_topicos_assunto_sort").on(table.assuntoId, table.sortOrder),
+  nomeIdx: index("idx_topicos_nome").on(table.nome),
 }));
 
 // ============================================================================
