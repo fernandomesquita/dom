@@ -578,6 +578,104 @@ export const questionsRouter = router({
     }),
 
   // ========================================
+  // LISTAR QUESTÕES DO CADERNO
+  // ========================================
+
+  getNotebookQuestions: protectedProcedure
+    .input(z.object({
+      notebookType: z.enum(["review", "mistakes", "favorites"]),
+      limit: z.number().min(1).max(100).default(20),
+      offset: z.number().min(0).default(0),
+    }))
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user.id;
+      
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      
+      // Buscar questões do caderno
+      const notebookItems = await db
+        .select()
+        .from(userNotebooks)
+        .where(
+          and(
+            eq(userNotebooks.userId, userId),
+            eq(userNotebooks.notebookType, input.notebookType)
+          )
+        )
+        .limit(input.limit)
+        .offset(input.offset);
+      
+      if (notebookItems.length === 0) {
+        return {
+          items: [],
+          total: 0,
+          hasMore: false,
+        };
+      }
+      
+      const questionIds = notebookItems.map((item: typeof userNotebooks.$inferSelect) => item.questionId);
+      
+      // Buscar questões completas
+      const questionsData = await db
+        .select()
+        .from(questions)
+        .where(inArray(questions.id, questionIds));
+      
+      // Buscar tentativas do usuário para cada questão
+      const attempts = await db
+        .select()
+        .from(questionAttempts)
+        .where(
+          and(
+            eq(questionAttempts.userId, userId),
+            inArray(questionAttempts.questionId, questionIds)
+          )
+        );
+      
+      // Mapear tentativas por questão
+      const attemptsByQuestion = new Map<number, typeof questionAttempts.$inferSelect[]>();
+      attempts.forEach((attempt: typeof questionAttempts.$inferSelect) => {
+        const list = attemptsByQuestion.get(attempt.questionId) || [];
+        list.push(attempt);
+        attemptsByQuestion.set(attempt.questionId, list);
+      });
+      
+      // Enriquecer questões com dados de tentativas
+      const enrichedQuestions = questionsData.map((q: typeof questions.$inferSelect) => {
+        const qAttempts = attemptsByQuestion.get(q.id) || [];
+        const lastAttempt = qAttempts.length > 0 ? qAttempts[qAttempts.length - 1] : null;
+        const correctCount = qAttempts.filter((a: typeof questionAttempts.$inferSelect) => a.isCorrect).length;
+        const accuracy = qAttempts.length > 0 ? (correctCount / qAttempts.length) * 100 : 0;
+        
+        return {
+          ...q,
+          attemptCount: qAttempts.length,
+          lastAttemptCorrect: lastAttempt?.isCorrect || false,
+          accuracy: Math.round(accuracy * 100) / 100,
+          addedToNotebook: notebookItems.find((item: typeof userNotebooks.$inferSelect) => item.questionId === q.id)?.addedAt,
+        };
+      });
+      
+      // Contar total
+      const totalResult = await db
+        .select()
+        .from(userNotebooks)
+        .where(
+          and(
+            eq(userNotebooks.userId, userId),
+            eq(userNotebooks.notebookType, input.notebookType)
+          )
+        );
+      
+      return {
+        items: enrichedQuestions,
+        total: totalResult.length,
+        hasMore: totalResult.length > input.offset + input.limit,
+      };
+    }),
+
+  // ========================================
   // REMOVER DE CADERNO
   // ========================================
 
