@@ -11,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { CheckCircle2, XCircle, Clock, Flag, BookmarkPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { CommentSection } from './CommentSection';
 
 interface Question {
   id: number;
@@ -112,6 +113,7 @@ export function QuestionCard({
   const isAnswered = feedback !== null;
 
   return (
+    <div>
     <Card className="w-full">
       <CardHeader className="space-y-4">
         {/* Header com metadados */}
@@ -324,5 +326,16 @@ export function QuestionCard({
         )}
       </CardFooter>
     </Card>
+
+    {/* Seção de comentários (aparece após responder) */}
+    {feedback && (
+      <div className="mt-6">
+        <CommentSection
+          questionId={question.id}
+          currentUserId={undefined} // TODO: Pegar do useAuth quando integrado
+        />
+      </div>
+    )}
+  </div>
   );
 }

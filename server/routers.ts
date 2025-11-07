@@ -6,6 +6,7 @@ import { assuntosRouter } from "./routers/assuntos";
 import { topicosRouter } from "./routers/topicos";
 import { materialsRouter } from "./routers/materials";
 import { questionsRouter } from "./routers/questions";
+import { commentsRouter } from "./routers/comments";
 
 /**
  * Sistema DOM - Routers principais
@@ -22,6 +23,7 @@ export const appRouter = router({
   topicos: topicosRouter,
   materials: materialsRouter,
   questions: questionsRouter,
+  comments: commentsRouter,
 
   // TODO: Adicionar routers de funcionalidades conforme desenvolvimento
   // forum: forumRouter,
