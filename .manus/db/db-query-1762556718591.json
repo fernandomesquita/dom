@@ -1,0 +1,9 @@
+{
+  "query": "DELETE FROM topicos; DELETE FROM assuntos; DELETE FROM disciplinas;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute DELETE FROM topicos; DELETE FROM assuntos; DELETE FROM disciplinas;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 65
+}
