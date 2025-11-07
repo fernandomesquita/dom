@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import Materiais from "./pages/Materiais";
 import MaterialDetalhes from "./pages/MaterialDetalhes";
+import AdminMateriais from "./pages/AdminMateriais";
 import NotFound from "./pages/NotFound";
 
 /**
@@ -25,6 +26,7 @@ function Router() {
       <Route path={"/cadastro"} component={Cadastro} />
       <Route path={"/materiais"} component={Materiais} />
       <Route path={"/materiais/:id"} component={MaterialDetalhes} />
+      <Route path={"/admin/materiais"} component={AdminMateriais} />
       <Route path={"/404"} component={NotFound} />
       {/* TODO: Adicionar rotas protegidas (dashboard, questões, etc) */}
       {/* Final fallback route */}

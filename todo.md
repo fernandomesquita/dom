@@ -387,15 +387,16 @@
 ### Fase 3: Frontend Admin (4-5 dias)
 
 #### Listagem e CRUD
-- [ ] Criar `client/src/pages/Admin/Materials/index.tsx`
-- [ ] Criar `client/src/pages/Admin/Materials/MaterialsTable.tsx`
-- [ ] Criar `client/src/pages/Admin/Materials/MaterialForm.tsx`
-- [ ] Criar `client/src/pages/Admin/Materials/MaterialItemsForm.tsx`
-- [ ] Implementar tabela com todas as colunas (shadcn Table)
-- [ ] Implementar formulário com suporte a múltiplos items
+- [x] Criar `client/src/pages/AdminMateriais.tsx`
+- [x] Implementar tabela com todas as colunas (shadcn Table)
+- [x] Implementar formulário inline com MaterialForm
+- [x] Implementar botões de ação (ver, editar, deletar)
+- [x] Implementar modal de criação
+- [x] Implementar modal de edição
+- [x] Implementar toggles (pago, disponível, destaque, comentários)
 - [ ] Implementar seleção de disciplina → assunto → tópico (Árvore DOM)
-- [ ] Implementar upload de thumbnail
-- [ ] Implementar toggles (pago, disponível, destaque, comentários)
+- [ ] Implementar upload de thumbnail para S3
+- [ ] Implementar formulário de múltiplos items
 
 #### Analytics
 - [ ] Criar `client/src/pages/Admin/Materials/MaterialsAnalytics.tsx`
