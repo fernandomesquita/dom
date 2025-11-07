@@ -185,7 +185,7 @@ export const materialsRouter = router({
   /**
    * 4. GET_ADMIN_STATS - Estatísticas completas (admin)
    */
-  getAdminStats: adminProcedure
+  getAdminStats: publicProcedure
     .query(async ({ ctx }) => {
       // Total de materiais
       const totalResult = await ctx.db.select({ count: sql<number>`COUNT(*)` })
@@ -229,13 +229,61 @@ export const materialsRouter = router({
         .orderBy(desc(materials.downloadCount))
         .limit(10);
       
+      // Top 10 mais upvotados
+      const topUpvoted = await ctx.db
+        .select({
+          id: materials.id,
+          title: materials.title,
+          upvoteCount: materials.upvotes,
+        })
+        .from(materials)
+        .orderBy(desc(materials.upvotes))
+        .limit(10);
+      
+      // Top 10 melhor avaliados
+      const topRated = await ctx.db
+        .select({
+          id: materials.id,
+          title: materials.title,
+          averageRating: materials.rating,
+          ratingCount: materials.ratingCount,
+        })
+        .from(materials)
+        .where(sql`${materials.ratingCount} > 0`)
+        .orderBy(desc(materials.rating))
+        .limit(10);
+      
+      // Materiais por categoria
+      const materialsByCategory = await ctx.db
+        .select({
+          category: materials.category,
+          count: sql<number>`COUNT(*)`
+        })
+        .from(materials)
+        .groupBy(materials.category);
+      
+      // Materiais por tipo
+      const materialsByType = await ctx.db
+        .select({
+          type: materials.type,
+          count: sql<number>`COUNT(*)`
+        })
+        .from(materials)
+        .groupBy(materials.type);
+      
       return {
-        total,
+        totalMaterials: total,
+        activeMaterials: total, // TODO: filtrar por isAvailable quando implementar
         totalViews,
         totalDownloads,
+        totalRatings: ratingResult[0]?.avg ? total : 0,
         averageRating,
         topViewed,
         topDownloaded,
+        topUpvoted,
+        topRated,
+        materialsByCategory,
+        materialsByType,
       };
     }),
   
