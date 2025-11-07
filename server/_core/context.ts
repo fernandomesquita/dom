@@ -1,6 +1,14 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { User } from "../../drizzle/schema";
-import { sdk } from "./sdk";
+import { extractTokenFromHeader, extractTokenFromCookie, verifyAccessToken } from "./auth";
+import { getUserById } from "../db";
+
+/**
+ * Sistema DOM - Contexto tRPC com Autenticação Simples
+ * 
+ * IMPORTANTE: Este sistema NÃO usa OAuth.
+ * Usa JWT extraído do header Authorization ou cookie.
+ */
 
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
@@ -14,9 +22,26 @@ export async function createContext(
   let user: User | null = null;
 
   try {
-    user = await sdk.authenticateRequest(opts.req);
+    // Tentar extrair token do header Authorization primeiro
+    let token = extractTokenFromHeader(opts.req);
+    
+    // Fallback para cookie se não houver header
+    if (!token) {
+      token = extractTokenFromCookie(opts.req);
+    }
+
+    if (token) {
+      // Verificar e decodificar o token
+      const payload = verifyAccessToken(token);
+      
+      if (payload && payload.userId) {
+        // Buscar usuário no banco de dados
+        user = await getUserById(payload.userId) || null;
+      }
+    }
   } catch (error) {
     // Authentication is optional for public procedures.
+    console.error('[Context] Authentication error:', error);
     user = null;
   }
 

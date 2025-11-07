@@ -1,0 +1,9 @@
+{
+  "query": "DROP TABLE IF EXISTS assinaturas, assuntos, cronograma, disciplinas, estatisticas_diarias, forum_respostas, forum_topicos, materiais, materiais_acessos, materiais_estudados, metas, notices, pagamentos, planos, progresso_assuntos, progresso_disciplinas, questoes, questoes_resolvidas, refresh_tokens, streak_questoes, tokens, topicos, webhooks_pagarme, __drizzle_migrations;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute DROP TABLE IF EXISTS assinaturas, assuntos, cronograma, disciplinas, estatisticas_diarias, forum_respostas, forum_topicos, materiais, materiais_acessos, materiais_estudados, metas, notices, pagamentos, planos, progresso_assuntos, progresso_disciplinas, questoes, questoes_resolvidas, refresh_tokens, streak_questoes, tokens, topicos, webhooks_pagarme, __drizzle_migrations;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 8282
+}

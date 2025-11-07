@@ -1,0 +1,79 @@
+{
+  "query": "SHOW TABLES;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute SHOW TABLES;",
+  "rows": [
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "assinaturas"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "assuntos"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "cronograma"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "disciplinas"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "estatisticas_diarias"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_respostas"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_topicos"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "materiais"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "materiais_acessos"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "materiais_estudados"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "metas"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "notices"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "pagamentos"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "planos"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "progresso_assuntos"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "progresso_disciplinas"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "questoes"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "questoes_resolvidas"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "refresh_tokens"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "streak_questoes"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "tokens"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "topicos"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_E9go4Z3vKfQ64CyBjNz69u\n__drizzle_migrations\nassinaturas\nassuntos\ncronograma\ndisciplinas\nestatisticas_diarias\nforum_respostas\nforum_topicos\nmateriais\nmateriais_acessos\nmateriais_estudados\nmetas\nnotices\npagamentos\nplanos\nprogresso_assuntos\nprogresso_disciplinas\nquestoes\nquestoes_resolvidas\nrefresh_tokens\nstreak_questoes\ntokens\ntopicos\n",
+  "stderr": "",
+  "execution_time_ms": 48
+}

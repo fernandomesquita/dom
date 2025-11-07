@@ -1,0 +1,130 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BookOpen, Loader2 } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+
+/**
+ * Sistema DOM - Página de Login
+ * 
+ * Autenticação simples com email e senha (SEM OAuth)
+ */
+
+export default function Login() {
+  const [, setLocation] = useLocation();
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+
+  const loginMutation = trpc.auth.login.useMutation({
+    onSuccess: (data) => {
+      toast.success(data.message);
+      // Redirecionar para dashboard
+      setLocation("/dashboard");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    loginMutation.mutate({ email, senha });
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <Link href="/">
+          <div className="flex items-center justify-center gap-2 mb-8 cursor-pointer">
+            <BookOpen className="h-10 w-10 text-indigo-600" />
+            <span className="text-3xl font-bold text-slate-900">DOM-EARA</span>
+          </div>
+        </Link>
+
+        {/* Card de Login */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl">Entrar na sua conta</CardTitle>
+            <CardDescription>
+              Digite seu email e senha para acessar a plataforma
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={loginMutation.isPending}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="senha">Senha</Label>
+                  <Link href="/recuperar-senha">
+                    <a className="text-sm text-indigo-600 hover:text-indigo-700">
+                      Esqueceu a senha?
+                    </a>
+                  </Link>
+                </div>
+                <Input
+                  id="senha"
+                  type="password"
+                  placeholder="••••••••"
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  required
+                  disabled={loginMutation.isPending}
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={loginMutation.isPending}
+              >
+                {loginMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Entrando...
+                  </>
+                ) : (
+                  "Entrar"
+                )}
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center text-sm">
+              <span className="text-slate-600">Não tem uma conta? </span>
+              <Link href="/cadastro">
+                <a className="text-indigo-600 hover:text-indigo-700 font-medium">
+                  Criar conta grátis
+                </a>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Link para voltar */}
+        <div className="mt-4 text-center">
+          <Link href="/">
+            <a className="text-sm text-slate-600 hover:text-slate-900">
+              ← Voltar para página inicial
+            </a>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
