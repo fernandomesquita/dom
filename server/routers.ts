@@ -4,6 +4,7 @@ import { authRouter } from "./routers/auth";
 import { disciplinasRouter } from "./routers/disciplinas";
 import { assuntosRouter } from "./routers/assuntos";
 import { topicosRouter } from "./routers/topicos";
+import { materialsRouter } from "./routers/materials";
 
 /**
  * Sistema DOM - Routers principais
@@ -18,9 +19,9 @@ export const appRouter = router({
   disciplinas: disciplinasRouter,
   assuntos: assuntosRouter,
   topicos: topicosRouter,
+  materials: materialsRouter,
 
   // TODO: Adicionar routers de funcionalidades conforme desenvolvimento
-  // materiais: materiaisRouter,
   // questoes: questoesRouter,
   // forum: forumRouter,
   // metas: metasRouter,

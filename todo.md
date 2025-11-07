@@ -276,3 +276,247 @@
 - [ ] Criar checkpoint da Etapa 2
 
 ---
+
+
+## ETAPA 3: Módulo de Materiais (🚧 EM ANDAMENTO)
+
+**Objetivo:** Implementar sistema completo de gestão de materiais educacionais (vídeos, PDFs, áudios) com DRM, engajamento e analytics.
+
+**Tempo estimado:** 2-3 semanas  
+**Prioridade:** Alta  
+**Progresso:** 0% (0/150 tarefas concluídas)
+
+---
+
+### Fase 1: Database + Backend Core (3-4 dias)
+
+#### Database Schema
+- [x] Criar tabela `materials` (tabela principal)
+- [x] Criar tabela `materialItems` (múltiplos itens por material)
+- [x] Criar tabela `materialLinks` (integração com Árvore DOM)
+- [x] Criar tabela `materialViews` (rastreamento de visualizações)
+- [x] Criar tabela `materialDownloads` (rastreamento de downloads)
+- [x] Criar tabela `materialUpvotes` (sistema de upvotes)
+- [x] Criar tabela `materialRatings` (sistema de avaliação 1-5 estrelas)
+- [x] Criar tabela `materialFavorites` (sistema de favoritos)
+- [x] Criar tabela `materialSeenMarks` (marcar como visto)
+- [x] Criar tabela `materialComments` (sistema de comentários)
+- [x] Aplicar migrations no banco de dados
+- [x] Criar índice `unique_daily_view` em materialViews (via SQL)
+- [x] Criar índice `mat_topico_uniq` em materialLinks (via SQL)
+- [x] Criar índices compostos para performance
+
+#### Backend - tRPC Router
+- [x] Criar `server/routers/materials.ts`
+- [x] Procedure: `create` - Criar material (admin)
+- [x] Procedure: `update` - Atualizar material (admin)
+- [x] Procedure: `delete` - Deletar material (admin)
+- [x] Procedure: `list` - Listar materiais com filtros (aluno)
+- [x] Procedure: `getById` - Buscar material por ID (aluno)
+- [x] Procedure: `toggleUpvote` - Dar/remover upvote
+- [x] Procedure: `setRating` - Avaliar material (1-5 estrelas)
+- [x] Procedure: `toggleFavorite` - Favoritar/desfavoritar
+- [x] Procedure: `markAsSeen` - Marcar como visto
+- [ ] Procedure: `downloadPDF` - Baixar PDF com DRM (TODO: implementar quando adicionar pdf-lib)
+- [x] Procedure: `incrementView` - Registrar visualização
+- [x] Procedure: `getAdminStats` - Estatísticas completas (admin)
+- [x] Procedure: `getTrending` - Materiais em alta (últimos 7 dias)
+- [ ] Procedure: `batchCreate` - Criar materiais em lote via Excel (TODO: implementar quando adicionar xlsx)
+- [x] Procedure: `updateStats` - Atualizar contadores agregados
+
+#### Backend - DRM System
+- [ ] Instalar dependência `pdf-lib`
+- [ ] Criar `server/utils/pdf-drm.ts`
+- [ ] Função: `addWatermarkToPDF` - Adicionar marca d'água invisível
+- [ ] Função: `generatePDFWithWatermark` - Gerar PDF com marca d'água
+- [ ] Função: `verifyPDFFingerprint` - Verificar fingerprint (auditoria)
+- [ ] Testar DRM com PDF real
+
+#### Backend - Validações
+- [ ] Validar perfil completo antes de download (nome, CPF, email, telefone)
+- [ ] Validar plano ativo para materiais pagos
+- [ ] Validar permissões admin (create/update/delete)
+- [ ] Validar rating (1-5)
+- [ ] Validar categoria (base, revisao, promo)
+- [ ] Validar tipo (video, pdf, audio)
+
+---
+
+### Fase 2: Frontend Aluno (4-5 dias)
+
+#### Página de Listagem
+- [ ] Criar `client/src/pages/Materials.tsx`
+- [ ] Criar `client/src/components/Materials/MaterialCard.tsx`
+- [ ] Criar `client/src/components/Materials/MaterialsFilter.tsx`
+- [ ] Implementar filtro por categoria (Base, Revisão, Promo)
+- [ ] Implementar filtro por tipo (Vídeo, PDF, Áudio)
+- [ ] Implementar filtro por acesso (Pago, Gratuito)
+- [ ] Implementar filtro por disciplina/assunto/tópico (Árvore DOM)
+- [ ] Implementar busca por texto
+- [ ] Implementar paginação
+- [ ] Adicionar badges (novo, trending, categoria, tipo, pago/gratuito)
+- [ ] Aplicar cores corretas (#35463D base, #6E9B84 revisão)
+
+#### Página Individual
+- [ ] Criar `client/src/components/Materials/MaterialDetail.tsx`
+- [ ] Criar `client/src/components/Materials/MaterialItem.tsx`
+- [ ] Criar `client/src/components/Materials/VideoEmbed.tsx`
+- [ ] Criar `client/src/components/Materials/PDFViewer.tsx`
+- [ ] Criar `client/src/components/Materials/AudioPlayer.tsx`
+- [ ] Implementar embed automático de YouTube/Vimeo
+- [ ] Implementar download de PDF com validação
+
+#### Componentes de Engajamento
+- [ ] Criar `client/src/components/Materials/UpvoteButton.tsx`
+- [ ] Criar `client/src/components/Materials/RatingStars.tsx`
+- [ ] Criar `client/src/components/Materials/FavoriteButton.tsx`
+- [ ] Criar `client/src/components/Materials/SeenButton.tsx`
+- [ ] Adicionar animações nos botões
+- [ ] Adicionar toast notifications para feedback
+- [ ] Parsear rating corretamente (string → number)
+
+#### Sistema de Comentários (Opcional)
+- [ ] Criar `client/src/components/Materials/MaterialComments.tsx`
+- [ ] Criar `client/src/components/Materials/CommentForm.tsx`
+- [ ] Criar `client/src/components/Materials/CommentThread.tsx`
+
+---
+
+### Fase 3: Frontend Admin (4-5 dias)
+
+#### Listagem e CRUD
+- [ ] Criar `client/src/pages/Admin/Materials/index.tsx`
+- [ ] Criar `client/src/pages/Admin/Materials/MaterialsTable.tsx`
+- [ ] Criar `client/src/pages/Admin/Materials/MaterialForm.tsx`
+- [ ] Criar `client/src/pages/Admin/Materials/MaterialItemsForm.tsx`
+- [ ] Implementar tabela com todas as colunas (shadcn Table)
+- [ ] Implementar formulário com suporte a múltiplos items
+- [ ] Implementar seleção de disciplina → assunto → tópico (Árvore DOM)
+- [ ] Implementar upload de thumbnail
+- [ ] Implementar toggles (pago, disponível, destaque, comentários)
+
+#### Analytics
+- [ ] Criar `client/src/pages/Admin/Materials/MaterialsAnalytics.tsx`
+- [ ] Instalar dependência `recharts`
+- [ ] Dashboard: Cards de resumo (total, views, downloads, rating médio)
+- [ ] Dashboard: Gráfico de materiais criados por dia (últimos 30 dias)
+- [ ] Dashboard: Gráfico de downloads por dia
+- [ ] Dashboard: Top 10 mais acessados
+- [ ] Dashboard: Top 10 mais baixados
+- [ ] Dashboard: Top 10 com mais upvotes
+- [ ] Dashboard: Top 10 mais favoritados
+- [ ] Dashboard: Top 10 melhor avaliados
+- [ ] Dashboard: Top 10 alunos que mais baixaram
+
+#### Upload em Batch
+- [ ] Criar `server/routers/materials-batch.ts`
+- [ ] Instalar dependência `xlsx`
+- [ ] Criar `client/src/pages/Admin/Materials/BatchUpload.tsx`
+- [ ] Implementar upload de Excel
+- [ ] Implementar validação de estrutura
+- [ ] Implementar criação em lote
+- [ ] Implementar relatório de sucessos/erros
+
+---
+
+### Fase 4: Testes e Polimento (2-3 dias)
+
+#### Testes Manuais
+- [ ] Testar fluxo completo do aluno (visualizar, filtrar, upvote, rating, favoritar, marcar como visto, baixar PDF)
+- [ ] Testar fluxo completo do admin (criar, editar, deletar, analytics, batch upload)
+- [ ] Testar DRM (verificar marca d'água no PDF)
+- [ ] Testar validações (perfil completo, plano ativo, permissões)
+- [ ] Testar responsividade (mobile)
+
+#### Performance
+- [ ] Implementar cache Redis (opcional)
+- [ ] Otimizar query de trending (não N+1)
+- [ ] Implementar lazy loading de imagens
+- [ ] Verificar índices de banco
+
+#### Documentação
+- [ ] Atualizar CHANGELOG.md
+- [ ] Atualizar README.md
+- [ ] Atualizar LEIA-ME-DIARIAMENTE.md
+- [ ] Atualizar ERROS-CRITICOS.md (se necessário)
+
+---
+
+### Configurações Essenciais
+
+#### Variáveis de Ambiente
+- [ ] Adicionar `AWS_S3_BUCKET` para PDFs/thumbnails
+- [ ] Adicionar `AWS_REGION`
+- [ ] Adicionar `AWS_ACCESS_KEY_ID`
+- [ ] Adicionar `AWS_SECRET_ACCESS_KEY`
+- [ ] Adicionar `REDIS_URL` (opcional, para cache)
+
+#### Middleware
+- [ ] Criar `server/middleware/permissions.ts`
+- [ ] Implementar matriz de permissões (create, update, delete)
+
+#### Cache (Opcional)
+- [ ] Instalar `ioredis`
+- [ ] Criar `server/utils/cache.ts`
+- [ ] Implementar cache em `list` procedure (TTL: 30-60s)
+- [ ] Implementar cache em `getAdminStats` (TTL: 5 minutos)
+
+---
+
+### Checklist de Validação Final
+
+#### Backend
+- [ ] Todas as 9 tabelas criadas
+- [ ] Índices aplicados (especialmente unique_daily_view)
+- [ ] tRPC router completo (15 procedures)
+- [ ] DRM testado com PDF real
+- [ ] Permissões implementadas
+- [ ] Tratamento de erros em todas as mutations
+- [ ] Analytics retornando dados corretos
+- [ ] Trending usando query otimizada (não N+1)
+- [ ] Rating parseado corretamente
+- [ ] Where clauses compostas corretamente
+- [ ] Contadores protegidos com GREATEST()
+- [ ] Top downloaders com JOIN de users
+
+#### Frontend - Aluno
+- [ ] Listagem com filtros funcionando
+- [ ] Cards com cores corretas (#35463D base, #6E9B84 revisão)
+- [ ] Badges (novo, trending, categoria, tipo, pago/gratuito)
+- [ ] Página individual renderizando todos os tipos
+- [ ] YouTube/Vimeo fazendo embed automático
+- [ ] Download de PDF com validação de perfil
+- [ ] Upvote com animação
+- [ ] Rating com estrelas interativas
+- [ ] Favoritar funcionando
+- [ ] Marcar como visto funcionando
+- [ ] Responsivo (mobile testado)
+
+#### Frontend - Admin
+- [ ] Listagem admin com todas as colunas
+- [ ] Formulário de criação completo
+- [ ] Formulário de edição (não perde dados)
+- [ ] Seleção de árvore DOM funcionando
+- [ ] Upload de thumbnail
+- [ ] Sistema de múltiplos items (add/remove)
+- [ ] Batch upload via Excel
+- [ ] Dashboard de analytics renderizando
+- [ ] Gráficos funcionando (Recharts)
+- [ ] Top 10s com dados reais
+
+#### Performance
+- [ ] Query de trending otimizada (não faz N+1)
+- [ ] Cache implementado (opcional)
+- [ ] Índices FULLTEXT criados (opcional)
+- [ ] Lazy loading de imagens
+- [ ] Paginação funcionando
+
+#### Segurança
+- [ ] DRM com fingerprint invisível
+- [ ] URLs de download expiram (1 hora)
+- [ ] Validação de perfil completo antes de baixar
+- [ ] Permissões validadas em todas as rotas
+- [ ] SQL injection protegido (Drizzle cuida)
+- [ ] XSS protegido (React cuida)
+
+---
