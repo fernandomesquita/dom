@@ -1,12 +1,13 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
+import Materiais from "./pages/Materiais";
+import NotFound from "./pages/NotFound";
 
 /**
  * Sistema DOM - Roteamento Principal
@@ -18,11 +19,12 @@ import Cadastro from "./pages/Cadastro";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/login" component={Login} />
-      <Route path="/cadastro" component={Cadastro} />
-      <Route path="/404" component={NotFound} />
-      {/* TODO: Adicionar rotas protegidas (dashboard, materiais, questões, etc) */}
+      <Route path={"/"} component={Home} />
+      <Route path={"/login"} component={Login} />
+      <Route path={"/cadastro"} component={Cadastro} />
+      <Route path={"/materiais"} component={Materiais} />
+      <Route path={"/404"} component={NotFound} />
+      {/* TODO: Adicionar rotas protegidas (dashboard, questões, etc) */}
       {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>

@@ -1,4 +1,4 @@
-import { router, protectedProcedure, adminProcedure } from "../_core/trpc";
+import { router, publicProcedure, protectedProcedure, adminProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from '@trpc/server';
 import { eq, and, desc, gte, sql } from "drizzle-orm";
@@ -357,9 +357,9 @@ export const materialsRouter = router({
   // ============================================================================
   
   /**
-   * 8. LIST - Listar materiais com filtros (aluno)
+   * 8. LIST - Listar materiais com filtros (público)
    */
-  list: protectedProcedure
+  list: publicProcedure
     .input(z.object({
       category: z.enum(["base", "revisao", "promo"]).optional(),
       type: z.enum(["video", "pdf", "audio"]).optional(),
