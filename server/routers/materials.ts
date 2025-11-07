@@ -748,9 +748,9 @@ export const materialsRouter = router({
     }),
   
   /**
-   * 15. INCREMENT_VIEW - Registrar visualização
+   * 15. INCREMENT_VIEW - Registrar visualização (público para analytics)
    */
-  incrementView: protectedProcedure
+  incrementView: publicProcedure
     .input(z.object({
       materialId: z.number(),
       ipAddress: z.string().optional(),
@@ -758,24 +758,26 @@ export const materialsRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       const { materialId, ipAddress, userAgent } = input;
-      const userId = ctx.user.id;
       
-      // Criar registro de visualização (de-duplicado por dia via unique index)
-      try {
-        await ctx.db.insert(materialViews).values({
+      // Registrar visualização individual apenas se autenticado
+      if (ctx.user) {
+        const userId = ctx.user.id;
+        try {
+          await ctx.db.insert(materialViews).values({
           materialId,
           userId,
           ipAddress,
           userAgent,
-        });
-        
-        // Incrementar contador
-        await ctx.db.update(materials).set({
-          viewCount: sql`${materials.viewCount} + 1`,
-        }).where(eq(materials.id, materialId));
-      } catch (error) {
-        // Ignorar erro de duplicata (já visualizou hoje)
+          });
+        } catch (error) {
+          // Ignorar erro de duplicata (já visualizou hoje)
+        }
       }
+      
+      // Incrementar contador agregado sempre (autenticado ou não)
+      await ctx.db.update(materials).set({
+        viewCount: sql`${materials.viewCount} + 1`,
+      }).where(eq(materials.id, materialId));
       
       return { success: true };
     }),

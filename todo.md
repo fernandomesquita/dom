@@ -317,19 +317,20 @@
 - [x] Procedure: `setRating` - Avaliar material (1-5 estrelas)
 - [x] Procedure: `toggleFavorite` - Favoritar/desfavoritar
 - [x] Procedure: `markAsSeen` - Marcar como visto
-- [ ] Procedure: `downloadPDF` - Baixar PDF com DRM (TODO: implementar quando adicionar pdf-lib)
-- [x] Procedure: `incrementView` - Registrar visualização
+- [x] Procedure: `downloadPDF` - Baixar PDF com DRM
+- [x] Procedure: `incrementView` - Registrar visualização (público para analytics)
 - [x] Procedure: `getAdminStats` - Estatísticas completas (admin)
 - [x] Procedure: `getTrending` - Materiais em alta (últimos 7 dias)
 - [ ] Procedure: `batchCreate` - Criar materiais em lote via Excel (TODO: implementar quando adicionar xlsx)
 - [x] Procedure: `updateStats` - Atualizar contadores agregados
 
 #### Backend - DRM System
-- [ ] Instalar dependência `pdf-lib`
-- [ ] Criar `server/utils/pdf-drm.ts`
-- [ ] Função: `addWatermarkToPDF` - Adicionar marca d'água invisível
-- [ ] Função: `generatePDFWithWatermark` - Gerar PDF com marca d'água
-- [ ] Função: `verifyPDFFingerprint` - Verificar fingerprint (auditoria)
+- [x] Instalar dependência `pdf-lib`
+- [x] Criar `server/utils/pdf-drm.ts`
+- [x] Função: `addWatermarkToPDF` - Adicionar marca d'água invisível
+- [x] Função: `generatePDFWithWatermark` - Gerar PDF com marca d'água
+- [x] Função: `extractWatermarkData` - Extração forense
+- [x] Integrar DRM no procedure `downloadPDF`
 - [ ] Testar DRM com PDF real
 
 #### Backend - Validações
@@ -345,35 +346,36 @@
 ### Fase 2: Frontend Aluno (4-5 dias)
 
 #### Página de Listagem
-- [ ] Criar `client/src/pages/Materials.tsx`
-- [ ] Criar `client/src/components/Materials/MaterialCard.tsx`
-- [ ] Criar `client/src/components/Materials/MaterialsFilter.tsx`
-- [ ] Implementar filtro por categoria (Base, Revisão, Promo)
-- [ ] Implementar filtro por tipo (Vídeo, PDF, Áudio)
+- [x] Criar `client/src/pages/Materiais.tsx`
+- [x] Criar cards de materiais inline
+- [x] Criar filtros inline
+- [x] Implementar filtro por categoria (Base, Revisão, Promo)
+- [x] Implementar filtro por tipo (Vídeo, PDF, Áudio)
 - [ ] Implementar filtro por acesso (Pago, Gratuito)
 - [ ] Implementar filtro por disciplina/assunto/tópico (Árvore DOM)
-- [ ] Implementar busca por texto
-- [ ] Implementar paginação
-- [ ] Adicionar badges (novo, trending, categoria, tipo, pago/gratuito)
-- [ ] Aplicar cores corretas (#35463D base, #6E9B84 revisão)
+- [x] Implementar busca por texto
+- [x] Implementar paginação
+- [x] Adicionar badges (novo, trending, categoria, tipo, pago/gratuito)
+- [x] Aplicar cores corretas (#35463D base, #6E9B84 revisão)
+- [x] Script de seed com 12 materiais de teste
 
 #### Página Individual
-- [ ] Criar `client/src/components/Materials/MaterialDetail.tsx`
-- [ ] Criar `client/src/components/Materials/MaterialItem.tsx`
-- [ ] Criar `client/src/components/Materials/VideoEmbed.tsx`
-- [ ] Criar `client/src/components/Materials/PDFViewer.tsx`
-- [ ] Criar `client/src/components/Materials/AudioPlayer.tsx`
-- [ ] Implementar embed automático de YouTube/Vimeo
-- [ ] Implementar download de PDF com validação
+- [x] Criar `client/src/pages/MaterialDetalhes.tsx`
+- [x] Implementar thumbnail, título, descrição
+- [x] Implementar tabs para múltiplos items
+- [x] Implementar embed automático de YouTube/Vimeo
+- [x] Implementar player de áudio HTML5
+- [x] Implementar botão de download de PDF com validação
+- [ ] Implementar viewer de PDF inline (react-pdf)
+- [x] Correção crítica: useState -> useEffect para incrementView
 
 #### Componentes de Engajamento
-- [ ] Criar `client/src/components/Materials/UpvoteButton.tsx`
-- [ ] Criar `client/src/components/Materials/RatingStars.tsx`
-- [ ] Criar `client/src/components/Materials/FavoriteButton.tsx`
-- [ ] Criar `client/src/components/Materials/SeenButton.tsx`
-- [ ] Adicionar animações nos botões
-- [ ] Adicionar toast notifications para feedback
-- [ ] Parsear rating corretamente (string → number)
+- [x] Implementar botão de Upvote inline
+- [x] Implementar sistema de Rating (5 estrelas) inline
+- [x] Implementar botão de Favoritar inline
+- [x] Implementar botão de Marcar como Visto inline
+- [x] Adicionar toast notifications para feedback
+- [x] Redirecionar para login se não autenticado
 
 #### Sistema de Comentários (Opcional)
 - [ ] Criar `client/src/components/Materials/MaterialComments.tsx`

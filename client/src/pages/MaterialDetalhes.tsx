@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRoute, Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -93,11 +93,11 @@ export default function MaterialDetalhes() {
   const incrementView = trpc.materials.incrementView.useMutation();
 
   // Registrar visualização ao carregar
-  useState(() => {
+  useEffect(() => {
     if (materialId > 0) {
       incrementView.mutate({ materialId });
     }
-  });
+  }, [materialId]);
 
   // Função para obter cor da categoria
   const getCategoryColor = (cat: string) => {
