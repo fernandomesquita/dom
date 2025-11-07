@@ -5,6 +5,8 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Questions from "./pages/Questions";
+import Exams from "./pages/Exams";
+import ExamViewer from "./pages/ExamViewer";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import Materiais from "./pages/Materiais";
@@ -25,6 +27,8 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/questoes"} component={Questions} />
+      <Route path={"/simulados"} component={Exams} />
+      <Route path={"/simulados/:attemptId"} component={ExamViewer} />
       <Route path={"/404"} component={NotFound} />
       <Route path={"/cadastro"} component={Cadastro} />
       <Route path={"/materiais"} component={Materiais} />

@@ -9,6 +9,7 @@ import {
   boolean,
   timestamp,
   mysqlEnum,
+  json,
   index,
   uniqueIndex,
 } from "drizzle-orm/mysql-core";
@@ -344,12 +345,12 @@ export const examQuestions = mysqlTable(
     questionId: int("questionId")
       .notNull()
       .references(() => questions.id, { onDelete: "cascade" }),
-    order: int("order").notNull(),
+    orderIndex: int("orderIndex").notNull(),
   },
   (table) => ({
     examIdx: index("examIdx").on(table.examId),
     questionIdx: index("questionIdx").on(table.questionId),
-    orderIdx: index("orderIdx").on(table.examId, table.order),
+    orderIdx: index("orderIdx").on(table.examId, table.orderIndex),
   })
 );
 
@@ -368,11 +369,13 @@ export const examAttempts = mysqlTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
 
-    score: int("score").notNull(),
-    correctCount: int("correctCount").notNull(),
-    wrongCount: int("wrongCount").notNull(),
-    skippedCount: int("skippedCount").notNull(),
-    timeSpent: int("timeSpent").notNull(), // em segundos
+    answers: json("answers"), // JSON com respostas { questionId: { selectedOption, trueFalseAnswer, answeredAt } }
+    
+    score: int("score").default(0),
+    correctCount: int("correctCount").default(0),
+    wrongCount: int("wrongCount").default(0),
+    unansweredCount: int("unansweredCount").default(0),
+    timeSpent: int("timeSpent").default(0), // em segundos
 
     status: mysqlEnum("status", ["in_progress", "completed", "abandoned"])
       .notNull()
