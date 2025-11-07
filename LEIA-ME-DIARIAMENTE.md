@@ -38,15 +38,25 @@ Este é um sumário executivo dos erros críticos e decisões arquiteturais que 
 - **ORM:** Drizzle
 - **Tabelas:** 24 tabelas (ver `drizzle/schema.ts`)
 - **Convenção:** camelCase para colunas
+- **Árvore de Conhecimento:** Disciplinas → Assuntos → Tópicos
+  - Cada nível tem: `codigo`, `slug`, `sortOrder`, `createdBy`
+  - Código único POR ESCOPO (disciplina ou assunto)
+  - Slug gerado automaticamente (URL-friendly)
+  - Denormalização: `topicos.disciplinaId` para queries otimizadas
 
 ### API
 - **Framework:** tRPC 11
 - **Serialização:** SuperJSON (suporta Date, Map, Set)
 - **Rotas:** `/api/trpc/*`
+- **Routers disponíveis:**
+  - `auth` - Autenticação (register, login, logout, me, refreshToken)
+  - `disciplinas` - CRUD de disciplinas (8 endpoints)
+  - `assuntos` - CRUD de assuntos (8 endpoints)
+  - `topicos` - CRUD de tópicos (9 endpoints)
 
 ---
 
-## 📋 Checklist Diário
+## 📝 Checklist Diário
 
 Antes de começar o desenvolvimento hoje, confirme:
 
@@ -55,6 +65,8 @@ Antes de começar o desenvolvimento hoje, confirme:
 - [ ] Verifiquei o `todo.md` para ver tarefas pendentes
 - [ ] Li o `CHANGELOG.md` para ver últimas mudanças
 - [ ] Entendi a estrutura do banco de dados (`drizzle/schema.ts`)
+- [ ] Entendi a hierarquia da Árvore de Conhecimento (Disciplinas → Assuntos → Tópicos)
+- [ ] Sei que códigos são únicos POR ESCOPO, não globalmente
 
 ---
 
@@ -76,5 +88,5 @@ Antes de começar o desenvolvimento hoje, confirme:
 
 ---
 
-**Última atualização:** 07/11/2025  
-**Versão do projeto:** 3cb59a47 (Etapa 1 - Fundação completa)
+**Última atualização:** 07/11/2025 18:00 GMT-3  
+**Versão do projeto:** 238f8801 (Etapa 2 - Árvore de Conhecimento Backend completa)

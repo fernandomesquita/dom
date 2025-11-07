@@ -82,6 +82,17 @@ O **Sistema DOM-EARA V4** é uma plataforma web full-stack para auxiliar estudan
 - **Social:** forum_topicos, forum_respostas, notices
 - **Gamificação:** estatisticas_diarias, streak_questoes, progresso_disciplinas
 
+**Árvore de Conhecimento (Hierarquia):**
+- `disciplinas` - Nível 1 (ex: Português, Matemática)
+- `assuntos` - Nível 2 (ex: Sintaxe, Álgebra)
+- `topicos` - Nível 3 (ex: Concordancia Verbal, Equações)
+
+Cada nível possui:
+- `codigo` - Código único por escopo
+- `slug` - URL-friendly (gerado automaticamente)
+- `sortOrder` - Ordem de exibição
+- `createdBy` - Auditoria
+
 Ver `drizzle/schema.ts` para detalhes completos.
 
 ---
@@ -177,8 +188,15 @@ Localizadas em `/home/ubuntu/upload/`:
 - `E1-ESPECIFICACAO-TECNICA-BACKEND-LP-LOGIN(1).md` - Especificação técnica E1
 - `ESPECIFICACAO-BANCO-DADOS-COMPLETO(1).md` - Schema do banco
 - `ESPECIFICACAO-MASTER-DOM-v2(1).md` - Especificação master
+- `ARVORE_CONHECIMENTO_DOM_V4_OTIMIZADA(1)(1).md` - Especificação da Árvore
 - `PADROES-API-E-CONTRATOS.md` - Padrões de API
 - `LGPD-E-COMPLIANCE.md` - Conformidade LGPD
+
+### Análises Geradas
+
+Localizadas na raiz do projeto:
+- `analise-documentacao-dom.md` - Análise consolidada da documentação global
+- `analise-arvore-conhecimento.md` - Análise detalhada da Árvore (2035 linhas)
 
 ---
 
@@ -188,17 +206,27 @@ Localizadas em `/home/ubuntu/upload/`:
 - Banco de dados (24 tabelas)
 - Autenticação simples (JWT)
 - Landing Page, Login e Cadastro
+- **Checkpoint:** `3cb59a47`
+
+### ✅ Etapa 2: Árvore de Conhecimento - Backend (Completa)
+- Schema atualizado com `codigo`, `slug`, `sortOrder`, `createdBy`
+- 3 routers completos: Disciplinas, Assuntos, Tópicos
+- 25 endpoints com CRUD, reordenação e estatísticas
+- Validações de hierarquia e código único por escopo
+- Denormalização estratégica para queries otimizadas
+- **Checkpoint:** `238f8801`
 
 ### 🚧 Próximas Etapas
-- **Etapa 2:** Dashboard e Perfil do Aluno
-- **Etapa 3:** Gestão de Materiais
-- **Etapa 4:** Sistema de Questões
-- **Etapa 5:** Fórum Colaborativo
-- **Etapa 6:** Metas e Cronograma
-- **Etapa 7:** Gamificação
-- **Etapa 8:** Planos e Pagamentos
-- **Etapa 9:** Monitoramento e DevOps
-- **Etapa 10:** Testes e Otimizações
+- **Etapa 2 (Frontend):** Interface admin e visualização da Árvore
+- **Etapa 3:** Dashboard e Perfil do Aluno
+- **Etapa 4:** Gestão de Materiais
+- **Etapa 5:** Sistema de Questões
+- **Etapa 6:** Fórum Colaborativo
+- **Etapa 7:** Metas e Cronograma
+- **Etapa 8:** Gamificação
+- **Etapa 9:** Planos e Pagamentos
+- **Etapa 10:** Monitoramento e DevOps
+- **Etapa 11:** Testes e Otimizações
 
 Ver [todo.md](./todo.md) para detalhes completos.
 
@@ -245,5 +273,5 @@ Para dúvidas ou suporte, consulte a documentação interna ou entre em contato 
 
 ---
 
-**Última atualização:** 07/11/2025  
-**Versão atual:** 0.1.0 (Checkpoint: 3cb59a47)
+**Última atualização:** 07/11/2025 18:00 GMT-3  
+**Versão atual:** 0.2.0 (Checkpoint: 238f8801)

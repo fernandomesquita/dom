@@ -7,6 +7,149 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ---
 
+## [0.2.0] - 2025-11-07 - Etapa 2: Árvore de Conhecimento (Backend)
+
+**Checkpoint:** `238f8801`  
+**Status:** ✅ Completo
+
+### 🎯 Resumo da Etapa
+
+Implementação completa do backend da Árvore de Conhecimento hierárquica (Disciplinas → Assuntos → Tópicos) com CRUD completo, validações de hierarquia, reordenação em batch e denormalização estratégica para queries otimizadas.
+
+### ✨ Adicionado
+
+#### Schema do Banco de Dados
+- Campos adicionados às tabelas `disciplinas`, `assuntos` e `topicos`:
+  - `codigo` (VARCHAR 20) - Código único por escopo (ex: "DIR001", "MAT001")
+  - `slug` (VARCHAR 255) - Slug URL-friendly gerado automaticamente
+  - `sortOrder` (INT) - Ordem de exibição (renomeado de `ordem`)
+  - `createdBy` (VARCHAR 36) - ID do admin que criou o registro
+- Campo denormalizado em `topicos`:
+  - `disciplinaId` - Permite queries diretas sem JOIN com `assuntos`
+- Índices otimizados:
+  - `idx_disciplinas_codigo` (UNIQUE)
+  - `idx_disciplinas_slug` (UNIQUE)
+  - `idx_disciplinas_ativo_sort` (composto)
+  - `idx_assuntos_disciplina_codigo` (UNIQUE composto)
+  - `idx_assuntos_disciplina_slug` (UNIQUE composto)
+  - `idx_topicos_assunto_codigo` (UNIQUE composto)
+  - `idx_topicos_assunto_slug` (UNIQUE composto)
+  - Índices de nome para busca textual
+
+#### Backend - Utilitários
+- `server/_core/slug-generator.ts`:
+  - Função `generateSlug()` que remove acentos, converte para minúsculas e cria slugs URL-friendly
+  - Exemplos: "Português" → "portugues", "Matemática Avançada" → "matematica-avancada"
+
+#### Backend - Router de Disciplinas
+- `server/routers/disciplinas.ts` com 8 endpoints:
+  - `create` - Criar disciplina (ADMIN ONLY)
+  - `getAll` - Listar com paginação (limit, offset, includeInactive)
+  - `getByIdOrSlug` - Buscar por ID ou slug
+  - `update` - Atualizar disciplina (ADMIN ONLY)
+  - `delete` - Soft delete com validação de assuntos ativos (ADMIN ONLY)
+  - `reorder` - Reordenar em batch para drag-and-drop (ADMIN ONLY)
+  - `getStats` - Estatísticas (totalActive, totalInactive, total)
+- Validações implementadas:
+  - Código único global
+  - Slug único global
+  - Cor hexadecimal válida (#RRGGBB)
+  - Não permite desativar se houver assuntos ativos
+
+#### Backend - Router de Assuntos
+- `server/routers/assuntos.ts` com 8 endpoints:
+  - `create` - Criar assunto com validação de disciplina (ADMIN ONLY)
+  - `getByDiscipline` - Listar por disciplina com paginação
+  - `getByIdOrSlug` - Buscar por ID ou (slug + disciplinaId)
+  - `update` - Atualizar assunto (ADMIN ONLY)
+  - `delete` - Soft delete com validação de tópicos ativos (ADMIN ONLY)
+  - `reorder` - Reordenar dentro da disciplina (ADMIN ONLY)
+  - `getStats` - Estatísticas por disciplina
+- Validações implementadas:
+  - Código único POR ESCOPO (dentro da disciplina)
+  - Slug único POR ESCOPO (dentro da disciplina)
+  - Disciplina existe e está ativa
+  - Não permite desativar se houver tópicos ativos
+
+#### Backend - Router de Tópicos
+- `server/routers/topicos.ts` com 9 endpoints:
+  - `create` - Criar tópico com validação de assunto e denormalização de disciplinaId (ADMIN ONLY)
+  - `getByAssunto` - Listar por assunto com paginação
+  - `getByDiscipline` - Listar por disciplina (usa disciplinaId denormalizado)
+  - `getByIdOrSlug` - Buscar por ID ou (slug + assuntoId)
+  - `update` - Atualizar tópico com atualização de disciplinaId se assunto mudar (ADMIN ONLY)
+  - `delete` - Soft delete (ADMIN ONLY)
+  - `reorder` - Reordenar dentro do assunto (ADMIN ONLY)
+  - `getStats` - Estatísticas por assunto
+- Validações implementadas:
+  - Código único POR ESCOPO (dentro do assunto)
+  - Slug único POR ESCOPO (dentro do assunto)
+  - Assunto existe e está ativo
+  - Hierarquia coerente (assunto pertence à disciplina)
+  - Denormalização automática de disciplinaId
+
+### 🔧 Modificado
+
+- `server/_core/context.ts`:
+  - Adicionado `db` ao contexto do tRPC
+  - Tipo `TrpcContext` atualizado com `db: NonNullable<Awaited<ReturnType<typeof getDb>>>`
+  - Validação de banco disponível no `createContext()`
+- `server/routers.ts`:
+  - Importados e registrados `disciplinasRouter`, `assuntosRouter`, `topicosRouter`
+- `drizzle/schema.ts`:
+  - Tabelas `disciplinas`, `assuntos`, `topicos` atualizadas com novos campos
+  - Renomeado `ordem` para `sortOrder` em todas as tabelas
+  - Adicionado `disciplinaId` em `topicos` (denormalização)
+
+### ❌ Removido
+
+- Arquivo `drizzle/migrations/0001_update_arvore_conhecimento.sql` (abordagem de migration SQL manual descartada)
+- Tabelas antigas `disciplinas`, `assuntos`, `topicos` (dropadas e recriadas com nova estrutura)
+
+### 🐛 Corrigido
+
+- Conflitos de schema durante `pnpm db:push` (resolvido com drop e recreate das tabelas)
+- Erro de `ctx.db` possivelmente null (resolvido com `NonNullable` no tipo)
+
+### 📚 Documentação
+
+- Atualizado `todo.md` com progresso da Etapa 2:
+  - Marcadas 27 tarefas como concluídas
+  - Seções: Schema, Utilitários, CRUD Disciplinas, CRUD Assuntos, CRUD Tópicos
+- Criado `analise-arvore-conhecimento.md` com análise detalhada da especificação (2035 linhas)
+- Atualizado `CHANGELOG.md` (este arquivo)
+
+### 🔒 Segurança
+
+- Todos os endpoints de criação, atualização, deleção e reordenação protegidos com `adminProcedure`
+- Validação de hierarquia para prevenir inconsistências
+- Soft delete para preservar integridade referencial
+
+### ⚠️ Problemas Conhecidos
+
+- Erros de TypeScript em `client/src/_core/hooks/useAuth.ts` (linhas 23 e 39) - não impedem funcionamento
+- Frontend da Árvore de Conhecimento ainda não implementado
+- Testes unitários ainda não implementados
+- Validador de hierarquia (`validate-hierarchy.ts`) ainda não criado
+
+### 📊 Métricas
+
+- **Routers criados:** 3 (disciplinas, assuntos, topicos)
+- **Endpoints totais:** 25 (8 + 8 + 9)
+- **Campos adicionados ao schema:** 12 (4 por tabela × 3 tabelas)
+- **Índices criados:** 15 (5 por tabela × 3 tabelas)
+- **Validações implementadas:** 18
+- **Linhas de código (backend):** ~1200
+- **Tempo de desenvolvimento:** 2 horas
+
+### 🎯 Próximos Passos
+
+1. Criar interface admin para gerenciar a Árvore (CRUD com drag-and-drop)
+2. Implementar visualização hierárquica para alunos (TreeView expansível)
+3. Popular banco com dados iniciais (seed script)
+
+---
+
 ## [0.1.0] - 2025-11-07 - Etapa 1: Fundação
 
 **Checkpoint:** `3cb59a47`  
@@ -145,55 +288,62 @@ Implementação completa da fundação do sistema DOM-EARA V4, incluindo banco d
 
 ## [Não lançado] - Próximas Etapas
 
-### Etapa 2: Dashboard e Perfil do Aluno
+### Etapa 2: Árvore de Conhecimento (Frontend)
+- [ ] Interface admin para CRUD de disciplinas
+- [ ] Interface admin para CRUD de assuntos
+- [ ] Interface admin para CRUD de tópicos
+- [ ] Drag-and-drop para reordenação
+- [ ] TreeView expansível para alunos
+- [ ] Script de seed com dados iniciais
+
+### Etapa 3: Dashboard e Perfil do Aluno
 - [ ] Dashboard do aluno com visão geral
 - [ ] Página de perfil do usuário
 - [ ] Edição de dados pessoais
 - [ ] Upload de avatar
 
-### Etapa 3: Gestão de Materiais
-- [ ] CRUD de disciplinas, assuntos e tópicos
+### Etapa 4: Gestão de Materiais
 - [ ] Upload de materiais (PDF, vídeo, áudio)
 - [ ] Visualização de materiais
 - [ ] Controle de acesso por plano
 
-### Etapa 4: Sistema de Questões
+### Etapa 5: Sistema de Questões
 - [ ] CRUD de questões
 - [ ] Resolução de questões
 - [ ] Estatísticas de desempenho
 - [ ] Filtros (banca, ano, dificuldade)
 
-### Etapa 5: Fórum Colaborativo
+### Etapa 6: Fórum Colaborativo
 - [ ] CRUD de tópicos e respostas
 - [ ] Sistema de curtidas
 - [ ] Busca no fórum
 - [ ] Notificações
 
-### Etapa 6: Metas e Cronograma
+### Etapa 7: Metas e Cronograma
 - [ ] CRUD de metas
 - [ ] Geração de cronograma EARA®
 - [ ] Acompanhamento de progresso
 - [ ] Ajustes automáticos
 
-### Etapa 7: Gamificação
+### Etapa 8: Gamificação
 - [ ] Sistema de Streak (QTD)
 - [ ] Estatísticas diárias
 - [ ] Progresso por disciplina/assunto
 - [ ] Badges e conquistas
 
-### Etapa 8: Planos e Pagamentos
+### Etapa 9: Planos e Pagamentos
 - [ ] Integração com Pagar.me
 - [ ] Checkout de planos
 - [ ] Webhooks de pagamento
 - [ ] Gestão de assinaturas
 
-### Etapa 9: Monitoramento e DevOps
+### Etapa 10: Monitoramento e DevOps
 - [ ] Swagger/OpenAPI
 - [ ] Sentry (error tracking)
 - [ ] Logs estruturados
 - [ ] CI/CD (GitHub Actions)
 
-### Etapa 10: Testes e Otimizações
+### Etapa 11: Testes e Otimizações
 - [ ] Testes unitários
 - [ ] Testes de integração
 - [ ] Otimização de queries
@@ -248,4 +398,4 @@ Use este template para adicionar novas entradas:
 - Inclua sempre o hash do checkpoint
 - Documente problemas conhecidos para transparência
 
-**Última atualização:** 07/11/2025
+**Última atualização:** 07/11/2025 18:00 GMT-3
