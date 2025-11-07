@@ -626,7 +626,6 @@ export const materialsRouter = router({
   
   /**
    * 14. DOWNLOAD_PDF - Baixar PDF com DRM
-   * TODO: Implementar DRM quando adicionar dependência pdf-lib
    */
   downloadPDF: protectedProcedure
     .input(z.object({
@@ -634,7 +633,118 @@ export const materialsRouter = router({
       materialItemId: z.number(),
     }))
     .mutation(async ({ ctx, input }) => {
-      throw new TRPCError({ code: 'NOT_IMPLEMENTED', message: 'Download PDF com DRM ainda não implementado' });
+      const { materialId, materialItemId } = input;
+      const userId = ctx.user.id;
+      
+      // Importar DRM utilities
+      const { addWatermarkToPDF, generatePDFFingerprint, validateUserProfileForDownload } = await import('../utils/pdf-drm');
+      const { storageGet } = await import('../storage');
+      
+      // Validar perfil do usuário (precisa ter CPF e telefone para download)
+      const profileValidation = validateUserProfileForDownload(ctx.user);
+      if (!profileValidation.valid) {
+        throw new TRPCError({
+          code: 'PRECONDITION_FAILED',
+          message: `Complete seu perfil para baixar PDFs. Faltam: ${profileValidation.missingFields.join(', ')}`,
+        });
+      }
+      
+      // Buscar material
+      const material = await ctx.db
+        .select()
+        .from(materials)
+        .where(eq(materials.id, materialId))
+        .limit(1);
+      
+      if (material.length === 0) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Material não encontrado' });
+      }
+      
+      // Verificar se material está disponível
+      if (!material[0].isAvailable) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Material não disponível' });
+      }
+      
+      // Buscar item do material
+      const item = await ctx.db
+        .select()
+        .from(materialItems)
+        .where(eq(materialItems.id, materialItemId))
+        .limit(1);
+      
+      if (item.length === 0) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Item do material não encontrado' });
+      }
+      
+      // Verificar se é PDF
+      if (item[0].type !== 'pdf') {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Este endpoint é apenas para PDFs' });
+      }
+      
+      // Verificar se tem filePath ou URL
+      if (!item[0].filePath && !item[0].url) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Arquivo PDF não encontrado' });
+      }
+      
+      // Baixar PDF do S3 ou URL externa
+      let pdfBuffer: Buffer;
+      
+      if (item[0].filePath) {
+        // Buscar do S3
+        const { url } = await storageGet(item[0].filePath);
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Erro ao baixar PDF do storage' });
+        }
+        pdfBuffer = Buffer.from(await response.arrayBuffer());
+      } else if (item[0].url) {
+        // Baixar de URL externa
+        const response = await fetch(item[0].url);
+        if (!response.ok) {
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Erro ao baixar PDF da URL' });
+        }
+        pdfBuffer = Buffer.from(await response.arrayBuffer());
+      } else {
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Erro ao localizar PDF' });
+      }
+      
+      // Adicionar marca d'água apenas se material for pago
+      let finalPdfBuffer = pdfBuffer;
+      let fingerprint: string | undefined;
+      
+      if (material[0].isPaid) {
+        const watermarkData = {
+          name: ctx.user.nomeCompleto || 'Usuário',
+          cpf: ctx.user.cpf || '',
+          email: ctx.user.email || '',
+          phone: ctx.user.telefone || '',
+        };
+        
+        fingerprint = generatePDFFingerprint(watermarkData);
+        finalPdfBuffer = await addWatermarkToPDF(pdfBuffer, watermarkData);
+      }
+      
+      // Registrar download
+      await ctx.db.insert(materialDownloads).values({
+        materialId,
+        materialItemId,
+        userId,
+        ipAddress: ctx.req.ip || ctx.req.socket.remoteAddress,
+        pdfFingerprint: fingerprint,
+      });
+      
+      // Incrementar contador de downloads
+      await ctx.db.update(materials).set({
+        downloadCount: sql`${materials.downloadCount} + 1`,
+      }).where(eq(materials.id, materialId));
+      
+      // Retornar PDF como base64 para o frontend
+      return {
+        filename: `${item[0].title}.pdf`,
+        contentType: 'application/pdf',
+        data: finalPdfBuffer.toString('base64'),
+        fingerprint,
+      };
     }),
   
   /**
