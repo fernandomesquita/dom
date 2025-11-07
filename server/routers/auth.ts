@@ -243,9 +243,12 @@ export const authRouter = router({
     }),
 
   /**
-   * Obter dados do usuário autenticado
+   * Obter dados do usuário autenticado (ou null se não autenticado)
    */
-  me: protectedProcedure.query(({ ctx }) => {
+  me: publicProcedure.query(({ ctx }) => {
+    if (!ctx.user) {
+      return null;
+    }
     return {
       id: ctx.user.id,
       nomeCompleto: ctx.user.nomeCompleto,

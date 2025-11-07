@@ -396,9 +396,9 @@ export const materialsRouter = router({
     }),
   
   /**
-   * 9. GET_BY_ID - Buscar material por ID (aluno)
+   * 9. GET_BY_ID - Buscar material por ID (público)
    */
-  getById: protectedProcedure
+  getById: publicProcedure
     .input(z.object({
       id: z.number(),
     }))
