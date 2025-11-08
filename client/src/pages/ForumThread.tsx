@@ -151,7 +151,7 @@ export default function ForumThread() {
               </div>
             </div>
 
-            {user?.role === 'admin' && (
+            {user?.role === 'MASTER' && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon">
@@ -185,15 +185,18 @@ export default function ForumThread() {
             <CardContent className="p-6">
               <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: thread.conteudo }} />
 
-              {thread.tags && JSON.parse(thread.tags).length > 0 && (
-                <div className="flex items-center gap-2 mt-4 pt-4 border-t">
-                  {JSON.parse(thread.tags).map((tag: string) => (
+              {thread.tags && (() => {
+                const tags = typeof thread.tags === 'string' ? JSON.parse(thread.tags) as string[] : thread.tags as string[];
+                return tags.length > 0 && (
+                  <div className="flex items-center gap-2 mt-4 pt-4 border-t">
+                    {tags.map((tag: string) => (
                     <Badge key={tag} variant="outline">
                       {tag}
                     </Badge>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                );
+              })()}
             </CardContent>
           </Card>
 
@@ -221,7 +224,7 @@ export default function ForumThread() {
               messagesData?.messages.map(({ message, autor, userUpvoted }) => (
                 <Card
                   key={message.id}
-                  className={message.nivelAninhamento > 0 ? `ml-${message.nivelAninhamento * 8}` : ''}
+                  className={(message.nivelAninhamento ?? 0) > 0 ? `ml-${(message.nivelAninhamento ?? 0) * 8}` : ''}
                 >
                   <CardContent className="p-6">
                     <div className="flex gap-4">

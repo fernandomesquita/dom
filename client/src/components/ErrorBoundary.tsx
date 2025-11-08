@@ -1,9 +1,20 @@
 import { cn } from "@/lib/utils";
 import { AlertTriangle, RotateCcw } from "lucide-react";
 import { Component, ReactNode } from "react";
+import { captureError } from "@/lib/sentry";
 
 interface Props {
   children: ReactNode;
+  /**
+   * Callback chamado quando erro é capturado
+   * Útil para logging externo (Sentry, etc)
+   */
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
+  /**
+   * Componente customizado para exibir erro
+   * Se não fornecido, usa UI padrão
+   */
+  fallback?: (error: Error, reset: () => void) => ReactNode;
 }
 
 interface State {
@@ -21,8 +32,34 @@ class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Log para console em desenvolvimento
+    console.error('[ErrorBoundary] Erro capturado:', error, errorInfo);
+    
+    // Enviar para Sentry automaticamente
+    captureError(error, {
+      componentStack: errorInfo.componentStack,
+      errorBoundary: true,
+    });
+    
+    // Callback customizado (para logging adicional)
+    if (this.props.onError) {
+      this.props.onError(error, errorInfo);
+    }
+  }
+
+  reset = () => {
+    this.setState({ hasError: false, error: null });
+  };
+
   render() {
     if (this.state.hasError) {
+      // Usar fallback customizado se fornecido
+      if (this.props.fallback && this.state.error) {
+        return this.props.fallback(this.state.error, this.reset);
+      }
+
+      // UI padrão
       return (
         <div className="flex items-center justify-center min-h-screen p-8 bg-background">
           <div className="flex flex-col items-center w-full max-w-2xl p-8">

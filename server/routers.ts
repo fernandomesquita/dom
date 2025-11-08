@@ -23,6 +23,19 @@ import { metasPlanosRouter } from './routers/metasPlanos';
 import { metasMetasRouter } from './routers/metasMetas';
 import { metasBatchImportRouter } from './routers/metasBatchImport';
 import { metasAnalyticsRouter } from './routers/metasAnalytics';
+import { plansPublicRouter } from './routers/plansPublic';
+import { plansUserRouter } from './routers/plansUser';
+import { plansAdminRouter } from './routers/plansAdmin';
+import { auditRouter_v1 } from './routers/admin/auditRouter_v1';
+import { plansRouter_v1 } from './routers/admin/plansRouter_v1';
+import { goalsRouter_v1 } from './routers/admin/goalsRouter_v1';
+import { usersRouter_v1 } from './routers/admin/usersRouter_v1';
+import { noticesRouter_v1 } from './routers/admin/noticesRouter_v1';
+import { dashboardRouter } from './routers/dashboard/dashboardRouter';
+import { widgetsRouter } from './routers/dashboard/widgetsRouter';
+import { streakRouter } from './routers/dashboard/streakRouter';
+import { telemetryRouter } from './routers/dashboard/telemetryRouter';
+import { gamificationRouter } from './routers/dashboard/gamificationRouter';
 
 /**
  * Sistema DOM - Routers principais
@@ -61,7 +74,26 @@ export const appRouter = router({
   metasBatchImport: metasBatchImportRouter,
   metasAnalytics: metasAnalyticsRouter,
 
-  // TODO: Adicionar routers de funcionalidades conforme desenvolvimento
+  // Módulo de Planos
+  plansPublic: plansPublicRouter,
+  plansUser: plansUserRouter,
+  plansAdmin: plansAdminRouter,
+  
+  // Admin routers (versionados)
+  admin: router({
+    audit_v1: auditRouter_v1,
+    plans_v1: plansRouter_v1,
+    goals_v1: goalsRouter_v1,
+    users_v1: usersRouter_v1,
+    notices_v1: noticesRouter_v1,
+  }),
+
+  // E10: Dashboard do Aluno
+  dashboard: dashboardRouter,
+  widgets: widgetsRouter,
+  streak: streakRouter,
+  telemetry: telemetryRouter,
+  gamification: gamificationRouter,
 });
 
 export type AppRouter = typeof appRouter;

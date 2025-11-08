@@ -34,7 +34,7 @@ export const users = mysqlTable("users", {
   passwordVersion: int("password_version").default(1).notNull(), // Para migração futura
   dataNascimento: date("data_nascimento").notNull(),
   emailVerificado: boolean("email_verificado").default(false).notNull(),
-  role: mysqlEnum("role", ["ALUNO", "ADMIN"]).default("ALUNO").notNull(),
+  role: mysqlEnum("role", ["ALUNO", "PROFESSOR", "MENTOR", "ADMINISTRATIVO", "MASTER"]).default("ALUNO").notNull(),
   avatarUrl: varchar("avatar_url", { length: 500 }),
   telefone: varchar("telefone", { length: 20 }),
   ativo: boolean("ativo").default(true).notNull(),
@@ -75,6 +75,28 @@ export const refreshTokens = mysqlTable("refresh_tokens", {
   userIdIdx: index("idx_user_id").on(table.userId),
   tokenHashIdx: uniqueIndex("idx_token_hash").on(table.tokenHash),
   expiresIdx: index("idx_expires").on(table.expiresAt),
+}));
+
+/**
+ * Tabela de auditoria para rastreamento de ações administrativas
+ * Todas as ações críticas devem ser registradas aqui
+ */
+export const auditLogs = mysqlTable("audit_logs", {
+  id: varchar("id", { length: 255 }).primaryKey(),
+  actorId: varchar("actor_id", { length: 255 }).notNull(),
+  actorRole: mysqlEnum("actor_role", ["MASTER", "ADMINISTRATIVO", "MENTOR", "PROFESSOR", "ALUNO"]).notNull(),
+  action: varchar("action", { length: 100 }).notNull(),
+  targetType: varchar("target_type", { length: 50 }).notNull(),
+  targetId: varchar("target_id", { length: 255 }),
+  payload: json("payload"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  actorIdIdx: index("idx_actor_id").on(table.actorId),
+  actionIdx: index("idx_action").on(table.action),
+  targetTypeIdx: index("idx_target_type").on(table.targetType),
+  createdAtIdx: index("idx_created_at").on(table.createdAt),
 }));
 
 // ============================================================================
@@ -491,6 +513,9 @@ export type InsertToken = typeof tokens.$inferInsert;
 
 export type RefreshToken = typeof refreshTokens.$inferSelect;
 export type InsertRefreshToken = typeof refreshTokens.$inferInsert;
+
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = typeof auditLogs.$inferInsert;
 
 export type Plano = typeof planos.$inferSelect;
 export type InsertPlano = typeof planos.$inferInsert;

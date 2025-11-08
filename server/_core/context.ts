@@ -2,6 +2,9 @@ import type { CreateExpressContextOptions } from "@trpc/server/adapters/express"
 import type { User } from "../../drizzle/schema";
 import { extractTokenFromHeader, extractTokenFromCookie, verifyAccessToken } from "./auth";
 import { getUserById, getDb } from "../db";
+import { logger } from "./logger";
+import { nanoid } from "nanoid";
+import type { Logger } from "pino";
 
 /**
  * Sistema DOM - Contexto tRPC com Autenticação Simples
@@ -15,11 +18,19 @@ export type TrpcContext = {
   res: CreateExpressContextOptions["res"];
   user: User | null;
   db: NonNullable<Awaited<ReturnType<typeof getDb>>>;
+  logger: Logger;
+  requestId: string;
 };
 
 export async function createContext(
   opts: CreateExpressContextOptions
 ): Promise<TrpcContext> {
+  // Gerar ID único para a requisição
+  const requestId = nanoid();
+  
+  // Criar logger com contexto da requisição
+  const requestLogger = logger.child({ request_id: requestId });
+  
   let user: User | null = null;
 
   try {
@@ -38,17 +49,26 @@ export async function createContext(
       if (payload && payload.userId) {
         // Buscar usuário no banco de dados
         user = await getUserById(payload.userId) || null;
+        
+        if (user) {
+          requestLogger.info({ 
+            user_id: user.id, 
+            user_role: user.role,
+            user_email: user.email 
+          }, 'User authenticated');
+        }
       }
     }
   } catch (error) {
     // Authentication is optional for public procedures.
-    console.error('[Context] Authentication error:', error);
+    requestLogger.warn({ error: String(error) }, 'Authentication error');
     user = null;
   }
 
   const db = await getDb();
   
   if (!db) {
+    requestLogger.error('Database not available');
     throw new Error('[Context] Database not available');
   }
   
@@ -57,5 +77,7 @@ export async function createContext(
     res: opts.res,
     user,
     db,
+    logger: requestLogger,
+    requestId,
   };
 }

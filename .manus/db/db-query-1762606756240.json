@@ -1,0 +1,106 @@
+{
+  "query": "DESCRIBE metas_planos_estudo;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute DESCRIBE metas_planos_estudo;",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "varchar(36)",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "usuario_id",
+      "Type": "varchar(36)",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "titulo",
+      "Type": "varchar(255)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "descricao",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "horas_por_dia",
+      "Type": "decimal(4,2)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "dias_disponiveis_bitmask",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "31",
+      "Extra": ""
+    },
+    {
+      "Field": "data_inicio",
+      "Type": "date",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "data_fim",
+      "Type": "date",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "status",
+      "Type": "varchar(20)",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": "ativo",
+      "Extra": ""
+    },
+    {
+      "Field": "criado_por_id",
+      "Type": "varchar(36)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "criado_em",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "atualizado_em",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tvarchar(36)\tNO\tPRI\tNULL\t\nusuario_id\tvarchar(36)\tNO\tMUL\tNULL\t\ntitulo\tvarchar(255)\tNO\t\tNULL\t\ndescricao\ttext\tYES\t\tNULL\t\nhoras_por_dia\tdecimal(4,2)\tNO\t\tNULL\t\ndias_disponiveis_bitmask\tint(11)\tNO\t\t31\t\ndata_inicio\tdate\tNO\t\tNULL\t\ndata_fim\tdate\tYES\t\tNULL\t\nstatus\tvarchar(20)\tNO\tMUL\tativo\t\ncriado_por_id\tvarchar(36)\tNO\t\tNULL\t\ncriado_em\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\natualizado_em\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\tDEFAULT_GENERATED on update CURRENT_TIMESTAMP\n",
+  "stderr": "",
+  "execution_time_ms": 188
+}

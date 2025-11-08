@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS audit_logs (\n  id VARCHAR(255) PRIMARY KEY,\n  actor_id VARCHAR(255) NOT NULL,\n  actor_role ENUM('MASTER', 'ADMINISTRATIVO', 'MENTOR', 'PROFESSOR', 'ALUNO') NOT NULL,\n  action VARCHAR(100) NOT NULL,\n  target_type VARCHAR(50) NOT NULL,\n  target_id VARCHAR(255),\n  payload JSON,\n  ip_address VARCHAR(45),\n  user_agent TEXT,\n  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  INDEX idx_actor_id (actor_id),\n  INDEX idx_action (action),\n  INDEX idx_target_type (target_type),\n  INDEX idx_created_at (created_at),\n  FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE CASCADE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute CREATE TABLE IF NOT EXISTS audit_logs (\n  id VARCHAR(255) PRIMARY KEY,\n  actor_id VARCHAR(255) NOT NULL,\n  actor_role ENUM('MASTER', 'ADMINISTRATIVO', 'MENTOR', 'PROFESSOR', 'ALUNO') NOT NULL,\n  action VARCHAR(100) NOT NULL,\n  target_type VARCHAR(50) NOT NULL,\n  target_id VARCHAR(255),\n  payload JSON,\n  ip_address VARCHAR(45),\n  user_agent TEXT,\n  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  INDEX idx_actor_id (actor_id),\n  INDEX idx_action (action),\n  INDEX idx_target_type (target_type),\n  INDEX idx_created_at (created_at),\n  FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE CASCADE\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 81
+}

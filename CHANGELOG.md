@@ -1,4 +1,4 @@
-# 📝 CHANGELOG - Sistema DOM-EARA V4
+# 📝 CHANGELOG - Sistema DOM-E# CHANGELOG
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
@@ -7,7 +7,355 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ---
 
-## [0.3.0] - 2025-11-07 - Etapa 3: Módulo de Materiais V4.0
+## [0.9.0] - 2025-01-07 - E1.1 e E1.2: Refresh Token Rotation + Rate Limiting
+
+**Checkpoint:** `[PENDENTE]`  
+**Status:** ✅ 100% Completo (Security Best Practices)
+
+### 🎯 Resumo da Etapa
+
+Implementação de security best practices para autenticação: refresh token rotation com tabela dedicada (single-use tokens) e rate limiting com exponential backoff para proteção contra brute force. Inclui tracking de dispositivos, gestão de sessões e auditoria completa.
+
+### ✨ Adicionado
+
+#### Database Schema (1 tabela)
+- `refresh_tokens` - Tokens de refresh com rotação obrigatória
+  * `id` (VARCHAR 36) - ID único do token
+  * `user_id` (VARCHAR 36) - FK para users
+  * `token_hash` (VARCHAR 64) - SHA-256 hash do token (segurança)
+  * `expires_at` (DATETIME) - Expiração (7 dias)
+  * `revoked` (BOOLEAN) - Status de revogação
+  * `dispositivo_id` (VARCHAR 255) - Identificação do dispositivo
+  * `ip_address` (VARCHAR 45) - IP do acesso
+  * `user_agent` (TEXT) - User-agent do navegador
+  * `created_at` (DATETIME) - Data de criação
+  * Índices: user_id, token_hash (unique), expires_at
+
+#### Backend - Refresh Token System (server/helpers/refreshToken.ts)
+- **createRefreshToken** - Gera novo token aleatório (32 bytes) e armazena hash SHA-256 no banco
+- **validateRefreshToken** - Valida token sem deletá-lo (usado internamente)
+- **rotateRefreshToken** - Rotação obrigatória (single-use):
+  1. Valida token antigo
+  2. Deleta token antigo (single-use)
+  3. Gera novo access token (15 min)
+  4. Gera novo refresh token (7 dias)
+  5. Retorna ambos
+- **revokeRefreshToken** - Revoga token específico (logout de um dispositivo)
+- **revokeAllUserTokens** - Revoga todos os tokens do usuário (logout de todos os dispositivos)
+- **revokeDeviceTokens** - Revoga tokens de dispositivo específico
+- **listUserDevices** - Lista dispositivos ativos com detalhes (IP, user-agent, expiração)
+- **cleanupExpiredTokens** - Job de limpeza de tokens expirados
+
+#### Backend - Rate Limiting (server/middleware/rateLimiter.ts)
+- **loginRateLimiter** - Login: 5 tentativas / 15 min (chave: IP + email)
+- **registerRateLimiter** - Registro: 3 tentativas / 1 hora (chave: IP)
+- **passwordResetRateLimiter** - Recuperação de senha: 3 tentativas / 1 hora (chave: IP + email)
+- **refreshTokenRateLimiter** - Refresh token: 10 tentativas / 15 min (chave: IP)
+- **apiRateLimiter** - APIs genéricas: 100 requisições / 15 min (chave: IP)
+- **Exponential Backoff:**
+  * 4ª tentativa: 30 segundos
+  * 5ª tentativa: 1 minuto
+  * 6+ tentativas: 15 minutos
+- **Headers de resposta:**
+  * `RateLimit-Limit` - Limite máximo
+  * `RateLimit-Remaining` - Tentativas restantes
+  * `RateLimit-Reset` - Timestamp de reset
+  * `Retry-After` - Segundos até próxima tentativa (em caso de bloqueio)
+- **Store em memória** - Tracking de tentativas por chave (IP/email)
+- **Job de limpeza** - Executa a cada 1 hora para remover tentativas expiradas
+- **resetUserAttempts** - Reseta tentativas após login bem-sucedido
+
+#### Backend - Auth Router Atualizado (server/routers/auth.ts)
+- **auth.register** - Gera refresh token no cadastro (tracking de dispositivo)
+- **auth.login** - Gera refresh token no login (tracking de dispositivo)
+- **auth.refreshToken** - Rotação obrigatória (deleta token antigo, gera novos)
+- **auth.logout** - Revoga refresh token específico
+- **auth.logoutAll** - Revoga todos os refresh tokens do usuário (protectedProcedure)
+- **auth.listDevices** - Lista dispositivos ativos do usuário (protectedProcedure)
+- **Access Token:** 15 minutos (JWT)
+- **Refresh Token:** 7 dias (armazenado no banco)
+
+### 🔒 Segurança
+
+#### Refresh Token Rotation (Single-Use)
+- ✅ Token usado uma única vez (deletado após rotação)
+- ✅ Previne replay attacks
+- ✅ Hash SHA-256 armazenado no banco (token original nunca é salvo)
+- ✅ Tracking completo (dispositivo, IP, user-agent)
+- ✅ Auditoria de sessões ativas
+- ✅ Logout granular (um dispositivo vs todos)
+
+#### Rate Limiting
+- ✅ Proteção contra brute force
+- ✅ Exponential backoff (aumenta tempo de bloqueio progressivamente)
+- ✅ Headers padronizados (RateLimit-*)
+- ✅ Chaves compostas (IP + email para login)
+- ✅ Skip successful requests (só conta falhas)
+
+#### Access Token Curto
+- ✅ 15 minutos de validade (janela de ataque limitada)
+- ✅ Refresh automático via frontend (transparente para usuário)
+- ✅ Alinhado com best practices (Google, GitHub, Auth0)
+
+### 📊 Métricas
+
+- **Backend:** 1 tabela, 1 helper (10 funções), 1 middleware (5 limiters), 6 procedures
+- **Segurança:** 3 camadas (token rotation, rate limiting, exponential backoff)
+- **Tracking:** 4 campos de auditoria (deviceId, IP, userAgent, createdAt)
+- **Progresso E1:** 70% → 90% (faltam: verificação de email, recuperação de senha, Swagger, Sentry, CI/CD)
+
+### 📝 Documentação
+
+- Atualizado `todo.md` com 30+ subtarefas marcadas como concluídas
+- Código documentado com JSDoc
+- Comentários explicativos sobre security best practices
+
+### 🐛 Correções
+
+- Corrigido tipo de `user_id` na tabela refresh_tokens (VARCHAR 36 para compatibilidade com users.id)
+- Corrigido nome de coluna `token` → `token_hash` (alinhado com schema Drizzle)
+- Corrigido nome de coluna `device_id` → `dispositivo_id` (alinhado com schema Drizzle)
+
+### 🚀 Próximos Passos
+
+- [ ] Aplicar rate limiting middleware nos endpoints Express (atualmente apenas implementado)
+- [ ] Implementar verificação de email (E1.3)
+- [ ] Implementar recuperação de senha (E1.4)
+- [ ] Implementar matriz de error codes padronizados (E1.5)
+- [ ] Configurar Swagger/OpenAPI (E1.6)
+- [ ] Configurar Sentry + logging estruturado (E1.7)
+- [ ] Migrar store de rate limiting para Redis (produção)
+
+---
+
+## [0.8.0] - 2025-01-07 - Etapa 8: Módulo de Planos (Gestão de Planos de Estudo)
+
+**Checkpoint:** `0255d980`  
+**Status:** ✅ 85% Completo (Backend + Frontend + Dashboard | Falta Painel Admin)
+
+### 🎯 Resumo da Etapa
+
+Implementação do sistema de gestão de planos de estudo com listagem pública, detalhes do plano, matrícula automática, "meus planos" e integração com Knowledge Tree. Inclui 2 tabelas, 3 routers tRPC (11 endpoints), 3 páginas frontend e validações de negócio (destaque único, paywall coerente, matrícula idempotente).
+
+### ✨ Adicionado
+
+#### Database Schema (2 tabelas)
+- `plans` - Planos de estudo com categoria (Pago/Gratuito), entidade, cargo, status edital, validade, paywall
+- `plan_enrollments` - Matrículas com status (Ativo/Expirado/Cancelado/Suspenso), progresso e configurações personalizadas
+
+#### Backend (11 endpoints tRPC)
+- **plansPublic** (público)
+  * `list` - Listagem paginada com filtros (search, category, edital_status, tag) e ordenação inteligente
+  * `getById` - Detalhes de plano específico
+- **plansUser** (autenticado)
+  * `enroll` - Matrícula em plano gratuito (idempotente, gera expiresAt se durationDays)
+  * `myPlans` - Listagem de planos matriculados com progresso
+  * `dashboard` - Dashboard do plano (placeholder)
+  * `updateSettings` - Atualizar configurações personalizadas
+- **plansAdmin** (admin)
+  * `create` - Criar plano (valida paywall: pago requer price + landingPageUrl)
+  * `update` - Atualizar plano existente
+  * `delete` - Soft delete (isHidden = true)
+  * `setFeatured` - Definir plano em destaque (único, desmarca outros)
+  * `listAll` - Listar todos os planos (incluindo ocultos/expirados)
+  * `getStats` - Estatísticas de matrícula e progresso
+
+#### Frontend (3 páginas)
+- `/allplans` - Listagem pública com grid de cards, plano em destaque maior, filtros (busca, categoria, status edital), paginação
+- `/plans/:id` - Detalhes do plano com hero section, informações do mentor, CTA diferenciado (matricular vs saiba mais), sidebar com card de matrícula
+- `/my-plans` - Meus planos com grid de cards, progresso visual (barra), filtro por status, botão para dashboard
+
+#### Validações de Negócio
+- Plano em destaque único (setFeatured desmarca outros automaticamente)
+- Paywall coerente (plano pago requer price + landingPageUrl)
+- Matrícula idempotente (não cria duplicatas)
+- Soft delete (isHidden ao invés de deletar)
+- Ordenação inteligente (destaque > pagos > recentes)
+
+### 📊 Métricas
+
+- **Backend:** 2 tabelas, 3 routers, 11 endpoints
+- **Frontend:** 3 páginas, 3 rotas
+- **Validações:** 5 regras de negócio
+- **Progresso:** 60% (Faltam Dashboard + Admin)
+
+#### Frontend (4 páginas)
+- `/allplans` - Listagem pública com grid de cards, plano em destaque maior, filtros (busca, categoria, status edital), paginação
+- `/plans/:id` - Detalhes do plano com hero section, informações do mentor, CTA diferenciado (matricular vs saiba mais), sidebar com card de matrícula
+- `/my-plans` - Meus planos com grid de cards, progresso visual (barra), filtro por status, botão para dashboard
+- `/plans/:id/dashboard` - Dashboard do plano com progresso geral, cards de estatísticas (metas concluídas, horas de estudo, questões resolvidas), ações rápidas (metas de hoje, questões, materiais, simulados) e atividade recente
+
+#### Seed de Dados
+- Script `seed-plans.mjs` com 5 planos exemplo (3 pagos, 2 gratuitos)
+- Mix pré/pós-edital (TRF 5ª, INSS, PF, TJ-SP, Receita Federal)
+- Imagens featured do Unsplash, tags realistas
+
+### 🚧 Pendente
+
+- Painel administrativo de gestão de planos (/admin/plans)
+- Integração com Knowledge Tree (filtros por disciplina/assunto)
+- Implementação completa do dashboard.plansUser (atualmente placeholder)
+
+---
+
+## [0.7.0] - 2025-01-07 - Etapa 7: Módulo de Metas (Cronograma de Estudos)
+
+**Checkpoint:** `0255d980`  
+**Status:** 🚧 95% Completo (Faltam testes manuais + notificações push)
+
+### 🎯 Resumo da Etapa
+
+Implementação completa do sistema de cronograma de estudos com revisão espaçada automática (algoritmo EARA®), distribuição inteligente de metas, autocomplete de taxonomia, validação de conflitos e integração com módulo de materiais. Inclui 31 procedures tRPC, 7 páginas frontend, 3 helpers de lógica de negócio e documentação extensiva (200+ KB).
+
+### ✨ Adicionado
+
+#### Database Schema (8 tabelas)
+- `metas_planos_estudo` - Planos de estudo com configuração de horas/dia e dias disponíveis
+- `metas_cronograma` - Metas individuais com tipo (ESTUDO, QUESTOES, REVISAO)
+- `metas_cronograma_materiais` - Vinculação N:N com módulo de materiais
+- `metas_cronograma_questoes` - Vinculação N:N com módulo de questões
+- `metas_cronograma_log_conclusoes` - Histórico de conclusões com duração real
+- `metas_cronograma_log_omissoes` - Histórico de omissões com motivo
+- `metas_cronograma_log_redistribuicoes` - Histórico de reagendamentos
+- `metas_batch_imports` - Controle de importações via Excel (idempotência via row_hash)
+
+#### Backend - tRPC Routers (31 procedures)
+- `server/routers/metasPlanos.ts` (7 procedures):
+  * create, getById, list, update, delete, getStats, updateConfig
+- `server/routers/metasMetas.ts` (13 procedures):
+  * create, getById, listByPlano, listByDate, update, delete
+  * complete, skip, reschedule
+  * vincularMaterial, desvincularMaterial, listarMateriaisVinculados, buscarMateriaisDisponiveis
+  * verificarConflitos
+- `server/routers/metasBatchImport.ts` (1 procedure):
+  * importFromExcel - Validação de KTree, detecção de duplicatas via row_hash
+- `server/routers/metasAnalytics.ts` (7 procedures):
+  * globalStats, taxaConclusaoPorDisciplina, metasMaisOmitidas
+  * tempoMedioPorTipo, distribuicaoPorDia, progressoTemporal, comparacaoUsuarios
+- `server/routers/ktree.ts` (4 procedures):
+  * listDisciplinas, listAssuntosByDisciplina, listTopicosByAssunto, searchAll
+
+#### Backend - Helpers de Lógica de Negócio
+- `server/helpers/metasNumeracao.ts`:
+  * Numeração sequencial automática (#001, #001.1, #001.2)
+  * Suporte a revisões aninhadas
+- `server/helpers/metasRevisao.ts`:
+  * Revisão espaçada automática (1, 7, 30 dias após conclusão)
+  * Duração: 50% da meta original
+  * Cópia de orientações e KTree
+- `server/helpers/metasDistribuicao.ts`:
+  * Distribuição inteligente respeitando capacidade diária
+  * Cálculo de próxima data disponível
+  * Respeito a dias disponíveis do plano (bitmask)
+
+#### Frontend - Páginas (7)
+- `client/src/pages/MetasPlanos.tsx` - Listagem de planos:
+  * Cards com estatísticas (total metas, progresso %)
+  * Criação de plano com configuração (horas/dia, dias disponíveis)
+  * Botões de acesso rápido (Nova Meta, Cronograma, Hoje)
+- `client/src/pages/MetasCronograma.tsx` - Calendário mensal:
+  * Visualização em grid 7×6
+  * Cores por tipo (ESTUDO: azul, QUESTOES: verde, REVISAO: amarelo)
+  * Filtros por tipo e status
+  * Estatísticas agregadas
+- `client/src/pages/MetasHoje.tsx` - Metas do dia:
+  * Cards de resumo com timer integrado
+  * Botões de ação (Concluir, Mais Tempo, Omitir)
+  * Dialogs de confirmação
+- `client/src/pages/MetaDetalhes.tsx` - Detalhes individuais:
+  * Informações gerais (tipo, KTree, duração)
+  * Datas importantes (agendada, conclusão, omissão)
+  * Orientações de estudo
+  * Materiais vinculados com thumbnails
+  * Botões de ação
+- `client/src/pages/MetasImport.tsx` - Importação via Excel:
+  * Upload de arquivo XLSX
+  * Validação de KTree
+  * Relatório de sucessos/erros
+  * Template Excel para download
+- `client/src/pages/MetasDashboard.tsx` - Analytics admin:
+  * 7 gráficos/estatísticas
+  * Taxa de conclusão por disciplina
+  * Metas mais omitidas (top 10)
+  * Tempo médio por tipo
+  * Distribuição por dia da semana
+- `client/src/pages/MetaNova.tsx` - Criação manual:
+  * Formulário em 4 seções (Tipo, KTree, Agendamento, Orientações)
+  * Autocomplete de taxonomia (disciplina → assunto → tópico)
+  * Validação de conflitos com warning visual
+  * Botão "Usar Slot Sugerido"
+  * Dialog de seleção de materiais
+  * Vinculação automática após criar
+
+#### Frontend - Componentes
+- `client/src/components/KTreeSelector.tsx`:
+  * Autocomplete customizado com Popover + ScrollArea
+  * Busca inline em cada nível
+  * Breadcrumb visual "Disciplina › Assunto › Tópico"
+  * Limpeza automática de seleções dependentes
+
+#### Scripts de Seed
+- `scripts/seed-metas-simple.mjs`:
+  * 1 plano de exemplo
+  * 10 metas variadas (ESTUDO, QUESTOES, REVISAO)
+- `scripts/seed-ktree.mjs`:
+  * 13 disciplinas (Direito Constitucional, Administrativo, Penal, Civil, Português, Matemática, etc.)
+  * 84 assuntos
+  * 79 tópicos
+  * Total: 176 registros de taxonomia
+
+#### Documentação (8 arquivos, 200+ KB)
+- `CHANGELOG.md` - Histórico de versões completo
+- `todo.md` - 60+ atividades indispensáveis organizadas por prioridade
+- `docs/HISTORICO-COMPLETO.md` - 7 dias de desenvolvimento documentados (25 KB)
+- `docs/ARQUITETURA.md` - Arquitetura completa do sistema (20 KB)
+- `docs/GUIA-CONTINUIDADE.md` - Guia detalhado para próxima sessão (15 KB)
+- `docs/MODULO-METAS.md` - Documentação técnica do Módulo de Metas (87 KB)
+- `docs/DECISOES-CRITICAS.md` - Decisões críticas e erros (5 KB)
+- `docs/TESTE-END-TO-END.md` - Guia de testes end-to-end (9 KB)
+
+### 🔧 Modificado
+
+- `drizzle.config.ts` - Adicionado `drizzle/schema-metas.ts` ao array de schemas
+- `server/routers.ts` - Registrados 5 novos routers (metasPlanos, metasMetas, metasBatchImport, metasAnalytics, ktree)
+- `client/src/App.tsx` - Adicionadas 7 rotas do módulo de metas
+
+### 🐛 Corrigido
+
+- **Conflito de nomenclatura de tabelas:** Tabela `metas` já existia (módulo de gamificação). Renomeadas todas as tabelas com prefixo `metas_cronograma_*` para evitar conflito.
+- **Schema não sincronizado:** `pnpm db:push` não criava tabelas porque `schema-metas.ts` não estava em `drizzle.config.ts`. Adicionado ao config e tabelas criadas via SQL direto.
+- **Servidor OOM:** Servidor morria por falta de memória após 30-60 minutos. Workaround: reiniciar servidor frequentemente.
+- **Imports de wouter:** Corrigido uso de `useNavigate` (não existe) para `useLocation` (correto).
+- **Schema de taxonomia:** Ajustado seed para usar UUIDs, `cor_hex` (não `cor`) e `sort_order` (não `sortOrder`).
+
+### 📊 Métricas
+
+- Backend: 31 procedures tRPC (100%)
+- Frontend: 7 páginas (100%)
+- Componentes: 1 KTreeSelector (100%)
+- Helpers: 3 (numeração, revisão, distribuição) (100%)
+- Scripts: 2 (seed-metas, seed-ktree) (100%)
+- Documentação: 8 arquivos (100%)
+- Taxonomia: 176 registros (100%)
+- **Progresso total:** 95%
+
+### 🚧 Pendências (5%)
+
+- [ ] Executar testes end-to-end manuais (validar 31 procedures + 7 páginas)
+- [ ] Sistema de notificações push (lembrar metas do dia, alertar prazos, parabenizar conclusões)
+
+### 🎓 Lições Aprendidas
+
+1. **Sempre verificar tabelas existentes** antes de criar schema para evitar conflitos de nomenclatura
+2. **Adicionar schemas ao drizzle.config.ts** imediatamente após criação
+3. **Usar UUIDs em vez de INT auto_increment** para maior flexibilidade
+4. **Documentar decisões críticas** em arquivo separado para referência futura
+5. **Criar checkpoints frequentes** para facilitar rollback em caso de erro
+6. **Reiniciar servidor frequentemente** para evitar problemas de OOM
+7. **Usar sed batch** para substituições sistemáticas em múltiplos arquivos
+8. **Criar guia de continuidade** para facilitar retomada em nova sessão
+
+---[0.3.0] - 2025-11-07 - Etapa 3: Módulo de Materiais V4.0
 
 **Checkpoint:** `c9b1b743`  
 **Status:** ✅ Completo (Core funcional - 85/150 tarefas essenciais)

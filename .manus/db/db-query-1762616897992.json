@@ -1,0 +1,9 @@
+{
+  "query": "-- PRIORIDADE CRÍTICA: Índices com impacto > 50x (snake_case)\n\n-- 1. Metas: busca por usuário + prazo + status (getCronograma)\nCREATE INDEX IF NOT EXISTS idx_metas_user_prazo_concluida \nON metas(user_id, prazo, concluida);\n\n-- 2. Streak Logs: busca por usuário + data (getCurrentStreak, getHistory)\nCREATE INDEX IF NOT EXISTS idx_streak_logs_user_date \nON streak_logs(user_id, date DESC);\n\n-- 3. Telemetry Events: análise por usuário + timestamp\nCREATE INDEX IF NOT EXISTS idx_telemetry_events_user_timestamp \nON telemetry_events(user_id, timestamp DESC);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute -- PRIORIDADE CRÍTICA: Índices com impacto > 50x (snake_case)\n\n-- 1. Metas: busca por usuário + prazo + status (getCronograma)\nCREATE INDEX IF NOT EXISTS idx_metas_user_prazo_concluida \nON metas(user_id, prazo, concluida);\n\n-- 2. Streak Logs: busca por usuário + data (getCurrentStreak, getHistory)\nCREATE INDEX IF NOT EXISTS idx_streak_logs_user_date \nON streak_logs(user_id, date DESC);\n\n-- 3. Telemetry Events: análise por usuário + timestamp\nCREATE INDEX IF NOT EXISTS idx_telemetry_events_user_timestamp \nON telemetry_events(user_id, timestamp DESC);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1612
+}

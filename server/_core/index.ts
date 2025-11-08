@@ -11,6 +11,7 @@ import { serveStatic, setupVite } from "./vite";
 import "../queues/worker"; // Inicializar worker de filas
 import { initializeSocket } from "./socket";
 import { iniciarScheduler } from "../scheduler/avisos";
+import { iniciarSchedulerMetasNotificacoes } from "../scheduler/metasNotificacoes";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -73,6 +74,10 @@ async function startServer() {
     // Iniciar scheduler de agendamentos
     iniciarScheduler();
     console.log('[Server] Scheduler de agendamentos iniciado');
+    
+    // Iniciar scheduler de notificações de metas
+    iniciarSchedulerMetasNotificacoes();
+    console.log('[Server] Scheduler de notificações de metas iniciado');
   });
 }
 

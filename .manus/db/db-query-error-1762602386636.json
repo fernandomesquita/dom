@@ -1,0 +1,19 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS plans (\n  id VARCHAR(36) PRIMARY KEY,\n  name VARCHAR(255) NOT NULL,\n  description TEXT,\n  version VARCHAR(20) DEFAULT 'v1.0',\n  logo_url VARCHAR(500),\n  featured_image_url VARCHAR(500) NOT NULL,\n  landing_page_url VARCHAR(500),\n  category ENUM('Pago', 'Gratuito') NOT NULL,\n  edital_status ENUM('Pré-edital', 'Pós-edital', 'N/A') DEFAULT 'N/A',\n  entity VARCHAR(255),\n  role VARCHAR(255),\n  tags JSON DEFAULT ('[]'),\n  knowledge_root_id VARCHAR(36) NOT NULL,\n  paywall_required BOOLEAN DEFAULT FALSE,\n  price DECIMAL(10,2),\n  validity_date DATE,\n  duration_days INT,\n  status ENUM('Ativo', 'Expirado', 'Oculto', 'Em edição') DEFAULT 'Em edição' NOT NULL,\n  is_featured BOOLEAN DEFAULT FALSE,\n  mentor_id INT,\n  created_by INT,\n  updated_by INT,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,\n  deleted_at TIMESTAMP NULL,\n  custom_settings JSON DEFAULT ('{}'),\n  INDEX idx_plans_public_list (status, is_featured, category, created_at),\n  INDEX idx_plans_entity_role (entity, role),\n  INDEX idx_plans_mentor (mentor_id),\n  INDEX idx_plans_expired (validity_date),\n  INDEX idx_plans_knowledge_root (knowledge_root_id),\n  UNIQUE INDEX idx_unique_featured_plan (is_featured)\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute CREATE TABLE IF NOT EXISTS plans (\n  id VARCHAR(36) PRIMARY KEY,\n  name VARCHAR(255) NOT NULL,\n  description TEXT,\n  version VARCHAR(20) DEFAULT 'v1.0',\n  logo_url VARCHAR(500),\n  featured_image_url VARCHAR(500) NOT NULL,\n  landing_page_url VARCHAR(500),\n  category ENUM('Pago', 'Gratuito') NOT NULL,\n  edital_status ENUM('Pré-edital', 'Pós-edital', 'N/A') DEFAULT 'N/A',\n  entity VARCHAR(255),\n  role VARCHAR(255),\n  tags JSON DEFAULT ('[]'),\n  knowledge_root_id VARCHAR(36) NOT NULL,\n  paywall_required BOOLEAN DEFAULT FALSE,\n  price DECIMAL(10,2),\n  validity_date DATE,\n  duration_days INT,\n  status ENUM('Ativo', 'Expirado', 'Oculto', 'Em edição') DEFAULT 'Em edição' NOT NULL,\n  is_featured BOOLEAN DEFAULT FALSE,\n  mentor_id INT,\n  created_by INT,\n  updated_by INT,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,\n  deleted_at TIMESTAMP NULL,\n  custom_settings JSON DEFAULT ('{}'),\n  INDEX idx_plans_public_list (status, is_featured, category, created_at),\n  INDEX idx_plans_entity_role (entity, role),\n  INDEX idx_plans_mentor (mentor_id),\n  INDEX idx_plans_expired (validity_date),\n  INDEX idx_plans_knowledge_root (knowledge_root_id),\n  UNIQUE INDEX idx_unique_featured_plan (is_featured)\n)",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1064 (42000) at line 1: You have an error in your SQL syntax; check the manual that corresponds to your TiDB version for the right syntax to use line 13 column 26 near \"'[]'),",
+    "  knowledge_root_id VARCHAR(36) NOT NULL,",
+    "  paywall_required BOOLEAN DEFAULT FALSE,",
+    "  price DECIMAL(10,2),",
+    "  validity_date DATE,",
+    "  duration_days INT,",
+    "  status ENUM('Ativo', 'Expirado', 'Oculto', 'Em edição') DEFAULT 'Em edição' NOT NULL,",
+    "  is_featured BOOLEAN DEFAULT FALSE,",
+    "  mentor_id INT,",
+    "  created_by INT,",
+    "  updated_by INT,",
+    "  created_at TIMESTAMP DEFA"
+  ]
+}

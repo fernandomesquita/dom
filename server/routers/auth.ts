@@ -4,12 +4,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { 
   generateAccessToken, 
-  generateRefreshToken, 
   generateSessionId,
   setAccessTokenCookie,
-  setRefreshTokenCookie,
   clearAuthCookies,
-  verifyRefreshToken,
 } from "../_core/auth";
 import { hashPassword, verifyPassword, validatePasswordStrength } from "../_core/password";
 import { validarCPF, validarEmail, validarIdadeMinima } from "../_core/validators";
@@ -18,21 +15,29 @@ import {
   getUserByEmail, 
   getUserById, 
   getUserByCpf,
-  updateUser,
 } from "../db";
+import {
+  createRefreshToken,
+  rotateRefreshToken,
+  revokeRefreshToken,
+  revokeAllUserTokens,
+  listUserDevices,
+} from "../helpers/refreshToken";
 
 /**
  * Sistema DOM - Router de Autenticação Simples
  * 
  * IMPORTANTE: Este sistema NÃO usa OAuth.
- * Implementa autenticação com email e senha.
+ * Implementa autenticação com email e senha + refresh token rotation.
  * 
  * Endpoints:
  * - POST /api/v1/auth/register - Cadastro de usuário
  * - POST /api/v1/auth/login - Login de usuário
- * - POST /api/v1/auth/refresh-token - Renovar access token
+ * - POST /api/v1/auth/refresh-token - Renovar access token (com rotação)
  * - POST /api/v1/auth/logout - Logout do usuário
+ * - POST /api/v1/auth/logout-all - Logout de todos os dispositivos
  * - GET /api/v1/auth/me - Obter dados do usuário autenticado
+ * - GET /api/v1/auth/devices - Listar dispositivos ativos
  */
 
 export const authRouter = router({
@@ -48,6 +53,7 @@ export const authRouter = router({
         dataNascimento: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data deve estar no formato YYYY-MM-DD"),
         cpf: z.string().optional(),
         telefone: z.string().optional(),
+        deviceId: z.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -132,24 +138,24 @@ export const authRouter = router({
         });
       }
 
-      // Gerar tokens
-      const sessionId = generateSessionId();
+      // Gerar access token (15 minutos)
       const accessToken = generateAccessToken({
         userId: user.id,
         email: user.email,
         role: user.role,
-        sessionId,
-      });
-      const refreshToken = generateRefreshToken({
-        userId: user.id,
-        sessionId,
+        sessionId: generateSessionId(),
       });
 
-      // Definir cookies
+      // Gerar refresh token (7 dias) e salvar no banco
+      const refreshToken = await createRefreshToken(user.id, {
+        deviceId: input.deviceId,
+        ipAddress: ctx.req.ip,
+        userAgent: ctx.req.headers['user-agent'],
+      });
+
+      // Definir cookie de access token
       setAccessTokenCookie(ctx.res, accessToken);
-      setRefreshTokenCookie(ctx.res, refreshToken);
 
-      // TODO: Salvar refresh token no banco de dados
       // TODO: Enviar email de verificação
 
       return {
@@ -164,6 +170,7 @@ export const authRouter = router({
         tokens: {
           accessToken,
           refreshToken,
+          expiresIn: 15 * 60, // 15 minutos em segundos
         },
       };
     }),
@@ -176,6 +183,7 @@ export const authRouter = router({
       z.object({
         email: z.string().email("Email inválido"),
         senha: z.string().min(1, "Senha é obrigatória"),
+        deviceId: z.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -205,25 +213,23 @@ export const authRouter = router({
         });
       }
 
-      // Gerar tokens
-      const sessionId = generateSessionId();
+      // Gerar access token (15 minutos)
       const accessToken = generateAccessToken({
         userId: user.id,
         email: user.email,
         role: user.role,
-        sessionId,
-      });
-      const refreshToken = generateRefreshToken({
-        userId: user.id,
-        sessionId,
+        sessionId: generateSessionId(),
       });
 
-      // Definir cookies
+      // Gerar refresh token (7 dias) e salvar no banco
+      const refreshToken = await createRefreshToken(user.id, {
+        deviceId: input.deviceId,
+        ipAddress: ctx.req.ip,
+        userAgent: ctx.req.headers['user-agent'],
+      });
+
+      // Definir cookie de access token
       setAccessTokenCookie(ctx.res, accessToken);
-      setRefreshTokenCookie(ctx.res, refreshToken);
-
-      // TODO: Salvar refresh token no banco de dados
-      // TODO: Implementar rate limiting
 
       return {
         success: true,
@@ -238,6 +244,7 @@ export const authRouter = router({
         tokens: {
           accessToken,
           refreshToken,
+          expiresIn: 15 * 60, // 15 minutos em segundos
         },
       };
     }),
@@ -264,61 +271,94 @@ export const authRouter = router({
   }),
 
   /**
-   * Logout do usuário
+   * Logout do usuário (revoga refresh token atual)
    */
-  logout: publicProcedure.mutation(({ ctx }) => {
-    clearAuthCookies(ctx.res);
-    // TODO: Revogar refresh token no banco de dados
-    return {
-      success: true,
-      message: "Logout realizado com sucesso",
-    };
-  }),
-
-  /**
-   * Renovar access token usando refresh token
-   */
-  refreshToken: publicProcedure
+  logout: publicProcedure
     .input(
       z.object({
         refreshToken: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      // Verificar refresh token
-      const payload = verifyRefreshToken(input.refreshToken);
-      if (!payload) {
+      // Revogar refresh token
+      await revokeRefreshToken(input.refreshToken);
+      
+      // Limpar cookies
+      clearAuthCookies(ctx.res);
+      
+      return {
+        success: true,
+        message: "Logout realizado com sucesso",
+      };
+    }),
+
+  /**
+   * Logout de todos os dispositivos (revoga todos os refresh tokens do usuário)
+   */
+  logoutAll: protectedProcedure.mutation(async ({ ctx }) => {
+    await revokeAllUserTokens(ctx.user.id);
+    clearAuthCookies(ctx.res);
+    return {
+      success: true,
+      message: "Logout realizado em todos os dispositivos",
+    };
+  }),
+
+  /**
+   * Renovar access token usando refresh token (COM ROTAÇÃO)
+   * 1. Valida token antigo
+   * 2. Deleta token antigo
+   * 3. Gera novo access + novo refresh
+   * 4. Retorna ambos
+   */
+  refreshToken: publicProcedure
+    .input(
+      z.object({
+        refreshToken: z.string(),
+        deviceId: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      // Rotacionar refresh token (single-use)
+      const result = await rotateRefreshToken(input.refreshToken, {
+        deviceId: input.deviceId,
+        ipAddress: ctx.req.ip,
+        userAgent: ctx.req.headers['user-agent'],
+      });
+
+      if (!result) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "Refresh token inválido ou expirado",
         });
       }
 
-      // TODO: Verificar se refresh token está revogado no banco de dados
-
-      // Buscar usuário
-      const user = await getUserById(payload.userId);
-      if (!user || !user.ativo) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Usuário não encontrado ou inativo",
-        });
-      }
-
-      // Gerar novo access token
-      const accessToken = generateAccessToken({
-        userId: user.id,
-        email: user.email,
-        role: user.role,
-        sessionId: payload.sessionId,
-      });
-
-      // Definir cookie
-      setAccessTokenCookie(ctx.res, accessToken);
+      // Definir cookie de access token
+      setAccessTokenCookie(ctx.res, result.accessToken);
 
       return {
         success: true,
-        accessToken,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+        expiresIn: result.expiresIn,
       };
     }),
+
+  /**
+   * Listar dispositivos ativos do usuário
+   */
+  listDevices: protectedProcedure.query(async ({ ctx }) => {
+    const devices = await listUserDevices(ctx.user.id);
+    return {
+      success: true,
+      devices: devices.map(d => ({
+        id: d.id,
+        deviceId: d.deviceId || 'Desconhecido',
+        ipAddress: d.ipAddress || 'Desconhecido',
+        userAgent: d.userAgent || 'Desconhecido',
+        createdAt: d.createdAt,
+        expiresAt: d.expiresAt,
+      })),
+    };
+  }),
 });

@@ -144,15 +144,18 @@ export default function ForumCategoria() {
                             </span>
                           </div>
 
-                          {thread.tags && JSON.parse(thread.tags).length > 0 && (
-                            <div className="flex items-center gap-2 mt-2">
-                              {JSON.parse(thread.tags).map((tag: string) => (
+                          {thread.tags && (() => {
+                            const tags = typeof thread.tags === 'string' ? JSON.parse(thread.tags) as string[] : thread.tags as string[];
+                            return tags.length > 0 && (
+                              <div className="flex items-center gap-2 mt-2">
+                                {tags.map((tag: string) => (
                                 <Badge key={tag} variant="outline" className="text-xs">
                                   {tag}
                                 </Badge>
                               ))}
                             </div>
-                          )}
+                          );
+                          })()}
                         </div>
                       </div>
                     </CardContent>

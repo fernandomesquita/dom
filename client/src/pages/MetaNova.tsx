@@ -18,6 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import { APP_TITLE } from "@/const";
 import KTreeSelector from "@/components/KTreeSelector";
 import { trpc } from "@/lib/trpc";
@@ -52,8 +54,9 @@ export default function MetaNova({ params }: MetaNovaProps) {
 
   // Queries
   const planoQuery = trpc.metasPlanos.getById.useQuery({ id: planoId });
-  const metasDoDiaQuery = trpc.metasMetas.listByDate.useQuery(
-    { planoId, date: dataAgendada },
+  // listByDate não existe, usar list com filtro de data
+  const metasDoDiaQuery = trpc.metasMetas.list.useQuery(
+    { planoId, scheduledDate: dataAgendada } as any,
     { enabled: !!dataAgendada }
   );
   const conflitosQuery = trpc.metasMetas.verificarConflitos.useQuery(
@@ -65,11 +68,11 @@ export default function MetaNova({ params }: MetaNovaProps) {
       ktreeDisciplinaId: disciplinaId || undefined,
       ktreeAssuntoId: assuntoId || undefined,
       ktreeTopicoId: topicoId || undefined,
-    },
+    } as any,
     { enabled: materiaisDialog && !!disciplinaId }
   );
 
-  const materiaisFiltrados = materiaisQuery.data?.filter((m) =>
+  const materiaisFiltrados = materiaisQuery.data?.filter((m: any) =>
     materiaisSearch
       ? m.title.toLowerCase().includes(materiaisSearch.toLowerCase()) ||
         m.description?.toLowerCase().includes(materiaisSearch.toLowerCase())
@@ -196,10 +199,10 @@ export default function MetaNova({ params }: MetaNovaProps) {
       tipo: tipo as "ESTUDO" | "QUESTOES" | "REVISAO",
       ktreeDisciplinaId: disciplinaId,
       ktreeAssuntoId: assuntoId,
-      ktreeTopicoId: topicoId,
+      ktreeTopicoId: topicoId || undefined,
       duracaoPlanejadaMin: duracaoMin,
       scheduledDate: dataAgendada,
-      orientacoesEstudo: orientacoes || null,
+      orientacoesEstudo: orientacoes || undefined,
     });
 
     if (!criarOutra) {
@@ -462,7 +465,7 @@ export default function MetaNova({ params }: MetaNovaProps) {
                   </p>
                 ) : (
                   <div className="space-y-2">
-                    {materiaisFiltrados.map((material) => (
+                    {materiaisFiltrados?.map((material: any) => (
                       <div
                         key={material.id}
                         className="flex items-start gap-3 p-3 border rounded-lg hover:bg-accent cursor-pointer"

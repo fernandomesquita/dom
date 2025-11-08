@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS notice_reads (\n  id VARCHAR(36) PRIMARY KEY,\n  notice_id VARCHAR(36) NOT NULL,\n  user_id VARCHAR(36) NOT NULL,\n  lido BOOLEAN DEFAULT TRUE NOT NULL,\n  lido_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  INDEX idx_notice_id (notice_id),\n  INDEX idx_user_id (user_id),\n  INDEX idx_unique_read (notice_id, user_id)\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute CREATE TABLE IF NOT EXISTS notice_reads (\n  id VARCHAR(36) PRIMARY KEY,\n  notice_id VARCHAR(36) NOT NULL,\n  user_id VARCHAR(36) NOT NULL,\n  lido BOOLEAN DEFAULT TRUE NOT NULL,\n  lido_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  INDEX idx_notice_id (notice_id),\n  INDEX idx_user_id (user_id),\n  INDEX idx_unique_read (notice_id, user_id)\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 213
+}
