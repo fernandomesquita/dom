@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Star, Building2, Briefcase, Calendar } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import Header from '@/components/Header';
 
 export default function AllPlans() {
   const [, setLocation] = useLocation();
@@ -39,7 +40,9 @@ export default function AllPlans() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      <Header />
+      
+      {/* Page Header */}
       <div className="border-b">
         <div className="container py-8">
           <h1 className="text-4xl font-bold mb-2">Planos de Estudo</h1>

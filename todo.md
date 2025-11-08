@@ -1055,3 +1055,14 @@ Criar o **coração da plataforma DOM** - uma experiência de engajamento que tr
 - [x] Testado: Logout redireciona para /login ✅
 - [x] Testado: Dashboard mostra "Você não está autenticado" após logout ✅
 - [x] Testado: Cookie limpo corretamente ✅
+
+
+## 🆕 FEATURE: Adicionar link "Planos" no header (2025-11-08 17:15) ✅ CONCLUÍDA
+- [x] Adicionar item "Planos" na navegação do Header.tsx (com ícone CreditCard)
+- [x] Adicionar rota /planos no App.tsx
+- [x] Identificada página AllPlans.tsx como listagem de planos
+- [x] Adicionado Header component à página AllPlans
+- [x] Testado: Link "Planos" aparece no header e está destacado em azul
+- [x] Testado: Navegação para /planos funcionando perfeitamente
+- [x] Página carrega com filtros de busca, categoria e status
+- [x] Sistema pronto para exibir planos quando cadastrados no banco

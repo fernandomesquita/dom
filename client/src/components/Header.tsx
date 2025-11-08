@@ -26,6 +26,7 @@ import {
   Settings,
   LogOut,
   BookMarked,
+  CreditCard,
 } from 'lucide-react';
 import { AvisosCentral } from './avisos/AvisosCentral';
 import { cn } from '@/lib/utils';
@@ -38,6 +39,7 @@ const navigation = [
   { name: 'Cadernos', href: '/cadernos', icon: Notebook },
   { name: 'Estatísticas', href: '/estatisticas', icon: BarChart3 },
   { name: 'Materiais', href: '/materiais', icon: BookMarked },
+  { name: 'Planos', href: '/planos', icon: CreditCard },
 ];
 
 export default function Header() {
