@@ -60,10 +60,10 @@ export default function Header() {
       <div className="container flex h-16 items-center">
         {/* Logo */}
         <Link href="/">
-          <a className="flex items-center gap-2 mr-6">
+          <div className="flex items-center gap-2 mr-6 cursor-pointer">
             <img src={APP_LOGO} alt={APP_TITLE} className="h-8 w-8" />
             <span className="font-bold text-xl hidden sm:inline-block">{APP_TITLE}</span>
-          </a>
+          </div>
         </Link>
 
         {/* Desktop Navigation */}
@@ -74,9 +74,9 @@ export default function Header() {
 
             return (
               <Link key={item.href} href={item.href}>
-                <a
+                <div
                   className={cn(
-                    'flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                    'flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer',
                     active
                       ? 'bg-primary text-primary-foreground'
                       : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
@@ -84,7 +84,7 @@ export default function Header() {
                 >
                   <Icon className="h-4 w-4" />
                   {item.name}
-                </a>
+                </div>
               </Link>
             );
           })}
@@ -107,18 +107,18 @@ export default function Header() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/perfil">
-                    <a className="flex items-center gap-2 w-full">
+                    <div className="flex items-center gap-2 w-full cursor-pointer">
                       <User className="h-4 w-4" />
                       Meu Perfil
-                    </a>
+                    </div>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/configuracoes">
-                    <a className="flex items-center gap-2 w-full">
+                    <div className="flex items-center gap-2 w-full cursor-pointer">
                       <Settings className="h-4 w-4" />
                       Configurações
-                    </a>
+                    </div>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -131,14 +131,10 @@ export default function Header() {
           ) : (
             <>
               <Button variant="ghost" asChild>
-                <Link href="/login">
-                  <a>Entrar</a>
-                </Link>
+                <Link href="/login">Entrar</Link>
               </Button>
               <Button asChild>
-                <Link href="/cadastro">
-                  <a>Começar Grátis</a>
-                </Link>
+                <Link href="/cadastro">Começar Grátis</Link>
               </Button>
             </>
           )}
@@ -160,10 +156,10 @@ export default function Header() {
 
                   return (
                     <Link key={item.href} href={item.href}>
-                      <a
+                      <div
                         onClick={() => setMobileMenuOpen(false)}
                         className={cn(
-                          'flex items-center gap-3 px-4 py-3 rounded-md text-base font-medium transition-colors',
+                          'flex items-center gap-3 px-4 py-3 rounded-md text-base font-medium transition-colors cursor-pointer',
                           active
                             ? 'bg-primary text-primary-foreground'
                             : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
@@ -171,7 +167,7 @@ export default function Header() {
                       >
                         <Icon className="h-5 w-5" />
                         {item.name}
-                      </a>
+                      </div>
                     </Link>
                   );
                 })}
@@ -183,22 +179,22 @@ export default function Header() {
                         {user.nomeCompleto || user.email}
                       </div>
                       <Link href="/perfil">
-                        <a
+                        <div
                           onClick={() => setMobileMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-3 rounded-md text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                          className="flex items-center gap-3 px-4 py-3 rounded-md text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer"
                         >
                           <User className="h-5 w-5" />
                           Meu Perfil
-                        </a>
+                        </div>
                       </Link>
                       <Link href="/configuracoes">
-                        <a
+                        <div
                           onClick={() => setMobileMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-3 rounded-md text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                          className="flex items-center gap-3 px-4 py-3 rounded-md text-base font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer"
                         >
                           <Settings className="h-5 w-5" />
                           Configurações
-                        </a>
+                        </div>
                       </Link>
                       <button
                         onClick={() => {
@@ -214,20 +210,20 @@ export default function Header() {
                   ) : (
                     <>
                       <Link href="/login">
-                        <a
+                        <div
                           onClick={() => setMobileMenuOpen(false)}
-                          className="flex items-center justify-center px-4 py-3 rounded-md text-base font-medium border mb-2"
+                          className="flex items-center justify-center px-4 py-3 rounded-md text-base font-medium border mb-2 cursor-pointer"
                         >
                           Entrar
-                        </a>
+                        </div>
                       </Link>
                       <Link href="/cadastro">
-                        <a
+                        <div
                           onClick={() => setMobileMenuOpen(false)}
-                          className="flex items-center justify-center px-4 py-3 rounded-md text-base font-medium bg-primary text-primary-foreground"
+                          className="flex items-center justify-center px-4 py-3 rounded-md text-base font-medium bg-primary text-primary-foreground cursor-pointer"
                         >
                           Começar Grátis
-                        </a>
+                        </div>
                       </Link>
                     </>
                   )}

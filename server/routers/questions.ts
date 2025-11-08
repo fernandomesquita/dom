@@ -898,12 +898,110 @@ export const questionsRouter = router({
   // ========================================
 
   bulkImport: adminProcedure
-    .input(z.object({
-      fileUrl: z.string().url(),
-    }))
+    .input(
+      z.object({
+        questions: z.array(
+          z.object({
+            uniqueCode: z.string().optional(),
+            statementText: z.string(),
+            questionType: z.enum(["multiple_choice", "true_false"]),
+            difficulty: z.enum(["easy", "medium", "hard"]),
+            disciplinaId: z.string().optional(),
+            assuntoId: z.string().optional(),
+            topicoId: z.string().optional(),
+            examBoard: z.string().optional(),
+            examYear: z.number().optional(),
+            examInstitution: z.string().optional(),
+            optionA: z.string().optional(),
+            optionB: z.string().optional(),
+            optionC: z.string().optional(),
+            optionD: z.string().optional(),
+            optionE: z.string().optional(),
+            correctOption: z.enum(["A", "B", "C", "D", "E"]).optional(),
+            trueFalseAnswer: z.boolean().optional(),
+            explanationText: z.string().optional(),
+          })
+        ),
+      })
+    )
     .mutation(async ({ input }) => {
-      // TODO: Implementar na Fase 8 com BullMQ
-      throw new Error("Bulk import será implementado na Fase 8");
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const results = {
+        success: 0,
+        failed: 0,
+        errors: [] as Array<{ row: number; uniqueCode: string; error: string }>,
+      };
+
+      for (let i = 0; i < input.questions.length; i++) {
+        const q = input.questions[i];
+        try {
+          // Gerar uniqueCode se não fornecido
+          const uniqueCode = q.uniqueCode || generateUniqueCode();
+
+          // Validar código único
+          const existing = await db
+            .select()
+            .from(questions)
+            .where(eq(questions.uniqueCode, uniqueCode))
+            .limit(1);
+
+          if (existing.length > 0) {
+            throw new Error(`Código ${uniqueCode} já existe`);
+          }
+
+          // Validar tipo de questão
+          if (q.questionType === "multiple_choice") {
+            if (!q.optionA || !q.optionB) {
+              throw new Error("Questões de múltipla escolha precisam de pelo menos 2 alternativas");
+            }
+            if (!q.correctOption) {
+              throw new Error("Questões de múltipla escolha precisam de uma resposta correta");
+            }
+          }
+
+          if (q.questionType === "true_false") {
+            if (q.trueFalseAnswer === undefined) {
+              throw new Error("Questões de certo/errado precisam de uma resposta");
+            }
+          }
+
+          // Inserir questão
+          await db.insert(questions).values({
+            uniqueCode,
+            statementText: q.statementText,
+            questionType: q.questionType,
+            difficulty: q.difficulty,
+            disciplinaId: q.disciplinaId || null,
+            assuntoId: q.assuntoId || null,
+            topicoId: q.topicoId || null,
+            examBoard: q.examBoard || null,
+            examYear: q.examYear || null,
+            examInstitution: q.examInstitution || null,
+            optionA: q.optionA || null,
+            optionB: q.optionB || null,
+            optionC: q.optionC || null,
+            optionD: q.optionD || null,
+            optionE: q.optionE || null,
+            correctOption: q.correctOption || null,
+            trueFalseAnswer: q.trueFalseAnswer ?? null,
+            explanationText: q.explanationText || null,
+            isActive: true,
+          });
+
+          results.success++;
+        } catch (error: any) {
+          results.failed++;
+          results.errors.push({
+            row: i + 2, // +2 porque linha 1 é header
+            uniqueCode: q.uniqueCode || "(não informado)",
+            error: error.message || "Erro desconhecido",
+          });
+        }
+      }
+
+      return results;
     }),
 
   // ========================================
