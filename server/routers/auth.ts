@@ -276,12 +276,14 @@ export const authRouter = router({
   logout: publicProcedure
     .input(
       z.object({
-        refreshToken: z.string(),
-      })
+        refreshToken: z.string().optional(),
+      }).optional()
     )
     .mutation(async ({ input, ctx }) => {
-      // Revogar refresh token
-      await revokeRefreshToken(input.refreshToken);
+      // Revogar refresh token se fornecido
+      if (input?.refreshToken) {
+        await revokeRefreshToken(input.refreshToken);
+      }
       
       // Limpar cookies
       clearAuthCookies(ctx.res);

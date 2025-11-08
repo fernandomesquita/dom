@@ -127,7 +127,7 @@ export function setRefreshTokenCookie(res: Response, token: string): void {
  * Remove os tokens dos cookies (logout)
  */
 export function clearAuthCookies(res: Response): void {
-  res.clearCookie('access_token');
+  res.clearCookie(COOKIE_NAME); // app_session_id
   res.clearCookie('refresh_token');
 }
 

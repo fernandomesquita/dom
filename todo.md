@@ -1041,3 +1041,17 @@ Criar o **coração da plataforma DOM** - uma experiência de engajamento que tr
 - [x] Adicionada invalidação de query auth.me após login
 - [x] Testado fluxo completo: Login → Dashboard carregando perfeitamente
 - [x] Confirmado: Cookie httpOnly funcionando corretamente (não acessível via JS por segurança)
+
+
+## 🐛 BUG: Logout não funciona - volta para dashboard (2025-11-08 17:00) ✅ RESOLVIDO
+- [x] Investigar código de logout no Header
+- [x] Verificar useAuth hook
+- [x] Identificado: Backend exigia refreshToken obrigatório
+- [x] Identificado: clearAuthCookies limpava 'access_token' ao invés de 'app_session_id'
+- [x] Identificado: Faltava redirecionamento após logout
+- [x] Corrigido: refreshToken agora é opcional no logout
+- [x] Corrigido: clearAuthCookies agora limpa COOKIE_NAME (app_session_id)
+- [x] Corrigido: useAuth agora redireciona para /login após logout
+- [x] Testado: Logout redireciona para /login ✅
+- [x] Testado: Dashboard mostra "Você não está autenticado" após logout ✅
+- [x] Testado: Cookie limpo corretamente ✅
