@@ -1,0 +1,100 @@
+{
+  "query": "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'avisos' AND TABLE_SCHEMA = DATABASE()",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'avisos' AND TABLE_SCHEMA = DATABASE()",
+  "rows": [
+    {
+      "COLUMN_NAME": "id"
+    },
+    {
+      "COLUMN_NAME": "tipo"
+    },
+    {
+      "COLUMN_NAME": "formato_exibicao"
+    },
+    {
+      "COLUMN_NAME": "titulo"
+    },
+    {
+      "COLUMN_NAME": "subtitulo"
+    },
+    {
+      "COLUMN_NAME": "conteudo"
+    },
+    {
+      "COLUMN_NAME": "midia_tipo"
+    },
+    {
+      "COLUMN_NAME": "midia_url"
+    },
+    {
+      "COLUMN_NAME": "midia_thumbnail"
+    },
+    {
+      "COLUMN_NAME": "cta_texto"
+    },
+    {
+      "COLUMN_NAME": "cta_url"
+    },
+    {
+      "COLUMN_NAME": "cta_estilo"
+    },
+    {
+      "COLUMN_NAME": "cta_secundario_texto"
+    },
+    {
+      "COLUMN_NAME": "cta_secundario_url"
+    },
+    {
+      "COLUMN_NAME": "cta_secundario_estilo"
+    },
+    {
+      "COLUMN_NAME": "links_adicionais"
+    },
+    {
+      "COLUMN_NAME": "prioridade"
+    },
+    {
+      "COLUMN_NAME": "dismissavel"
+    },
+    {
+      "COLUMN_NAME": "reaparece_pos_dispensar"
+    },
+    {
+      "COLUMN_NAME": "frequencia_reexibicao"
+    },
+    {
+      "COLUMN_NAME": "limite_exibicoes"
+    },
+    {
+      "COLUMN_NAME": "data_inicio"
+    },
+    {
+      "COLUMN_NAME": "data_fim"
+    },
+    {
+      "COLUMN_NAME": "horario_exibicao"
+    },
+    {
+      "COLUMN_NAME": "status"
+    },
+    {
+      "COLUMN_NAME": "sensivel"
+    },
+    {
+      "COLUMN_NAME": "grupo_teste"
+    },
+    {
+      "COLUMN_NAME": "criado_por"
+    },
+    {
+      "COLUMN_NAME": "criado_em"
+    },
+    {
+      "COLUMN_NAME": "atualizado_em"
+    }
+  ],
+  "messages": [],
+  "stdout": "COLUMN_NAME\nid\ntipo\nformato_exibicao\ntitulo\nsubtitulo\nconteudo\nmidia_tipo\nmidia_url\nmidia_thumbnail\ncta_texto\ncta_url\ncta_estilo\ncta_secundario_texto\ncta_secundario_url\ncta_secundario_estilo\nlinks_adicionais\nprioridade\ndismissavel\nreaparece_pos_dispensar\nfrequencia_reexibicao\nlimite_exibicoes\ndata_inicio\ndata_fim\nhorario_exibicao\nstatus\nsensivel\ngrupo_teste\ncriado_por\ncriado_em\natualizado_em\n",
+  "stderr": "",
+  "execution_time_ms": 64
+}
