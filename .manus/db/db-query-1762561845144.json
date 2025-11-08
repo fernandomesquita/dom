@@ -1,0 +1,9 @@
+{
+  "query": "-- Tabela auxiliar: Tipos de Avisos\nCREATE TABLE IF NOT EXISTS avisos_tipos (\n  id VARCHAR(20) PRIMARY KEY,\n  nome VARCHAR(50) NOT NULL,\n  cor VARCHAR(7) NOT NULL,\n  icone VARCHAR(50) NOT NULL,\n  prioridade INT NOT NULL,\n  dismissavel_padrao BOOLEAN DEFAULT TRUE NOT NULL,\n  formato_exibicao_padrao VARCHAR(20) NOT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute -- Tabela auxiliar: Tipos de Avisos\nCREATE TABLE IF NOT EXISTS avisos_tipos (\n  id VARCHAR(20) PRIMARY KEY,\n  nome VARCHAR(50) NOT NULL,\n  cor VARCHAR(7) NOT NULL,\n  icone VARCHAR(50) NOT NULL,\n  prioridade INT NOT NULL,\n  dismissavel_padrao BOOLEAN DEFAULT TRUE NOT NULL,\n  formato_exibicao_padrao VARCHAR(20) NOT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1883
+}

@@ -1,0 +1,13 @@
+{
+  "query": "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE 'avisos%' ORDER BY TABLE_NAME",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE 'avisos%' ORDER BY TABLE_NAME",
+  "rows": [
+    {
+      "TABLE_NAME": "avisos_tipos"
+    }
+  ],
+  "messages": [],
+  "stdout": "TABLE_NAME\navisos_tipos\n",
+  "stderr": "",
+  "execution_time_ms": 66
+}

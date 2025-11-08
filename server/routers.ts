@@ -6,6 +6,10 @@ import { assuntosRouter } from "./routers/assuntos";
 import { topicosRouter } from "./routers/topicos";
 import { materialsRouter } from "./routers/materials";
 import { questionsRouter } from "./routers/questions";
+import { avisosRouter } from "./routers/avisos";
+import { avisosAlunoRouter } from "./routers/avisosAluno";
+import { avisosSegmentacaoRouter } from "./routers/avisosSegmentacao";
+import { avisosTemplatesRouter } from "./routers/avisosTemplates";
 import { commentsRouter } from "./routers/comments";
 import { examsRouter } from "./routers/exams";
 
@@ -24,6 +28,10 @@ export const appRouter = router({
   topicos: topicosRouter,
   materials: materialsRouter,
   questions: questionsRouter,
+  avisos: avisosRouter,
+  avisosAluno: avisosAlunoRouter,
+  avisosSegmentacao: avisosSegmentacaoRouter,
+  avisosTemplates: avisosTemplatesRouter,
   comments: commentsRouter,
   exams: examsRouter,
 

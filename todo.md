@@ -1233,3 +1233,249 @@
 - [ ] Comentário em questão salva
 - [ ] Resposta em comentário próprio
 - [ ] Lembrete de meta próxima do prazo
+
+
+---
+
+## ETAPA 5: Sistema de Avisos/Notificações (🚧 EM ANDAMENTO)
+
+**Objetivo:** Sistema completo de comunicação com alunos via notificações segmentadas e personalizadas
+
+**Progresso:** 0% (0/200 tarefas concluídas)
+
+---
+
+### FASE 1: Schema do Banco de Dados (Dia 1-2)
+
+**7 Tabelas Principais:**
+- [x] Criar tabela `avisos_tipos` (5 tipos: informativo, importante, urgente, individual, premium)
+- [x] Criar tabela `avisos` (25 campos: conteúdo, mídia, CTAs, comportamento, agendamento)
+- [x] Criar tabela `avisos_segmentacao` (critérios JSON, cache de IDs)
+- [x] Criar tabela `avisos_visualizacoes` (tracking otimizado com UPSERT)
+- [x] Criar tabela `avisos_templates` (templates reutilizáveis com variáveis)
+- [x] Criar tabela `avisos_fila_entrega` (jobs assíncronos)
+- [x] Criar tabela `avisos_analytics` (cache de analytics agregados)
+
+**Índices e Otimizações:**
+- [x] Criar 15+ índices otimizados (status, datas, prioridade, segmentação)
+- [ ] Criar triggers para atualização automática de status (implementar via código)
+- [ ] Criar função de segmentação dinâmica (implementar via tRPC)
+- [x] Criar tabela de cache para analytics
+
+---
+
+### FASE### FASE 2: Backend tRPC (Dia 3-5)
+
+**Router: avisos (Admin) - 9 procedures**
+- [x] `create` - Criar aviso
+- [x] `update` - Atualizar aviso
+- [x] `delete` - Deletar aviso (soft delete)
+- [x] `list` - Listar avisos com filtros
+- [x] `getById` - Buscar aviso por ID
+- [x] `publicar` - Publicar aviso (adicionar à fila)
+- [x] `pausar` - Pausar aviso ativo
+- [x] `duplicar` - Duplicar aviso existente
+- [x] `getAnalytics` - Buscar analytics de um avisotente
+- [ ] Procedure `getAnalytics` - Buscar analytics de um aviso
+
+**Router: avisosAluno (Público)**
+- **Router: avisosAluno (Público) - 5 procedures**
+- [x] `getPendentes` - Buscar avisos pendentes do usuário
+- [x] `registrarVisualizacao` - Registrar visualização
+- [x] `dispensar` - Dispensar aviso
+- [x] `clicarCTA` - Registrar clique no CTA
+- [x] `getHistorico` - Buscar histórico de avisos
+**Router: **Router: avisosSegmentacao (Admin) - 3 procedures**
+- [x] `calcularAlcance` - Calcular quantos alunos serão impactados
+- [x] `previewSegmentacao` - Preview de alunos elegíveis
+- [x] `salvarSegmentacao` - Salvar critérios de segmentaçãotação
+
+**Router: av**Router: avisosTemplates (Admin) - 3 procedures**
+- [x] `listTemplates` - Listar templates
+- [x] `createTemplate` - Criar template
+- [x] `useTemplate` - Usar template para criar avisoiso
+
+---
+
+### FASE 3: Sistema de Filas BullMQ (Dia 6-7)
+
+**Configuração:**
+- [ ] Instalar dependência `bullmq`
+- [ ] Configurar conexão Redis
+- [ ] Criar fila `processamento` (processar avisos publicados)
+- [ ] Criar fila `entrega` (entregar avisos para alunos)
+- [ ] Criar fila `analytics` (atualizar analytics agregados)
+
+**Jobs:**
+- [ ] Job `processarAviso` - Resolver segmentação e criar registros na fila_entrega
+- [ ] Job `entregarAviso` - Entregar aviso para um aluno específico
+- [ ] Job `atualizarAnalytics` - Refresh da materialized view (cron 5min)
+
+**Workers:**
+- [ ] Worker para fila de processamento
+- [ ] Worker para fila de entrega
+- [ ] Worker para fila de analytics
+
+---
+
+### FASE 4: WebSocket Real-time (Dia 8)
+
+**Configuração:**
+- [ ] Instalar dependência `socket.io`
+- [ ] Configurar servidor WebSocket
+- [ ] Implementar autenticação via JWT
+- [ ] Criar rooms por aluno (`aluno:{id}`)
+
+**Eventos:**
+- [ ] Evento `novo_aviso` - Enviar aviso em tempo real
+- [ ] Evento `aviso_atualizado` - Notificar atualização
+- [ ] Evento `aviso_expirado` - Notificar expiração
+
+**Integração:**
+- [ ] Integrar WebSocket com job de entrega
+- [ ] Testar entrega real-time
+
+---
+
+### FASE 5: Componentes Frontend (Dia 9-12)
+
+**Context Provider:**
+- [ ] Criar `AvisosContext.jsx` com estado global
+- [ ] Implementar conexão WebSocket
+- [ ] Implementar fila de priorização
+- [ ] Implementar limites de exibição (anti-spam)
+
+**Componentes de Exibição:**
+- [ ] `ModalAviso.jsx` - Modal com stack de avisos
+  - [ ] Navegação entre múltiplos modais
+  - [ ] Timer de visualização
+  - [ ] Suporte a mídia (imagem, vídeo, áudio)
+  - [ ] CTAs primário e secundário
+  - [ ] Animações Framer Motion
+- [ ] `BannerAviso.jsx` - Banner fixo no topo
+  - [ ] Auto-dismiss após 12s
+  - [ ] Animação de entrada/saída
+  - [ ] Suporte a CTAs
+- [ ] `ToastAviso.jsx` - Toast temporário
+  - [ ] Auto-dismiss após 6s
+  - [ ] Pilha de até 3 toasts
+  - [ ] Posicionamento configurável
+- [ ] `BadgeAvisos.jsx` - Contador de não lidos
+  - [ ] Badge no ícone de notificações
+  - [ ] Atualização em tempo real
+
+**Central de Avisos:**
+- [ ] `CentralAvisos.jsx` - Página de histórico
+  - [ ] Lista de todos os avisos
+  - [ ] Filtros (tipo, data, lido/não lido)
+  - [ ] Busca por texto
+  - [ ] Paginação
+
+---
+
+### FASE 6: Admin Dashboard (Dia 13-16)
+
+**Páginas Admin:**
+- [ ] `/admin/avisos` - Lista de avisos
+  - [ ] Tabela com filtros
+  - [ ] Ações rápidas (publicar, pausar, deletar)
+  - [ ] Indicadores de status
+- [ ] `/admin/avisos/criar` - Criar novo aviso
+  - [ ] Formulário completo (25 campos)
+  - [ ] Upload de mídia
+  - [ ] Preview em tempo real
+  - [ ] Seletor de segmentação
+  - [ ] Calculadora de alcance
+- [ ] `/admin/avisos/:id/editar` - Editar aviso
+  - [ ] Mesmos campos do criar
+  - [ ] Histórico de alterações
+- [ ] `/admin/avisos/:id/analytics` - Analytics de um aviso
+  - [ ] Cards de resumo (visualizações, dispensas, cliques CTA)
+  - [ ] Gráficos de engajamento
+  - [ ] Taxa de conversão
+  - [ ] Heatmap de horários
+
+**Componentes Admin:**
+- [ ] `EditorRico.jsx` - Editor de conteúdo com Markdown
+- [ ] `SeletorSegmentacao.jsx` - Interface para criar segmentação
+- [ ] `PreviewAviso.jsx` - Preview do aviso em diferentes formatos
+- [ ] `CalculadoraAlcance.jsx` - Mostrar quantos alunos serão impactados
+
+---
+
+### FASE 7: Analytics Completo (Dia 17-18)
+
+**Dashboard Global:**
+- [ ] `/admin/avisos/analytics` - Dashboard geral
+  - [ ] Cards de resumo (total enviados, taxa de visualização, taxa de clique)
+  - [ ] Gráfico de avisos enviados por dia (últimos 30 dias)
+  - [ ] Gráfico de engajamento por tipo de aviso
+  - [ ] Top 10 avisos com maior engajamento
+  - [ ] Top 10 avisos com maior conversão
+
+**Materialized View:**
+- [ ] Criar view `avisos_analytics_agregada`
+- [ ] Job de atualização a cada 5 minutos
+- [ ] Queries otimizadas para dashboard
+
+---
+
+### FASE 8: Templates e Segmentação Avançada (Dia 19-20)
+
+**Sistema de Templates:**
+- [ ] Criar 5 templates padrão (boas-vindas, lembrete, conquista, oferta, urgente)
+- [ ] Interface de criação de templates
+- [ ] Sistema de variáveis dinâmicas (`{{nome_aluno}}`, `{{nome_plano}}`)
+- [ ] Preview com dados de exemplo
+
+**Segmentação Avançada:**
+- [ ] Segmentação por plano (bronze, prata, ouro, gratuito)
+- [ ] Segmentação por engajamento (ativos, inativos, em risco)
+- [ ] Segmentação por progresso (0-25%, 25-50%, 50-75%, 75-100%)
+- [ ] Segmentação por desempenho (média de acertos)
+- [ ] Segmentação individual (lista de IDs)
+- [ ] Segmentação custom (query SQL personalizada)
+
+---
+
+### FASE 9: Testes e Validação (Dia 21)
+
+**Testes Backend:**
+- [ ] Testar criação de avisos
+- [ ] Testar publicação e fila de processamento
+- [ ] Testar entrega assíncrona
+- [ ] Testar segmentação dinâmica
+- [ ] Testar WebSocket real-time
+
+**Testes Frontend:**
+- [ ] Testar exibição de modais
+- [ ] Testar exibição de banners
+- [ ] Testar exibição de toasts
+- [ ] Testar limites de exibição (anti-spam)
+- [ ] Testar central de avisos
+
+**Testes de Integração:**
+- [ ] Testar fluxo completo (criar → publicar → entregar → visualizar)
+- [ ] Testar analytics end-to-end
+- [ ] Testar templates com variáveis
+
+---
+
+### FASE 10: Documentação e Entrega (Dia 22)
+
+**Documentação:**
+- [ ] Criar `AVISOS.md` com guia de uso
+- [ ] Documentar tipos de avisos e quando usar cada um
+- [ ] Documentar formatos de exibição
+- [ ] Documentar sistema de segmentação
+- [ ] Criar exemplos de uso
+
+**Entrega:**
+- [ ] Salvar checkpoint final
+- [ ] Atualizar CHANGELOG.md
+- [ ] Criar seed de avisos de exemplo
+- [ ] Validar LGPD compliance
+
+---
+
+**Estimativa Total:** 22 dias úteis (4-5 semanas)
