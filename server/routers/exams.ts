@@ -383,18 +383,24 @@ export const examsRouter = router({
     .query(async ({ ctx, input }) => {
       const userId = ctx.user.id;
 
-      const [attempt] = await ctx.db
-        .select()
+      const results = await ctx.db
+        .select({
+          attempt: examAttempts,
+          exam: exams,
+        })
         .from(examAttempts)
+        .leftJoin(exams, eq(examAttempts.examId, exams.id))
         .where(eq(examAttempts.id, input.attemptId))
         .limit(1);
 
-      if (!attempt) {
+      if (results.length === 0 || !results[0].attempt) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'Tentativa não encontrada',
         });
       }
+
+      const { attempt, exam } = results[0];
 
       if (attempt.userId !== userId) {
         throw new TRPCError({
@@ -403,7 +409,10 @@ export const examsRouter = router({
         });
       }
 
-      return attempt;
+      return {
+        ...attempt,
+        exam,
+      };
     }),
 
   /**

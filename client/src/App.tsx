@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Questions from "./pages/Questions";
 import Exams from "./pages/Exams";
 import ExamViewer from "./pages/ExamViewer";
+import ExamReport from "./pages/ExamReport";
 import Statistics from "./pages/Statistics";
 import Notebooks from "./pages/Notebooks";
 import Login from "./pages/Login";
@@ -31,9 +32,10 @@ function Router() {
       <Route path={"/questoes"} component={Questions} />
       <Route path={"/simulados"} component={Exams} />
       <Route path={"/simulados/:attemptId"} component={ExamViewer} />
+      <Route path={"/simulados/:attemptId/resultado"} component={ExamReport} />
       <Route path={"/estatisticas"} component={Statistics} />
       <Route path={"/cadernos"} component={Notebooks} />
-      <Route path={"/404"} component={NotFound} />
+      <Route path={"/login"} component={Login} />
       <Route path={"/cadastro"} component={Cadastro} />
       <Route path={"/materiais"} component={Materiais} />
       <Route path={"/materiais/:id"} component={MaterialDetalhes} />

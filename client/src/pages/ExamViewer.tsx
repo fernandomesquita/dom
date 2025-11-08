@@ -63,7 +63,7 @@ export default function ExamViewer() {
   const finishExamMutation = trpc.exams.finish.useMutation({
     onSuccess: () => {
       toast.success('Simulado finalizado!');
-      setLocation(`/simulados`);
+      setLocation(`/simulados/${attemptId}/resultado`);
     },
     onError: () => {
       toast.error('Erro ao finalizar simulado');
