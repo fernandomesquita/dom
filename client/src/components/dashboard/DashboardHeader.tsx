@@ -43,38 +43,28 @@ export function DashboardHeader() {
       <div className="container flex h-16 items-center justify-between">
         {/* Logo + Navegação Desktop */}
         <div className="flex items-center gap-6">
-          <Link href="/dashboard">
-            <a className="flex items-center gap-2">
-              {APP_LOGO && (
-                <img src={APP_LOGO} alt={APP_TITLE} className="h-8 w-8" />
-              )}
-              <span className="font-bold text-lg hidden sm:inline-block">
-                {APP_TITLE}
-              </span>
-            </a>
+          <Link href="/dashboard" className="flex items-center gap-2">
+            {APP_LOGO && (
+              <img src={APP_LOGO} alt={APP_TITLE} className="h-8 w-8" />
+            )}
+            <span className="font-bold text-lg hidden sm:inline-block">
+              {APP_TITLE}
+            </span>
           </Link>
 
           {/* Navegação Desktop */}
           <nav className="hidden md:flex items-center gap-4">
-            <Link href="/metas/cronograma">
-              <a className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Metas
-              </a>
+            <Link href="/metas/cronograma" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Metas
             </Link>
-            <Link href="/questoes">
-              <a className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Questões
-              </a>
+            <Link href="/questoes" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Questões
             </Link>
-            <Link href="/materiais">
-              <a className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Materiais
-              </a>
+            <Link href="/materiais" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Materiais
             </Link>
-            <Link href="/forum">
-              <a className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Fórum
-              </a>
+            <Link href="/forum" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Fórum
             </Link>
           </nav>
         </div>
@@ -127,19 +117,15 @@ export function DashboardHeader() {
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/perfil">
-                  <a className="flex items-center gap-2 w-full">
-                    <User className="h-4 w-4" />
-                    Meu Perfil
-                  </a>
+                <Link href="/perfil" className="flex items-center gap-2 w-full">
+                  <User className="h-4 w-4" />
+                  Meu Perfil
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/configuracoes">
-                  <a className="flex items-center gap-2 w-full">
-                    <Settings className="h-4 w-4" />
-                    Configurações
-                  </a>
+                <Link href="/configuracoes" className="flex items-center gap-2 w-full">
+                  <Settings className="h-4 w-4" />
+                  Configurações
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -190,37 +176,33 @@ export function DashboardHeader() {
               )}
             </div>
 
-            <Link href="/metas/cronograma">
-              <a
-                className="px-3 py-2 text-sm font-medium hover:bg-accent rounded-lg"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Metas
-              </a>
+            <Link
+              href="/metas/cronograma"
+              className="px-3 py-2 text-sm font-medium hover:bg-accent rounded-lg"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Metas
             </Link>
-            <Link href="/questoes">
-              <a
-                className="px-3 py-2 text-sm font-medium hover:bg-accent rounded-lg"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Questões
-              </a>
+            <Link
+              href="/questoes"
+              className="px-3 py-2 text-sm font-medium hover:bg-accent rounded-lg"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Questões
             </Link>
-            <Link href="/materiais">
-              <a
-                className="px-3 py-2 text-sm font-medium hover:bg-accent rounded-lg"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Materiais
-              </a>
+            <Link
+              href="/materiais"
+              className="px-3 py-2 text-sm font-medium hover:bg-accent rounded-lg"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Materiais
             </Link>
-            <Link href="/forum">
-              <a
-                className="px-3 py-2 text-sm font-medium hover:bg-accent rounded-lg"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Fórum
-              </a>
+            <Link
+              href="/forum"
+              className="px-3 py-2 text-sm font-medium hover:bg-accent rounded-lg"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Fórum
             </Link>
           </nav>
         </div>

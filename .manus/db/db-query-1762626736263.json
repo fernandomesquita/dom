@@ -1,0 +1,50 @@
+{
+  "query": "SELECT id, email, nome_completo, role, email_verificado, created_at FROM users ORDER BY created_at DESC LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute SELECT id, email, nome_completo, role, email_verificado, created_at FROM users ORDER BY created_at DESC LIMIT 5",
+  "rows": [
+    {
+      "id": "f09a3540-56f2-43bf-a6c5-9c7af40dc267",
+      "email": "master@dom.com",
+      "nome_completo": "Master Admin",
+      "role": "MASTER",
+      "email_verificado": "1",
+      "created_at": "2025-11-08 17:48:52"
+    },
+    {
+      "id": "ce3215be-c53a-4c13-befb-36ee6f916204",
+      "email": "fernandofmg@gmail.com",
+      "nome_completo": "Fernando Mesquita",
+      "role": "ALUNO",
+      "email_verificado": "0",
+      "created_at": "2025-11-08 17:36:00"
+    },
+    {
+      "id": "user_admin_1762615817711",
+      "email": "admin@dom.com",
+      "nome_completo": "Admin Master",
+      "role": "MASTER",
+      "email_verificado": "1",
+      "created_at": "2025-11-08 15:30:17"
+    },
+    {
+      "id": "user_aluno2_1762615817748",
+      "email": "maria@dom.com",
+      "nome_completo": "Maria Santos",
+      "role": "ALUNO",
+      "email_verificado": "1",
+      "created_at": "2025-11-08 15:30:17"
+    },
+    {
+      "id": "user_aluno1_1762615817724",
+      "email": "joao@dom.com",
+      "nome_completo": "João Silva",
+      "role": "ALUNO",
+      "email_verificado": "1",
+      "created_at": "2025-11-08 15:30:17"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tnome_completo\trole\temail_verificado\tcreated_at\nf09a3540-56f2-43bf-a6c5-9c7af40dc267\tmaster@dom.com\tMaster Admin\tMASTER\t1\t2025-11-08 17:48:52\nce3215be-c53a-4c13-befb-36ee6f916204\tfernandofmg@gmail.com\tFernando Mesquita\tALUNO\t0\t2025-11-08 17:36:00\nuser_admin_1762615817711\tadmin@dom.com\tAdmin Master\tMASTER\t1\t2025-11-08 15:30:17\nuser_aluno2_1762615817748\tmaria@dom.com\tMaria Santos\tALUNO\t1\t2025-11-08 15:30:17\nuser_aluno1_1762615817724\tjoao@dom.com\tJoão Silva\tALUNO\t1\t2025-11-08 15:30:17\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}

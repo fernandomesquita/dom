@@ -18,12 +18,20 @@ export default function Login() {
   const [, setLocation] = useLocation();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const utils = trpc.useUtils();
 
   const loginMutation = trpc.auth.login.useMutation({
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      console.log('[LOGIN] onSuccess chamado:', data);
       toast.success(data.message);
-      // Redirecionar para dashboard
+      
+      // Invalidar query auth.me para forçar refetch com novo cookie
+      console.log('[LOGIN] Invalidando query auth.me');
+      await utils.auth.me.invalidate();
+      
+      console.log('[LOGIN] Redirecionando para /dashboard');
       setLocation("/dashboard");
+      console.log('[LOGIN] setLocation("/dashboard") executado');
     },
     onError: (error) => {
       toast.error(error.message);

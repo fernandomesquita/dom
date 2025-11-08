@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { ENV } from './env';
+import { COOKIE_NAME } from '@shared/const';
 
 /**
  * Sistema DOM - Autenticação Simples (Email + Senha)
@@ -95,14 +96,14 @@ export function extractTokenFromHeader(req: Request): string | null {
  * Extrai o token do cookie (fallback)
  */
 export function extractTokenFromCookie(req: Request): string | null {
-  return req.cookies?.access_token || null;
+  return req.cookies?.[COOKIE_NAME] || null;
 }
 
 /**
  * Define o access token no cookie
  */
 export function setAccessTokenCookie(res: Response, token: string): void {
-  res.cookie('access_token', token, {
+  res.cookie(COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',

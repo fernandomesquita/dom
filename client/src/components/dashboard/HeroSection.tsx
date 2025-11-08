@@ -2,7 +2,7 @@ import { Play, ArrowRight, Brain, BookOpen, Target, Clock, CheckCircle2 } from "
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
-import { useRouter } from "wouter";
+import { useLocation } from "wouter";
 
 /**
  * E10: Hero Section
@@ -15,7 +15,7 @@ import { useRouter } from "wouter";
  */
 
 export function HeroSection() {
-  const [, navigate] = useRouter();
+  const [, navigate] = useLocation();
 
   // Buscar dados do Hero
   const { data: heroData, isLoading } = trpc.dashboard.getHeroData.useQuery();

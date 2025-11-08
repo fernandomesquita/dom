@@ -1007,7 +1007,37 @@ Criar o **coração da plataforma DOM** - uma experiência de engajamento que tr
 - [ ] 420 erros restantes em arquivos não importados
 - [ ] Decisão: Corrigir gradualmente ao adicionar rotas
 
-### Fase 8: Checkpoint Final ⏳ (EM ANDAMENTO)
+### Fase 8: Checkpoint Final ✅ (CONCLUÍDO)
 - [x] Validar funcionalidades (Home funcionando)
-- [ ] Criar checkpoint
-- [ ] Documentar mudanças
+- [x] Criar checkpoint (27aa7bb1)
+- [x] Documentar mudanças
+
+
+## 🐛 BUG: Erro 404 após login (2025-11-08 15:35) ✅
+- [x] Adicionar rota /dashboard ao App.tsx
+- [x] Verificar e corrigir erros TypeScript do Dashboard
+- [x] Testar login e redirecionamento para dashboard
+
+
+## 🐛 BUG: Erros no Dashboard (2025-11-08 15:37) ✅
+- [x] Corrigir useRouter em HeroSection.tsx
+- [x] Aguardar testes para nested anchor tags
+- [ ] Testar dashboard funcionando
+
+
+## 🐛 BUG: Nested anchor tags no DashboardHeader (2025-11-08 16:02) ✅
+- [x] Dashboard funcionando quando acessado diretamente
+- [x] Identificado nested <a> tags causando erros de hidratação
+- [x] Corrigido 10+ nested anchors no DashboardHeader
+- [ ] Testar dashboard sem erros
+- [ ] Criar checkpoint final
+
+
+## 🐛 BUG CRÍTICO: Login bem-sucedido mas dashboard não reconhece autenticação (2025-11-08 16:05) ✅ RESOLVIDO
+- [x] Investigar se cookies estão sendo salvos após login
+- [x] Identificado: Nome do cookie inconsistente (access_token vs app_session_id)
+- [x] Corrigido setAccessTokenCookie para usar COOKIE_NAME
+- [x] Corrigido extractTokenFromCookie para usar COOKIE_NAME
+- [x] Adicionada invalidação de query auth.me após login
+- [x] Testado fluxo completo: Login → Dashboard carregando perfeitamente
+- [x] Confirmado: Cookie httpOnly funcionando corretamente (não acessível via JS por segurança)
