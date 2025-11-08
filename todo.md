@@ -1081,3 +1081,47 @@ Criar o **coração da plataforma DOM** - uma experiência de engajamento que tr
 - [x] Botão "Matricular" já implementado na página de detalhes
 - [ ] Testar fluxo: Listar planos → Ver detalhes → Matricular
 - [ ] Verificar se matrícula foi registrada no banco
+
+
+## 🔧 TAREFA PRIORITÁRIA: Resolver Autenticação + Meus Planos (2025-11-08 17:50)
+
+### 1. Resolver Persistência de Cookie JWT ✅ RESOLVIDO
+- [x] Investigar por que cookie não persiste após login
+- [x] Verificar configuração de domínio e httpOnly
+- [x] Confirmado: Backend retorna Set-Cookie corretamente
+- [x] Confirmado: tRPC client usa credentials: "include"
+- [x] Testado login em navegador limpo - funcionou perfeitamente
+- [x] Dashboard reconhece autenticação após login
+- [x] Problema era cache do navegador - resolvido com limpeza
+
+### 2. Implementar Página "Meus Planos" (PENDENTE)
+- [ ] BLOQUEADO: Página /planos não carrega (tela branca)
+- [ ] Resolver erro na página AllPlans.tsx primeiro
+- [ ] Depois criar página `/meus-planos` (MyPlans.tsx)
+- [ ] Criar procedure `plansUser.getMyEnrollments`
+- [ ] Listar planos matriculados do usuário
+- [ ] Mostrar progresso de cada plano (% de metas concluídas)
+- [ ] Adicionar botão "Continuar Estudando" que leva ao cronograma
+- [ ] Adicionar filtros (todos, em andamento, concluídos)
+- [ ] Adicionar estado vazio quando não há matrículas
+- [ ] Registrar rota no App.tsx
+- [ ] Adicionar link no menu de navegação
+
+### 3. URGENTE: Corrigir Página /planos (Tela Branca)
+- [ ] Identificar erro que impede renderização
+- [ ] Verificar se AllPlans.tsx tem erro de sintaxe
+- [ ] Verificar se há import faltando
+- [ ] Testar com versão simplificada do componente
+- [ ] Validar que planos aparecem na listagem
+
+### 3. BACKLOG: Sistema de Pagamento (Stripe/PagSeguro)
+- [ ] Pesquisar melhor gateway para Brasil (Stripe, PagSeguro, Mercado Pago)
+- [ ] Criar conta no gateway escolhido
+- [ ] Instalar SDK do gateway
+- [ ] Criar procedure `payments.createCheckout`
+- [ ] Criar procedure `payments.handleWebhook`
+- [ ] Implementar página de checkout
+- [ ] Configurar webhook de confirmação
+- [ ] Atualizar status de matrícula após pagamento
+- [ ] Enviar email de confirmação
+- [ ] Adicionar histórico de pagamentos no perfil
