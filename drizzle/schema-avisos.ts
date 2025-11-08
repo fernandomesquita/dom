@@ -222,3 +222,69 @@ export type AvisoVisualizacao = typeof avisosVisualizacoes.$inferSelect;
 export type AvisoTemplate = typeof avisosTemplates.$inferSelect;
 export type AvisoFilaEntrega = typeof avisosFilaEntrega.$inferSelect;
 export type AvisoAnalytics = typeof avisosAnalytics.$inferSelect;
+
+
+// =============================================
+// TABELA: Agendamentos de Avisos
+// =============================================
+export const avisosAgendamentos = mysqlTable("avisos_agendamentos", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  avisoId: varchar("aviso_id", { length: 36 }).notNull(),
+  
+  // Configuração de agendamento
+  dataExecucao: timestamp("data_execucao").notNull(),
+  recorrencia: varchar("recorrencia", { length: 20 }).notNull(), // unica, diaria, semanal, mensal
+  timezone: varchar("timezone", { length: 50 }).default("America/Sao_Paulo").notNull(),
+  
+  // Próxima execução (calculada)
+  proximaExecucao: timestamp("proxima_execucao"),
+  
+  // Status
+  status: varchar("status", { length: 20 }).default("ativo").notNull(), // ativo, pausado, concluido, cancelado
+  
+  // Segmentação (opcional)
+  segmentacao: json("segmentacao").$type<{
+    diasUltimoAcesso?: number;
+    taxaAcertoMin?: number;
+    taxaAcertoMax?: number;
+    questoesResolvidasMin?: number;
+    questoesResolvidasMax?: number;
+  }>(),
+  
+  // Auditoria
+  criadoPor: varchar("criado_por", { length: 36 }).notNull(),
+  criadoEm: timestamp("criado_em").defaultNow().notNull(),
+  atualizadoEm: timestamp("atualizado_em").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  avisoIdIdx: index("idx_agendamentos_aviso").on(table.avisoId),
+  statusIdx: index("idx_agendamentos_status").on(table.status),
+  proximaExecucaoIdx: index("idx_agendamentos_proxima").on(table.proximaExecucao),
+  criadoPorIdx: index("idx_agendamentos_criado_por").on(table.criadoPor),
+}));
+
+// =============================================
+// TABELA: Logs de Execução de Agendamentos
+// =============================================
+export const avisosAgendamentosLogs = mysqlTable("avisos_agendamentos_logs", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  agendamentoId: varchar("agendamento_id", { length: 36 }).notNull(),
+  avisoId: varchar("aviso_id", { length: 36 }).notNull(),
+  
+  // Resultado da execução
+  status: varchar("status", { length: 20 }).notNull(), // sucesso, erro
+  usuariosAlcancados: int("usuarios_alcancados").default(0).notNull(),
+  erroMensagem: text("erro_mensagem"),
+  
+  // Timestamp
+  executadoEm: timestamp("executado_em").defaultNow().notNull(),
+}, (table) => ({
+  agendamentoIdIdx: index("idx_logs_agendamento").on(table.agendamentoId),
+  avisoIdIdx: index("idx_logs_aviso").on(table.avisoId),
+  statusIdx: index("idx_logs_status").on(table.status),
+  executadoEmIdx: index("idx_logs_executado").on(table.executadoEm),
+}));
+
+export type AvisoAgendamento = typeof avisosAgendamentos.$inferSelect;
+export type InsertAvisoAgendamento = typeof avisosAgendamentos.$inferInsert;
+export type AvisoAgendamentoLog = typeof avisosAgendamentosLogs.$inferSelect;
+export type InsertAvisoAgendamentoLog = typeof avisosAgendamentosLogs.$inferInsert;

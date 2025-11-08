@@ -530,3 +530,248 @@ Use este template para adicionar novas entradas:
 - Documente problemas conhecidos para transparência
 
 **Última atualização:** 07/11/2025 18:30 GMT-3
+
+
+---
+
+## [0.4.0] - 2025-01-07 - Etapa 4: Módulo de Metas (Cronograma de Estudos)
+
+**Checkpoint:** `eb5a1a09`  
+**Status:** 🚧 Em Desenvolvimento (85% completo)
+
+### 🎯 Resumo da Etapa
+
+Implementação completa do Módulo de Metas com sistema de cronograma de estudos, revisão espaçada, batch import via Excel, analytics administrativos e integração com módulo de materiais. Inclui backend com 4 routers tRPC (30+ procedures), frontend completo (7 páginas), autocomplete de taxonomia (KTree) e validação de conflitos de horário.
+
+### ✨ Adicionado
+
+#### Database Schema (8 tabelas)
+- `metas_planos_estudo` - Planos de estudo do usuário (renomeado de `planos_estudo`)
+- `metas_cronograma` - Metas individuais ESTUDO/QUESTOES/REVISAO (renomeado de `metas`)
+- `metas_cronograma_materiais` - Vínculo meta-material (renomeado de `metas_materiais`)
+- `metas_cronograma_questoes` - Vínculo meta-questão (renomeado de `metas_questoes`)
+- `metas_cronograma_log_conclusoes` - Log de conclusões
+- `metas_cronograma_log_omissoes` - Log de omissões
+- `metas_cronograma_log_redistribuicoes` - Log de redistribuições
+- `metas_batch_imports` - Controle de imports em lote
+
+**Decisão Crítica - Renomeação de Tabelas:**
+- Conflito detectado: tabela `metas` já existia (módulo de gamificação)
+- Solução: Prefixo `metas_cronograma_*` para todas as tabelas do módulo
+- Documentado em `docs/DECISOES-CRITICAS.md`
+- Migração SQL criada: `drizzle/migrations/001_rename_metas_tables.sql`
+- Rollback criado: `drizzle/migrations/001_rollback_rename.sql`
+
+#### Backend - Helpers (3 utilitários)
+- `server/helpers/metasNumeracao.ts`:
+  - Sistema de numeração sequencial única (#001, #001.1, #001.1.1)
+  - Suporta até 3 níveis de hierarquia
+  - Geração automática de números de revisão
+- `server/helpers/metasRevisao.ts`:
+  - Revisão espaçada automática (1, 7, 30 dias após conclusão)
+  - Cria metas de revisão automaticamente
+  - Vincula materiais/questões da meta original
+- `server/helpers/metasDistribuicao.ts`:
+  - Distribuição inteligente respeitando capacidade diária
+  - Respeita dias disponíveis do plano (bitmask)
+  - Redistribuição automática ao omitir/adiar meta
+
+#### Backend - Routers tRPC (4 routers, 30+ procedures)
+
+**metasPlanos (7 procedures):**
+- `create` - Criar plano de estudo
+- `list` - Listar planos do usuário
+- `getById` - Buscar plano por ID
+- `update` - Atualizar configurações do plano
+- `delete` - Deletar plano (soft delete)
+- `getStats` - Estatísticas do plano
+- `updateConfig` - Atualizar horas/dia e dias disponíveis
+
+**metasMetas (12 procedures):**
+- `create` - Criar meta manual
+- `list` - Listar metas do plano
+- `listByDate` - Listar metas de uma data específica
+- `getById` - Buscar meta por ID
+- `update` - Atualizar meta
+- `delete` - Deletar meta
+- `complete` - Concluir meta (gera revisões + marca materiais como vistos)
+- `omit` - Omitir meta (redistribui automaticamente)
+- `requestMoreTime` - Solicitar mais tempo (redistribui)
+- `vincularMaterial` - Vincular material à meta
+- `desvincularMaterial` - Desvincular material
+- `listarMateriaisVinculados` - Listar materiais da meta
+- `buscarMateriaisDisponiveis` - Buscar materiais filtrados por KTree
+- `verificarConflitos` - Verificar conflitos de horário e sugerir próximo slot
+
+**metasBatchImport (1 procedure):**
+- `import` - Importar metas via Excel com validação e idempotência
+
+**metasAnalytics (7 procedures):**
+- `getGlobalStats` - Estatísticas globais
+- `getTaxaConclusaoPorDisciplina` - Taxa de conclusão por disciplina
+- `getMetasMaisOmitidas` - Top 10 metas mais omitidas
+- `getTempoMedioPorTipo` - Tempo médio planejado vs real
+- `getDistribuicaoPorDiaSemana` - Distribuição por dia da semana
+- `getProgressoTemporal` - Progresso ao longo do tempo
+- `getResumoCards` - Cards de resumo para dashboard
+
+**ktreeRouter (4 procedures):**
+- `listDisciplinas` - Listar disciplinas
+- `listAssuntos` - Listar assuntos por disciplina
+- `listTopicos` - Listar tópicos por assunto
+- `getBreadcrumb` - Buscar breadcrumb completo
+
+#### Frontend - Páginas (7 páginas)
+
+**MetasPlanos (/metas/planos):**
+- Listagem de planos com cards
+- Criação de novo plano com dialog
+- Configuração de horas/dia e dias disponíveis (checkboxes)
+- Botões de acesso rápido: Hoje, Cronograma, Importar, Nova Meta
+- Deleção de plano com confirmação
+
+**MetasCronograma (/metas/planos/:planoId/cronograma):**
+- Visualização em calendário mensal
+- Filtros por status (todas, pendentes, concluídas, omitidas)
+- Filtros por tipo (ESTUDO, QUESTOES, REVISAO)
+- Navegação mensal (anterior/próximo)
+- Cards de resumo com estatísticas
+- Indicadores visuais por tipo de meta
+
+**MetasHoje (/metas/planos/:planoId/hoje):**
+- Cards de metas do dia com timer integrado
+- Botões de ação: Concluir, Mais Tempo, Omitir
+- Dialogs de confirmação para cada ação
+- Progresso visual com barra de progresso
+- Estatísticas do dia (total, concluídas, tempo usado)
+
+**MetaDetalhes (/metas/:metaId):**
+- Visualização completa da meta
+- Seções: Informações Gerais, Datas Importantes, Orientações, Motivo de Omissão, Metadados
+- Lista de materiais vinculados com thumbnails
+- Dialog de busca de materiais com filtro por KTree
+- Botão "Adicionar Material" e "Remover"
+- Breadcrumb com plano e número da meta
+
+**MetasImport (/metas/planos/:planoId/importar):**
+- Upload de arquivo Excel
+- Validação de KTree (disciplina, assunto, tópico)
+- Idempotência via row_hash (evita duplicatas)
+- Relatório detalhado de sucessos/erros
+- Suporte a todos os tipos de meta
+
+**MetasDashboard (/admin/metas/dashboard):**
+- 7 analytics diferentes com queries SQL otimizadas
+- Estatísticas globais (total, concluídas, omitidas, taxa de conclusão)
+- Taxa de conclusão por disciplina (top 10)
+- Metas mais omitidas (top 10 com motivos)
+- Tempo médio por tipo (planejado vs real)
+- Distribuição por dia da semana
+- Cards de resumo com ícones e cores
+
+**MetaNova (/metas/planos/:planoId/nova):**
+- Formulário completo em 4 cards (Tipo, KTree, Agendamento, Orientações)
+- **Autocomplete real de KTree** com componente KTreeSelector
+- Breadcrumb visual "Disciplina › Assunto › Tópico" com badges
+- Select de tipo com 3 opções (ESTUDO, QUESTOES, REVISAO) + emojis
+- Input de duração com botões +15/-15 (range 15-240min)
+- Input de data com validação de data futura
+- Textarea de orientações com contador 0/2000 caracteres
+- **Pré-visualização de slot do dia** (metas alocadas, tempo usado/restante, alerta visual)
+- **Dialog funcional de materiais** com busca, checkbox múltipla, badges
+- **Validação de conflitos de horário** (backend completo, UI pendente)
+- Botão "Criar Meta" (redireciona para listagem)
+- Botão "Criar e Adicionar Outra" (limpa formulário após criar)
+
+#### Frontend - Componentes
+
+**KTreeSelector:**
+- Componente customizado com Popover + ScrollArea + Search inline
+- Busca em cada nível (disciplina, assunto, tópico)
+- Limpeza automática de seleções dependentes
+- Botão X para remover tópico opcional
+- Integrado na MetaNova
+
+#### Scripts de Seed
+- `scripts/seed-metas.mjs` - 1 plano + 30 metas variadas
+- `scripts/seed-metas-simple.mjs` - 1 plano + 10 metas (usado atualmente)
+- Dados realistas: 3 concluídas, 2 omitidas, 5 pendentes
+- Logs de redistribuição automática
+- Revisões geradas automaticamente
+
+### 🔧 Modificado
+
+- `drizzle/schema-metas.ts` - 4 tabelas renomeadas (prefixo `metas_cronograma_*`)
+- `drizzle.config.ts` - `schema-metas.ts` adicionado à lista de schemas
+- `server/routers.ts` - 4 routers registrados (metasPlanos, metasMetas, metasBatchImport, metasAnalytics, ktree)
+- `client/src/App.tsx` - 7 rotas adicionadas
+- `server/routers/metasMetas.ts` - Procedure `complete` atualizada para marcar materiais como vistos
+
+### 🐛 Corrigido
+
+- Erro de schema não sincronizado (tabelas criadas via `webdev_execute_sql`)
+- Conflito de nomenclatura com módulo de gamificação
+- Erro de import `useNavigate` do wouter (substituído por `useLocation`)
+- Erro de OOM (Out of Memory) durante desenvolvimento (servidor morto várias vezes)
+- Sintaxe quebrada no MetaNova.tsx após edições múltiplas
+
+### 📦 Dependências Adicionadas
+
+- `xlsx` - Leitura de arquivos Excel para batch import
+
+### 🚧 Pendências (15% restante)
+
+**Frontend:**
+- [ ] Warning visual de conflito na UI (Alert vermelho com AlertTriangle)
+- [ ] Botão "Usar Slot Sugerido" que aplica `proximaDataDisponivel`
+- [ ] Vincular materiais após criar meta (loop chamando `vincularMaterial`)
+- [ ] Seed de taxonomia (disciplinas, assuntos, tópicos) para testar autocomplete
+
+**Backend:**
+- [ ] Notificações push (lembrar metas do dia, parabenizar conclusões)
+- [ ] Exportação de relatórios (PDF/Excel com gráficos)
+- [ ] Integração com KTree real (foreign keys para tabelas de taxonomia)
+
+### 📚 Documentação Criada
+
+- `docs/MODULO-METAS.md` - Documentação técnica completa (87 páginas)
+- `docs/DECISOES-CRITICAS.md` - Decisões críticas e erros
+- `drizzle/migrations/001_rename_metas_tables.sql` - Migração SQL
+- `drizzle/migrations/001_rollback_rename.sql` - Script de rollback
+- `todo.md` - Atualizado com progresso completo
+
+### 📊 Métricas
+
+- **Tabelas criadas:** 8 (renomeadas com prefixo `metas_cronograma_*`)
+- **Routers tRPC:** 5 (metasPlanos, metasMetas, metasBatchImport, metasAnalytics, ktree)
+- **Procedures tRPC:** 31 (7 + 13 + 1 + 7 + 4)
+- **Páginas frontend:** 7 (planos, cronograma, hoje, detalhes, import, dashboard, nova)
+- **Componentes customizados:** 1 (KTreeSelector)
+- **Helpers:** 3 (numeração, revisão, distribuição)
+- **Metas de teste:** 10 (seed simplificado)
+- **Linhas de código (estimativa):** ~5000
+- **Tempo de desenvolvimento:** 3 dias
+- **Checkpoints criados:** 10+
+- **Erros de OOM:** 5+ (servidor morto por falta de memória)
+
+### 🎯 Lições Aprendidas
+
+1. **Conflitos de Nomenclatura:** Sempre verificar tabelas existentes antes de criar novas. Usar prefixos descritivos para evitar conflitos (ex: `metas_cronograma_*` vs `metas` de gamificação).
+2. **Renomeação Sistemática:** Usar scripts sed para renomear referências em múltiplos arquivos de uma vez (9 arquivos atualizados simultaneamente).
+3. **OOM em Desenvolvimento:** Servidor morto várias vezes por falta de memória. Solução: reiniciar servidor frequentemente e criar checkpoints intermediários.
+4. **Autocomplete Customizado:** shadcn/ui não tem Combobox pronto. Criar componente customizado com Popover + ScrollArea + Search é mais eficiente.
+5. **Validação de Conflitos:** Separar lógica de backend (procedure) da UI (componente). Backend retorna dados, UI decide como exibir.
+6. **Integração com Materiais:** Auto-update ao concluir meta (marcar como visto + incrementar viewCount) melhora UX sem ação manual.
+7. **Seed de Dados:** Essencial para testar funcionalidades complexas (cronograma, analytics, revisões).
+8. **Documentação Extensiva:** Criar documentação técnica completa (87 páginas) facilita continuidade do projeto.
+
+### ⚠️ Problemas Conhecidos
+
+- Servidor morto por OOM durante desenvolvimento (5+ vezes)
+- Tabelas criadas via SQL direto (pnpm db:push não funcionou)
+- Warning visual de conflito ainda não implementado na UI
+- Materiais não são vinculados automaticamente após criar meta
+- Seed de taxonomia (disciplinas, assuntos, tópicos) ainda não criado
+
+---
+

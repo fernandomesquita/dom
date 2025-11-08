@@ -1,0 +1,26 @@
+{
+  "query": "SELECT * FROM users LIMIT 1",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute SELECT * FROM users LIMIT 1",
+  "rows": [
+    {
+      "id": "3bbdcbcb-bc28-11f0-bed3-66ea75abc6d5",
+      "nome_completo": "Admin DOM",
+      "cpf": "12345678901",
+      "email": "admin@dom.com",
+      "password_hash": "$2b$10$lfqmpUPob6ZY7gZ5VXUte.qjUjNmN5glihtRFrJyzDNVc8v0QsSY.",
+      "password_version": "1",
+      "data_nascimento": "1990-01-01",
+      "email_verificado": "1",
+      "role": "ADMIN",
+      "avatar_url": "NULL",
+      "telefone": "11999999999",
+      "ativo": "1",
+      "created_at": "2025-11-07 22:22:23",
+      "updated_at": "2025-11-07 22:23:33"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tnome_completo\tcpf\temail\tpassword_hash\tpassword_version\tdata_nascimento\temail_verificado\trole\tavatar_url\ttelefone\tativo\tcreated_at\tupdated_at\n3bbdcbcb-bc28-11f0-bed3-66ea75abc6d5\tAdmin DOM\t12345678901\tadmin@dom.com\t$2b$10$lfqmpUPob6ZY7gZ5VXUte.qjUjNmN5glihtRFrJyzDNVc8v0QsSY.\t1\t1990-01-01\t1\tADMIN\tNULL\t11999999999\t1\t2025-11-07 22:22:23\t2025-11-07 22:23:33\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}

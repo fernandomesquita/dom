@@ -1,0 +1,55 @@
+{
+  "query": "SELECT id, titulo, tipo, formato_exibicao, status, data_inicio, data_fim FROM avisos WHERE status = 'ativo' LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute SELECT id, titulo, tipo, formato_exibicao, status, data_inicio, data_fim FROM avisos WHERE status = 'ativo' LIMIT 5",
+  "rows": [
+    {
+      "id": "28e9bc03-6398-4210-9d98-7c9f6c52cd67",
+      "titulo": "Novos materiais disponíveis!",
+      "tipo": "informativo",
+      "formato_exibicao": "toast",
+      "status": "ativo",
+      "data_inicio": "2025-11-08 00:54:33",
+      "data_fim": "NULL"
+    },
+    {
+      "id": "6ba8b4c6-b89b-46b5-a6d4-a2a123aa273e",
+      "titulo": "Parabéns pela conquista!",
+      "tipo": "individual",
+      "formato_exibicao": "modal",
+      "status": "ativo",
+      "data_inicio": "2025-11-08 00:54:33",
+      "data_fim": "NULL"
+    },
+    {
+      "id": "b4d0645d-a73e-42e4-8211-7582d9011d78",
+      "titulo": "Manutenção programada",
+      "tipo": "importante",
+      "formato_exibicao": "banner",
+      "status": "ativo",
+      "data_inicio": "2025-11-08 00:54:33",
+      "data_fim": "NULL"
+    },
+    {
+      "id": "c0b5cc68-f5ca-4dea-bce5-7e27cbc0b611",
+      "titulo": "Upgrade para Premium",
+      "tipo": "premium",
+      "formato_exibicao": "modal",
+      "status": "ativo",
+      "data_inicio": "2025-11-08 00:54:33",
+      "data_fim": "NULL"
+    },
+    {
+      "id": "c1539a7a-d891-4eb3-ad39-d39a7fab867f",
+      "titulo": "Prazo final para simulado",
+      "tipo": "urgente",
+      "formato_exibicao": "modal",
+      "status": "ativo",
+      "data_inicio": "2025-11-08 00:54:33",
+      "data_fim": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitulo\ttipo\tformato_exibicao\tstatus\tdata_inicio\tdata_fim\n28e9bc03-6398-4210-9d98-7c9f6c52cd67\tNovos materiais disponíveis!\tinformativo\ttoast\tativo\t2025-11-08 00:54:33\tNULL\n6ba8b4c6-b89b-46b5-a6d4-a2a123aa273e\tParabéns pela conquista!\tindividual\tmodal\tativo\t2025-11-08 00:54:33\tNULL\nb4d0645d-a73e-42e4-8211-7582d9011d78\tManutenção programada\timportante\tbanner\tativo\t2025-11-08 00:54:33\tNULL\nc0b5cc68-f5ca-4dea-bce5-7e27cbc0b611\tUpgrade para Premium\tpremium\tmodal\tativo\t2025-11-08 00:54:33\tNULL\nc1539a7a-d891-4eb3-ad39-d39a7fab867f\tPrazo final para simulado\turgente\tmodal\tativo\t2025-11-08 00:54:33\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 782
+}

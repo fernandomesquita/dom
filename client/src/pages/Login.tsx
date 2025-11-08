@@ -73,9 +73,9 @@ export default function Login() {
                 <div className="flex items-center justify-between">
                   <Label htmlFor="senha">Senha</Label>
                   <Link href="/recuperar-senha">
-                    <a className="text-sm text-indigo-600 hover:text-indigo-700">
+                    <span className="text-sm text-indigo-600 hover:text-indigo-700 cursor-pointer">
                       Esqueceu a senha?
-                    </a>
+                    </span>
                   </Link>
                 </div>
                 <Input
@@ -108,9 +108,9 @@ export default function Login() {
             <div className="mt-6 text-center text-sm">
               <span className="text-slate-600">Não tem uma conta? </span>
               <Link href="/cadastro">
-                <a className="text-indigo-600 hover:text-indigo-700 font-medium">
+                <span className="text-indigo-600 hover:text-indigo-700 font-medium cursor-pointer">
                   Criar conta grátis
-                </a>
+                </span>
               </Link>
             </div>
           </CardContent>
@@ -119,9 +119,9 @@ export default function Login() {
         {/* Link para voltar */}
         <div className="mt-4 text-center">
           <Link href="/">
-            <a className="text-sm text-slate-600 hover:text-slate-900">
+            <span className="text-sm text-slate-600 hover:text-slate-900 cursor-pointer">
               ← Voltar para página inicial
-            </a>
+            </span>
           </Link>
         </div>
       </div>

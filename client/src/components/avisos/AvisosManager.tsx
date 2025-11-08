@@ -1,21 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAvisos } from '@/hooks/useAvisos';
+import { useSocket } from '@/hooks/useSocket';
+import { useAuth } from '@/_core/hooks/useAuth';
 import { AvisoModal } from './AvisoModal';
 import { AvisoBanner } from './AvisoBanner';
 import { showAvisoToast } from './AvisoToast';
+import { toast } from 'sonner';
 
 /**
  * Componente orquestrador que gerencia a exibição automática de avisos
  * baseado no formato configurado (modal, banner, toast)
  */
 export function AvisosManager() {
+  const { user } = useAuth();
   const {
     avisoAtual,
     marcarComoVisto,
     dispensarAviso,
     registrarCliqueCTA,
     proximoAviso,
+    refetch,
   } = useAvisos();
+
+  // WebSocket para notificações em tempo real
+  const { on, off, isConnected } = useSocket({
+    userId: user?.id,
+    autoConnect: true,
+  });
 
   const [modalOpen, setModalOpen] = useState(false);
   const [bannerAviso, setBannerAviso] = useState<any | null>(null);
@@ -56,6 +67,40 @@ export function AvisosManager() {
     // Adicionar à lista de exibidos
     setAvisosExibidos(prev => new Set(prev).add(avisoAtual.id));
   }, [avisoAtual, avisosExibidos]);
+
+  // Escutar eventos WebSocket
+  useEffect(() => {
+    if (!isConnected) return;
+
+    const handleNovoAviso = (data: any) => {
+      console.log('[AvisosManager] Novo aviso recebido via WebSocket:', data);
+      toast.info('🔔 Nova notificação recebida!');
+      // Recarregar avisos
+      refetch();
+    };
+
+    const handleAvisoAtualizado = (data: any) => {
+      console.log('[AvisosManager] Aviso atualizado via WebSocket:', data);
+      // Recarregar avisos
+      refetch();
+    };
+
+    const handleAvisoExcluido = (data: any) => {
+      console.log('[AvisosManager] Aviso excluído via WebSocket:', data);
+      // Recarregar avisos
+      refetch();
+    };
+
+    on('novoAviso', handleNovoAviso);
+    on('avisoAtualizado', handleAvisoAtualizado);
+    on('avisoExcluido', handleAvisoExcluido);
+
+    return () => {
+      off('novoAviso', handleNovoAviso);
+      off('avisoAtualizado', handleAvisoAtualizado);
+      off('avisoExcluido', handleAvisoExcluido);
+    };
+  }, [isConnected, on, off, refetch]);
 
   const handleCloseModal = () => {
     setModalOpen(false);

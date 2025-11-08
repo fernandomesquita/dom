@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS `forum_categories` (\n  `id` varchar(36) PRIMARY KEY,\n  `nome` varchar(100) NOT NULL,\n  `descricao` text,\n  `icone` varchar(50),\n  `cor` varchar(7),\n  `ordem` int NOT NULL DEFAULT 0,\n  `is_ativa` boolean DEFAULT true,\n  `criado_em` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `atualizado_em` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  INDEX `idx_categories_ordem` (`ordem`),\n  INDEX `idx_categories_ativa` (`is_ativa`)\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute CREATE TABLE IF NOT EXISTS `forum_categories` (\n  `id` varchar(36) PRIMARY KEY,\n  `nome` varchar(100) NOT NULL,\n  `descricao` text,\n  `icone` varchar(50),\n  `cor` varchar(7),\n  `ordem` int NOT NULL DEFAULT 0,\n  `is_ativa` boolean DEFAULT true,\n  `criado_em` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `atualizado_em` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  INDEX `idx_categories_ordem` (`ordem`),\n  INDEX `idx_categories_ativa` (`is_ativa`)\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 226
+}

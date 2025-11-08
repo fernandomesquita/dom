@@ -15,16 +15,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Plus, Save, Eye } from 'lucide-react';
+import { Plus, Save, Eye, FileText } from 'lucide-react';
 import { AvisoModal } from '@/components/avisos/AvisoModal';
 import { AvisoBanner } from '@/components/avisos/AvisoBanner';
 import { showAvisoToast } from '@/components/avisos/AvisoToast';
+import { SegmentacaoAvancada, type FiltrosSegmentacao } from '@/components/avisos/SegmentacaoAvancada';
 
 export default function AvisosAdmin() {
   const [activeTab, setActiveTab] = useState('criar');
   const [showPreview, setShowPreview] = useState(false);
 
   // Form state
+  const [filtrosSegmentacao, setFiltrosSegmentacao] = useState<FiltrosSegmentacao>({});
+  const [templateSelecionado, setTemplateSelecionado] = useState<string>('');
   const [formData, setFormData] = useState({
     tipoId: '',
     titulo: '',
@@ -41,8 +44,21 @@ export default function AvisosAdmin() {
   // Queries
   const tiposQuery = trpc.avisos.list.useQuery({ ativo: true });
   const avisosQuery = trpc.avisos.list.useQuery({});
+  const templatesQuery = trpc.avisosTemplates.listTemplates.useQuery({});
 
   // Mutations
+  const useTemplateMutation = trpc.avisosTemplates.useTemplate.useMutation({
+    onSuccess: (data) => {
+      setFormData({
+        ...formData,
+        tipoId: data.tipo === 'informativo' ? '1' : data.tipo === 'importante' ? '2' : data.tipo === 'urgente' ? '3' : data.tipo === 'individual' ? '4' : '5',
+        titulo: data.titulo,
+        conteudo: data.conteudo,
+      });
+      toast.success('Template aplicado com sucesso!');
+    },
+  });
+
   const createMutation = trpc.avisos.create.useMutation({
     onSuccess: () => {
       toast.success('Aviso criado com sucesso!');
@@ -166,6 +182,41 @@ export default function AvisosAdmin() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* Usar Template */}
+                  <Card className="bg-blue-50 border-blue-200 mb-4">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        Usar Template
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Preencha rapidamente com um template existente
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <Select
+                        value={templateSelecionado}
+                        onValueChange={(value) => {
+                          setTemplateSelecionado(value);
+                          if (value) {
+                            useTemplateMutation.mutate({ templateId: value });
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione um template" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {templatesQuery.data?.map((template) => (
+                            <SelectItem key={template.id} value={template.id}>
+                              {template.nome} ({template.tipo})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </CardContent>
+                  </Card>
+
                   {/* Tipo */}
                   <div className="space-y-2">
                     <Label htmlFor="tipo">Tipo *</Label>
@@ -311,8 +362,11 @@ export default function AvisosAdmin() {
                 </CardContent>
               </Card>
 
-              {/* Coluna Direita: Ações e Preview */}
+              {/* Coluna Direita: Segmentação e Ações */}
               <div className="space-y-6">
+                {/* Segmentação Avançada */}
+                <SegmentacaoAvancada onChange={setFiltrosSegmentacao} />
+
                 <Card>
                   <CardHeader>
                     <CardTitle>Ações</CardTitle>

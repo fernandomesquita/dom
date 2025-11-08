@@ -8,6 +8,9 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import "../queues/worker"; // Inicializar worker de filas
+import { initializeSocket } from "./socket";
+import { iniciarScheduler } from "../scheduler/avisos";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -59,8 +62,17 @@ async function startServer() {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
+  // Inicializar Socket.IO
+  initializeSocket(server);
+
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
+    console.log('[Server] Worker de filas iniciado');
+    console.log('[Server] WebSocket (Socket.IO) iniciado');
+    
+    // Iniciar scheduler de agendamentos
+    iniciarScheduler();
+    console.log('[Server] Scheduler de agendamentos iniciado');
   });
 }
 

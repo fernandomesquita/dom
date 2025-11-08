@@ -28,7 +28,6 @@ import {
   BookMarked,
 } from 'lucide-react';
 import { AvisosCentral } from './avisos/AvisosCentral';
-import { useAvisos } from '@/hooks/useAvisos';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
@@ -44,7 +43,6 @@ const navigation = [
 export default function Header() {
   const [location] = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
-  const { avisosPendentes, totalPendentes, marcarComoVisto } = useAvisos();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
@@ -96,19 +94,7 @@ export default function Header() {
         {/* Desktop Auth */}
         <div className="hidden md:flex items-center gap-4 ml-auto">
           {/* Central de Avisos */}
-          {isAuthenticated && (
-            <AvisosCentral
-              avisos={avisosPendentes.map(a => ({
-                ...a,
-                criadoEm: new Date(a.criadoEm),
-                visualizado: false,
-              }))}
-              totalNaoLidos={totalPendentes}
-              onClickAviso={(avisoId) => {
-                marcarComoVisto(avisoId);
-              }}
-            />
-          )}
+          {isAuthenticated && <AvisosCentral />}
           {isAuthenticated && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

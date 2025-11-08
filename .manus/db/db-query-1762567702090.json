@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS `forum_messages` (\n  `id` varchar(36) PRIMARY KEY,\n  `thread_id` varchar(36) NOT NULL,\n  `autor_id` varchar(36) NOT NULL,\n  `conteudo` text NOT NULL,\n  `mensagem_pai_id` varchar(36),\n  `nivel_aninhamento` int DEFAULT 0,\n  `upvotes` int DEFAULT 0,\n  `criado_em` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `editado_em` timestamp,\n  `status` varchar(30) DEFAULT 'ativo',\n  `motivo_delecao` text,\n  `moderador_id` varchar(36),\n  `is_resposta_oficial` boolean DEFAULT false,\n  `deletado_por_id` varchar(36),\n  INDEX `idx_messages_thread` (`thread_id`, `criado_em`),\n  INDEX `idx_messages_autor` (`autor_id`),\n  INDEX `idx_messages_pai` (`mensagem_pai_id`),\n  INDEX `idx_messages_status` (`status`),\n  INDEX `idx_messages_criado_em` (`criado_em`)\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute CREATE TABLE IF NOT EXISTS `forum_messages` (\n  `id` varchar(36) PRIMARY KEY,\n  `thread_id` varchar(36) NOT NULL,\n  `autor_id` varchar(36) NOT NULL,\n  `conteudo` text NOT NULL,\n  `mensagem_pai_id` varchar(36),\n  `nivel_aninhamento` int DEFAULT 0,\n  `upvotes` int DEFAULT 0,\n  `criado_em` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `editado_em` timestamp,\n  `status` varchar(30) DEFAULT 'ativo',\n  `motivo_delecao` text,\n  `moderador_id` varchar(36),\n  `is_resposta_oficial` boolean DEFAULT false,\n  `deletado_por_id` varchar(36),\n  INDEX `idx_messages_thread` (`thread_id`, `criado_em`),\n  INDEX `idx_messages_autor` (`autor_id`),\n  INDEX `idx_messages_pai` (`mensagem_pai_id`),\n  INDEX `idx_messages_status` (`status`),\n  INDEX `idx_messages_criado_em` (`criado_em`)\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 311
+}
