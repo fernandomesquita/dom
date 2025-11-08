@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import AllPlans from "./pages/AllPlans";
+import PlanDetails from "./pages/PlanDetails";
 import NotFound from "./pages/NotFound";
 
 function Router() {
@@ -13,6 +14,7 @@ function Router() {
     <Switch>
       <Route path="/login" component={Login} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/planos/:id" component={PlanDetails} />
       <Route path="/planos" component={AllPlans} />
       <Route path="/" component={Home} />
       <Route path="/404" component={NotFound} />

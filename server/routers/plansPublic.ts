@@ -34,8 +34,7 @@ export const plansPublicRouter = router({
 
       // Construir WHERE clause dinamicamente
       const conditions = [
-        eq(plans.status, 'Ativo'),
-        isNull(plans.deletedAt),
+        eq(plans.isHidden, false), // Usar is_hidden ao invés de status
       ];
 
       if (search) {
@@ -66,7 +65,7 @@ export const plansPublicRouter = router({
           name: plans.name,
           description: plans.description,
           featuredImageUrl: plans.featuredImageUrl,
-          logoUrl: plans.logoUrl,
+          // logoUrl não existe no banco
           category: plans.category,
           entity: plans.entity,
           role: plans.role,
@@ -81,7 +80,7 @@ export const plansPublicRouter = router({
         .where(and(...conditions))
         .orderBy(
           desc(plans.isFeatured),  // 1º: Destaque
-          sql`CASE WHEN ${plans.category} = 'Pago' THEN 1 ELSE 2 END`,  // 2º: Pagos antes
+          sql`CASE WHEN category = 'Pago' THEN 1 ELSE 2 END`,  // 2º: Pagos antes (usar nome literal da coluna)
           desc(plans.createdAt)    // 3º: Mais recentes
         )
         .limit(pageSize)
@@ -96,7 +95,7 @@ export const plansPublicRouter = router({
       return {
         items: items.map(item => ({
           ...item,
-          price: item.price ? `R$ ${parseFloat(item.price.toString()).toFixed(2)}` : null,
+          price: item.price || 'Gratuito', // Mostrar valor direto do banco
           tags: item.tags as string[] || [],
         })),
         pagination: {
@@ -125,27 +124,25 @@ export const plansPublicRouter = router({
           name: plans.name,
           description: plans.description,
           featuredImageUrl: plans.featuredImageUrl,
-          logoUrl: plans.logoUrl,
+          // logoUrl não existe
           category: plans.category,
           entity: plans.entity,
           role: plans.role,
           editalStatus: plans.editalStatus,
           isFeatured: plans.isFeatured,
           price: plans.price,
-          durationDays: plans.durationDays,
+          // durationDays não existe
           tags: plans.tags,
           landingPageUrl: plans.landingPageUrl,
           createdAt: plans.createdAt,
-          mentorId: plans.mentorId,
-          mentorName: users.name,
+          // mentorId/mentorName não existem
         })
         .from(plans)
-        .leftJoin(users, eq(plans.mentorId, users.id))
+        // Remover JOIN com users
         .where(
           and(
             eq(plans.id, input.id),
-            eq(plans.status, 'Ativo'),
-            isNull(plans.deletedAt)
+            eq(plans.isHidden, false)
           )
         )
         .limit(1);
@@ -161,20 +158,16 @@ export const plansPublicRouter = router({
         name: plan.name,
         description: plan.description,
         featuredImageUrl: plan.featuredImageUrl,
-        logoUrl: plan.logoUrl,
+        // logoUrl removido
         category: plan.category,
         entity: plan.entity,
         role: plan.role,
         editalStatus: plan.editalStatus,
         isFeatured: plan.isFeatured,
-        price: plan.price ? `R$ ${parseFloat(plan.price.toString()).toFixed(2)}` : null,
-        durationDays: plan.durationDays,
+        price: plan.price || 'Gratuito', // Mostrar valor direto do banco
+        // durationDays removido
         tags: plan.tags as string[] || [],
-        mentor: plan.mentorId ? {
-          id: plan.mentorId.toString(),
-          name: plan.mentorName || 'Mentor',
-          avatarUrl: null,  // TODO: Adicionar quando tabela users tiver avatar_url
-        } : null,
+        // mentor removido
         landingPageUrl: plan.landingPageUrl,
         createdAt: plan.createdAt.toISOString(),
       };

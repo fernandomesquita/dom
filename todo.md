@@ -1066,3 +1066,18 @@ Criar o **coração da plataforma DOM** - uma experiência de engajamento que tr
 - [x] Testado: Navegação para /planos funcionando perfeitamente
 - [x] Página carrega com filtros de busca, categoria e status
 - [x] Sistema pronto para exibir planos quando cadastrados no banco
+
+
+## 🆕 FEATURE: Sistema Completo de Planos e Matrícula (2025-11-08 17:25)
+- [x] Verificar schema de planos no banco de dados (tabela `plans` existe)
+- [x] Verificar se existe tabela user_plans para matrículas (tabela `plan_enrollments` existe)
+- [x] Verificar routers tRPC existentes (plansPublic, plansUser, plansAdmin) ✅
+- [x] Verificar se página PlanDetails.tsx existe ✅
+- [x] Criar script seed com 10 planos mockup (seed-plans-simple.mjs)
+- [x] Inserir planos mockup no banco de dados (10 planos criados)
+- [x] Página PlanDetails.tsx já existe e está completa
+- [x] Adicionar rota /planos/:id no App.tsx
+- [x] Procedure de matrícula (plansUser.enroll) já existe
+- [x] Botão "Matricular" já implementado na página de detalhes
+- [ ] Testar fluxo: Listar planos → Ver detalhes → Matricular
+- [ ] Verificar se matrícula foi registrada no banco

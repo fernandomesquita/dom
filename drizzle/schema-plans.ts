@@ -31,7 +31,7 @@ export const plans = mysqlTable('plans', {
   landingPageUrl: varchar('landing_page_url', { length: 500 }),
   
   // Classificação e contexto
-  category: planCategoryEnum.notNull(),
+  category: mysqlEnum('category', ['Pago', 'Gratuito']).notNull(), // Usar enum inline com nome correto da coluna
   editalStatus: editalStatusEnum.default('N/A'),
   entity: varchar('entity', { length: 255 }),        // Ex: "Banco do Brasil"
   role: varchar('role', { length: 255 }),            // Ex: "Agente Comercial"
@@ -50,6 +50,7 @@ export const plans = mysqlTable('plans', {
   // Status e destaque
   status: planStatusEnum.default('Em edição').notNull(),
   isFeatured: boolean('is_featured').default(false),
+  isHidden: boolean('is_hidden').default(false).notNull(),
   
   // Responsabilidade e auditoria
   mentorId: int('mentor_id').references(() => users.id, { onDelete: 'set null' }),

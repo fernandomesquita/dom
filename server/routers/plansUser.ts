@@ -34,9 +34,8 @@ export const plansUserRouter = router({
         .where(
           and(
             eq(plans.id, planId),
-            eq(plans.status, 'Ativo'),
-            eq(plans.category, 'Gratuito'),
-            isNull(plans.deletedAt)
+            eq(plans.isHidden, false),
+            eq(plans.category, 'Gratuito')
           )
         )
         .limit(1);

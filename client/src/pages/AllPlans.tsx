@@ -182,7 +182,7 @@ export default function AllPlans() {
                       )}
                       <Button
                         size="lg"
-                        onClick={() => setLocation(`/plans/${featuredPlan.id}`)}
+                        onClick={() => setLocation(`/planos/${featuredPlan.id}`)}
                       >
                         {featuredPlan.category === 'Gratuito' ? 'Matricular-se' : 'Saiba Mais'}
                       </Button>
@@ -241,7 +241,7 @@ export default function AllPlans() {
                       )}
                       <Button
                         variant={plan.category === 'Gratuito' ? 'default' : 'outline'}
-                        onClick={() => setLocation(`/plans/${plan.id}`)}
+                        onClick={() => setLocation(`/planos/${plan.id}`)}
                       >
                         {plan.category === 'Gratuito' ? 'Matricular-se' : 'Saiba Mais'}
                       </Button>
