@@ -1164,3 +1164,72 @@
 ---
 
 **Última atualização:** 07 de Novembro de 2025
+
+
+---
+
+## MELHORIAS FINAIS: Navegação Global + Importação + Notificações
+
+**Progresso:** 0% (0/30 tarefas concluídas)
+
+### Fase 1: Navegação Global Persistente
+
+**Header Global:**
+- [ ] Criar componente `Header.tsx` com logo e menu
+- [ ] Adicionar links de navegação (Início, Questões, Simulados, Cadernos, Estatísticas, Materiais)
+- [ ] Implementar dropdown de perfil do usuário (Meu Perfil, Configurações, Sair)
+- [ ] Adicionar indicador de usuário logado (nome + avatar)
+- [ ] Tornar header responsivo (mobile menu hamburguer)
+- [ ] Adicionar highlight no item de menu ativo
+
+**Layout Wrapper:**
+- [ ] Criar componente `MainLayout.tsx` que envolve páginas
+- [ ] Integrar Header no MainLayout
+- [ ] Adicionar footer (opcional)
+- [ ] Atualizar App.tsx para usar MainLayout em todas as rotas
+
+**Melhorias de UX:**
+- [ ] Adicionar breadcrumbs em páginas internas
+- [ ] Implementar botão "Voltar" consistente
+- [ ] Adicionar loading states globais
+
+### Fase 2: Importação em Lote de Questões
+
+**Backend:**
+- [ ] Criar procedure `questions.bulkImportValidate` - Validar estrutura do Excel
+- [ ] Criar procedure `questions.bulkImportExecute` - Executar importação
+- [ ] Adicionar validações de campos obrigatórios
+- [ ] Suportar formatos: .xlsx, .csv
+
+**Frontend:**
+- [ ] Criar página `/admin/questoes/importar`
+- [ ] Implementar upload de arquivo (drag & drop)
+- [ ] Mostrar preview dos dados (tabela)
+- [ ] Exibir erros de validação por linha
+- [ ] Botão "Importar" com loading state
+- [ ] Relatório de sucesso/erro após importação
+
+**Template Excel:**
+- [ ] Criar arquivo template.xlsx de exemplo
+- [ ] Documentar campos obrigatórios e formatos
+
+### Fase 3: Sistema de Notificações
+
+**Backend:**
+- [ ] Criar tabela `notifications` no schema
+- [ ] Criar procedure `notifications.list` - Listar notificações
+- [ ] Criar procedure `notifications.markAsRead` - Marcar como lida
+- [ ] Criar procedure `notifications.markAllAsRead` - Marcar todas
+
+**Frontend:**
+- [ ] Criar componente `NotificationBell` no Header
+- [ ] Mostrar badge com contador de não lidas
+- [ ] Criar dropdown com lista de notificações
+- [ ] Implementar tipos de notificação (info, success, warning, error)
+- [ ] Adicionar ações rápidas (marcar como lida, ir para item)
+
+**Triggers de Notificação:**
+- [ ] Novo material publicado
+- [ ] Comentário em questão salva
+- [ ] Resposta em comentário próprio
+- [ ] Lembrete de meta próxima do prazo

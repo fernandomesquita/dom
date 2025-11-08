@@ -17,6 +17,7 @@ import MaterialDetalhes from "./pages/MaterialDetalhes";
 import AdminMateriais from "./pages/AdminMateriais";
 import MaterialsAnalytics from "./pages/MaterialsAnalytics";
 import NotFound from "./pages/NotFound";
+import MainLayout from "./components/MainLayout";
 
 /**
  * Sistema DOM - Roteamento Principal
@@ -27,8 +28,9 @@ import NotFound from "./pages/NotFound";
 
 function Router() {
   return (
-    <Switch>
-      <Route path={"/"} component={Home} />
+    <MainLayout>
+      <Switch>
+        <Route path={"/"} component={Home} />
       <Route path={"/questoes"} component={Questions} />
       <Route path={"/simulados"} component={Exams} />
       <Route path={"/simulados/:attemptId"} component={ExamViewer} />
@@ -43,9 +45,10 @@ function Router() {
       <Route path={"/admin/materiais/analytics"} component={MaterialsAnalytics} />
       <Route path={"/404"} component={NotFound} />
       {/* TODO: Adicionar rotas protegidas (dashboard, questões, etc) */}
-      {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+        {/* Final fallback route */}
+        <Route component={NotFound} />
+      </Switch>
+    </MainLayout>
   );
 }
 
