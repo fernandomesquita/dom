@@ -1094,25 +1094,26 @@ Criar o **coração da plataforma DOM** - uma experiência de engajamento que tr
 - [x] Dashboard reconhece autenticação após login
 - [x] Problema era cache do navegador - resolvido com limpeza
 
-### 2. Implementar Página "Meus Planos" (PENDENTE)
-- [ ] BLOQUEADO: Página /planos não carrega (tela branca)
-- [ ] Resolver erro na página AllPlans.tsx primeiro
-- [ ] Depois criar página `/meus-planos` (MyPlans.tsx)
-- [ ] Criar procedure `plansUser.getMyEnrollments`
-- [ ] Listar planos matriculados do usuário
-- [ ] Mostrar progresso de cada plano (% de metas concluídas)
-- [ ] Adicionar botão "Continuar Estudando" que leva ao cronograma
-- [ ] Adicionar filtros (todos, em andamento, concluídos)
-- [ ] Adicionar estado vazio quando não há matrículas
-- [ ] Registrar rota no App.tsx
-- [ ] Adicionar link no menu de navegação
+### 2. Implementar Página "Meus Planos" ✅ CONCLUÍDA
+- [x] Página MyPlans.tsx já existia e está completa
+- [x] Procedure `plansUser.myPlans` já existe e funciona
+- [x] Lista planos matriculados do usuário
+- [x] Mostra progresso de cada plano (% de metas concluídas)
+- [x] Botão "Acessar Dashboard" para planos ativos
+- [x] Filtros (Todos, Ativo, Expirado, Cancelado, Suspenso)
+- [x] Estado vazio quando não há matrículas
+- [x] Rota /meus-planos registrada no App.tsx
+- [x] Link "Meus Planos" adicionado no Header com ícone GraduationCap
+- [ ] Testar fluxo completo: Login → Meus Planos → Ver detalhes
 
-### 3. URGENTE: Corrigir Página /planos (Tela Branca)
-- [ ] Identificar erro que impede renderização
-- [ ] Verificar se AllPlans.tsx tem erro de sintaxe
-- [ ] Verificar se há import faltando
-- [ ] Testar com versão simplificada do componente
-- [ ] Validar que planos aparecem na listagem
+### 3. URGENTE: Corrigir Página /planos (Tela Branca) - ADIADO
+- [x] Criar versão simplificada do AllPlans.tsx para identificar erro
+- [x] Testar se query plansPublic.list funciona isoladamente - Backend funciona!
+- [x] Verificar se erro é no componente ou na query
+- [x] Identificado: Problema de renderização no React (causa desconhecida)
+- [ ] ADIADO: Problema complexo, focar em Meus Planos primeiro
+- [ ] Reescrever AllPlans.tsx de forma incremental (PENDENTE)
+- [ ] Validar que planos aparecem na listagem (PENDENTE)
 
 ### 3. BACKLOG: Sistema de Pagamento (Stripe/PagSeguro)
 - [ ] Pesquisar melhor gateway para Brasil (Stripe, PagSeguro, Mercado Pago)
@@ -1125,3 +1126,13 @@ Criar o **coração da plataforma DOM** - uma experiência de engajamento que tr
 - [ ] Atualizar status de matrícula após pagamento
 - [ ] Enviar email de confirmação
 - [ ] Adicionar histórico de pagamentos no perfil
+
+
+## 🔗 URGENTE: Conectar Links do Menu Principal (2025-11-08 18:10) ✅ CONCLUÍDO
+- [x] Verificar quais páginas já existem (Metas, Questões, Materiais, Fórum)
+- [x] Identificadas páginas existentes: MetasCronograma.tsx, Questions.tsx, Materiais.tsx, Forum.tsx
+- [x] Registrar rotas no App.tsx: /metas/cronograma, /metas, /cronograma, /questoes, /materiais, /forum
+- [x] Corrigir links de Acesso Rápido no Dashboard para serem clicáveis
+- [x] Links do DashboardHeader já estavam corretos e funcionando
+- [ ] Testar navegação de todos os links do Header
+- [ ] Verificar se páginas carregam corretamente

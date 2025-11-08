@@ -1,4 +1,5 @@
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { Link } from "wouter";
 import { XPBar } from "@/components/dashboard/XPBar";
 import { HeroSection } from "@/components/dashboard/HeroSection";
 import { NoticesCarousel } from "@/components/dashboard/NoticesCarousel";
@@ -92,13 +93,17 @@ export default function Dashboard() {
           <div className="container">
             <h2 className="text-2xl font-bold mb-6">Acesso Rápido</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {["Metas", "Questões", "Materiais", "Fórum"].map((link) => (
-                <div
-                  key={link}
-                  className="bg-background border rounded-lg p-4 text-center hover:shadow-md transition-shadow cursor-pointer"
-                >
-                  <p className="font-medium">{link}</p>
-                </div>
+              {[
+                { name: "Metas", href: "/metas/cronograma" },
+                { name: "Questões", href: "/questoes" },
+                { name: "Materiais", href: "/materiais" },
+                { name: "Fórum", href: "/forum" },
+              ].map((link) => (
+                <Link key={link.name} href={link.href}>
+                  <div className="bg-background border rounded-lg p-4 text-center hover:shadow-md transition-shadow cursor-pointer">
+                    <p className="font-medium">{link.name}</p>
+                  </div>
+                </Link>
               ))}
             </div>
           </div>
