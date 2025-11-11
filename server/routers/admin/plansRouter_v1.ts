@@ -59,7 +59,7 @@ export const plansRouter_v1 = router({
             (SELECT COUNT(*) FROM metas_cronograma WHERE plano_id = p.id AND concluded_at_utc IS NOT NULL) as metas_concluidas
           FROM metas_planos_estudo p
           LEFT JOIN users u ON p.usuario_id = u.id
-          WHERE 1=1
+          WHERE p.is_hidden = FALSE
         `;
         const params: any[] = [];
 
@@ -84,7 +84,7 @@ export const plansRouter_v1 = router({
           SELECT COUNT(DISTINCT p.id) as total
           FROM metas_planos_estudo p
           LEFT JOIN users u ON p.usuario_id = u.id
-          WHERE 1=1
+          WHERE p.is_hidden = FALSE
         `;
         const countParams: any[] = [];
         

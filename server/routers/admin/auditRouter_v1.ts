@@ -183,16 +183,15 @@ export const auditRouter_v1 = router({
         .groupBy(auditLogs.action)
         .orderBy(desc(sql`count(*)`))
         .limit(10);
-
       // Logs por usuário (top 10)
       const byUser = await ctx.db
         .select({
           actorId: auditLogs.actorId,
-          actorRole: sql<string>`MAX(${auditLogs.actorRole})`,
+          actorRole: auditLogs.actorRole,
           count: sql<number>`count(*)`,
         })
         .from(auditLogs)
-        .groupBy(auditLogs.actorId)
+        .groupBy(auditLogs.actorId, auditLogs.actorRole)
         .orderBy(desc(sql`count(*)`))
         .limit(10);
 
