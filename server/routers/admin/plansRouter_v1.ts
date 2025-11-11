@@ -478,25 +478,15 @@ export const plansRouter_v1 = router({
         console.log('========== LISTNEW DEBUG START ==========');
         console.log('Input:', input);
 
-        // Buscar planos da tabela NOVA
+        // Buscar planos da tabela NOVA (SEM .where() por enquanto)
         const items = await db
           .select()
           .from(plans)
-          .where(isNull(plans.deletedAt))
           .orderBy(desc(plans.createdAt))
           .limit(pageSize)
           .offset(offset);
 
-        // Contar total de registros
-        const [countResult] = await db
-          .select({ count: sql<number>`count(*)` })
-          .from(plans)
-          .where(isNull(plans.deletedAt));
-        
-        const total = countResult?.count || 0;
-
         console.log('TOTAL ITEMS:', items.length);
-        console.log('TOTAL NO BANCO:', total);
         console.log('FIRST ITEM:', JSON.stringify(items[0], null, 2));
         console.log('========== LISTNEW DEBUG END ==========');
 
@@ -508,7 +498,6 @@ export const plansRouter_v1 = router({
             user_id: ctx.user.id,
             filters: { search, category },
             results: items.length,
-            total,
             duration_ms: duration,
           },
           'Plans (NEW) listed successfully'
@@ -519,8 +508,8 @@ export const plansRouter_v1 = router({
           pagination: {
             page,
             pageSize,
-            total,
-            totalPages: Math.ceil(total / pageSize),
+            total: items.length,
+            totalPages: 1, // Simplificado por enquanto
           },
         };
       } catch (error) {
