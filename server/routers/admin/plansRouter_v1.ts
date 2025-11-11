@@ -5,7 +5,7 @@ import { router, staffProcedure, adminRoleProcedure } from '../../_core/trpc';
 import { getRawDb, getDb } from '../../db';
 import { logAuditAction, AuditAction, TargetType } from '../../_core/audit';
 import { plans } from '../../../drizzle/schema-plans';
-import { isNull, desc } from 'drizzle-orm';
+import { isNull, desc, sql } from 'drizzle-orm';
 
 /**
  * Router de Gestão de Planos de Estudo (Admin) - v1
@@ -479,16 +479,6 @@ export const plansRouter_v1 = router({
         console.log('Input:', input);
 
         // Buscar planos da tabela NOVA
-        const conditions = [isNull(plans.deletedAt)];
-        
-        if (search) {
-          // TODO: Adicionar filtro de busca quando Drizzle suportar LIKE
-        }
-        
-        if (category) {
-          // TODO: Adicionar filtro de categoria
-        }
-
         const items = await db
           .select()
           .from(plans)
@@ -497,7 +487,16 @@ export const plansRouter_v1 = router({
           .limit(pageSize)
           .offset(offset);
 
+        // Contar total de registros
+        const [countResult] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(plans)
+          .where(isNull(plans.deletedAt));
+        
+        const total = countResult?.count || 0;
+
         console.log('TOTAL ITEMS:', items.length);
+        console.log('TOTAL NO BANCO:', total);
         console.log('FIRST ITEM:', JSON.stringify(items[0], null, 2));
         console.log('========== LISTNEW DEBUG END ==========');
 
@@ -509,6 +508,7 @@ export const plansRouter_v1 = router({
             user_id: ctx.user.id,
             filters: { search, category },
             results: items.length,
+            total,
             duration_ms: duration,
           },
           'Plans (NEW) listed successfully'
@@ -519,8 +519,8 @@ export const plansRouter_v1 = router({
           pagination: {
             page,
             pageSize,
-            total: items.length,
-            totalPages: Math.ceil(items.length / pageSize),
+            total,
+            totalPages: Math.ceil(total / pageSize),
           },
         };
       } catch (error) {
