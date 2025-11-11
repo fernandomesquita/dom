@@ -303,10 +303,17 @@ Sobrescrever versão mais recente = perda de trabalho + retrabalho + frustraçã
 ## 🔥 PROBLEMAS CRÍTICOS ADICIONAIS (11/11/2025 - 01:40)
 
 ### Problemas Persistentes
-- [ ] admin/planos - Plano criado com sucesso mas não aparece na listagem (schema DB desatualizado - precisa db:push em produção)
+- [x] admin/planos - Plano criado com sucesso mas não aparece na listagem (✅ RESOLVIDO - coluna is_hidden adicionada via SQL em 11/11/2025)
 - [x] admin/metas/nova - Tela em branco ao clicar (corrigido router e campos)
-- [ ] admin/auditoria - Página segue em branco (schema DB desatualizado - precisa db:push em produção)
+- [x] admin/auditoria - Página segue em branco (✅ RESOLVIDO - tabela audit_logs criada via SQL em 11/11/2025)
 - [x] Tópico criado não aparece na listagem (procedure getAll adicionada)
+
+## ✅ TODOS OS 10 PROBLEMAS RESOLVIDOS (11/11/2025)
+
+**Script SQL executado com sucesso:** `sync-production-SIMPLE.sql`
+- Coluna `is_hidden` adicionada em `plans`
+- Tabela `audit_logs` criada
+- Colunas `codigo`, `slug`, `disciplina_id`, `created_by` adicionadas na árvore do conhecimento
 
 ### Novas Funcionalidades Necessárias
 - [x] Código único de questão deve ser gerado automaticamente (já implementado - generateUniqueCode)
