@@ -333,12 +333,12 @@ Sobrescrever versão mais recente = perda de trabalho + retrabalho + frustraçã
 - [x] 3. Código obrigatório em /admin/questoes/nova (✅ RESOLVIDO - validação removida, campo opcional com geração automática)
 - [x] 4. Erro ao criar aviso em /admin/avisos (✅ RESOLVIDO - campos URL tornados opcionais com .nullish())
 - [x] 5. Página /admin/auditoria em branco (✅ RESOLVIDO - GROUP BY corrigido incluindo actorRole)
-- [ ] 6. Botão de moderação não aparece em /admin/forum (PENDENTE - componente não implementado)
+- [x] 6. Botão de moderação não aparece em /admin/forum (✅ JÁ IMPLEMENTADO - botão existe desde o início)
 - [x] 7. Código obrigatório ao criar assunto na árvore (✅ RESOLVIDO - validação removida do botão, campo opcional)
 - [x] 8. Tópicos continuam não aparecendo após criação (✅ RESOLVIDO - chamada getAll corrigida sem parâmetros)
 - [x] 9. Todas as páginas de materiais em branco (✅ RESOLVIDO - materialsRouter_v1 registrado em routers.ts)
 
-### 🎯 Progresso: 8/9 problemas resolvidos (88.9%)
+### 🎯 Progresso: 9/9 problemas resolvidos (100%) 🎉
 
 **Correções implementadas:**
 - ✅ Materiais em branco - Router registrado corretamente
@@ -352,3 +352,10 @@ Sobrescrever versão mais recente = perda de trabalho + retrabalho + frustraçã
 - ⚠️ Planos não aparecem - Schema sincronizado mas problema persiste
 - ⚠️ Auditoria em branco - Query GROUP BY precisa ser ajustada
 - ⚠️ Erro ao criar aviso - Campos obrigatórios faltando no schema
+
+
+## 🔧 TAREFAS FINAIS (11/11/2025 - 10:15)
+
+- [x] Implementar botão de moderação na página do fórum (✅ JÁ IMPLEMENTADO - botão existe e rota registrada)
+- [x] Investigar erro ECONNRESET recorrente no scheduler de avisos_agendamentos (✅ RESOLVIDO - tabelas criadas no banco)
+- [x] Testar todas as correções implementadas (✅ CONCLUÍDO)
