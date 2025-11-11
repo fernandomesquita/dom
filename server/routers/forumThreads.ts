@@ -10,6 +10,7 @@ import {
   forumThreadFavorites,
   forumThreadEdits,
   forumModerationQueue,
+  forumUserSuspensions,
 } from '../../drizzle/schema-forum';
 import { users } from '../../drizzle/schema';
 import { randomUUID } from 'crypto';
@@ -491,5 +492,4 @@ export const forumThreadsRouter = router({
     }),
 });
 
-// Importar forumUserSuspensions que faltou
-import { forumUserSuspensions } from '../../drizzle/schema-forum';
+

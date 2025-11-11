@@ -157,15 +157,16 @@ export const dashboardRouter = router({
 
     const userId = ctx.user.id;
     const userName = ctx.user.name || "Aluno";
+    const firstName = userName.split(" ")[0]; // Extrair primeiro nome
     const today = new Date();
     const hour = today.getHours();
 
-    // Saudação por horário
-    let greeting = "Bom dia";
+    // Saudação por horário com primeiro nome
+    let greeting = `Bom dia, ${firstName}!`;
     if (hour >= 12 && hour < 18) {
-      greeting = "Boa tarde";
+      greeting = `Boa tarde, ${firstName}!`;
     } else if (hour >= 18) {
-      greeting = "Boa noite";
+      greeting = `Boa noite, ${firstName}!`;
     }
 
     // Buscar resumo diário
@@ -213,7 +214,7 @@ export const dashboardRouter = router({
     const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
 
     return {
-      greeting: `${greeting}, ${userName}!`,
+      greeting,
       motivationalMessage: randomMessage,
       cta: {
         state: ctaState,

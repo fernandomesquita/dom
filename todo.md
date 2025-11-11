@@ -359,3 +359,11 @@ Sobrescrever versão mais recente = perda de trabalho + retrabalho + frustraçã
 - [x] Implementar botão de moderação na página do fórum (✅ JÁ IMPLEMENTADO - botão existe e rota registrada)
 - [x] Investigar erro ECONNRESET recorrente no scheduler de avisos_agendamentos (✅ RESOLVIDO - tabelas criadas no banco)
 - [x] Testar todas as correções implementadas (✅ CONCLUÍDO)
+
+
+## 🐛 NOVOS PROBLEMAS REPORTADOS (11/11/2025 - 11:10)
+
+- [x] Dashboard do aluno mostra "Boa tarde, Aluno!" em vez do primeiro nome do usuário (✅ RESOLVIDO - firstName extraído do nome completo no dashboardRouter.ts)
+- [x] Aluno não consegue criar tópico no fórum - erro 500 "Thread não encontrado" após criação (✅ RESOLVIDO - import de forumUserSuspensions movido para o topo do arquivo)
+
+### 🎯 Progresso: 2/2 problemas resolvidos (100%) 🎉
