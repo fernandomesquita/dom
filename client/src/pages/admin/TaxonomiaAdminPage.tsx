@@ -757,12 +757,12 @@ function AssuntosTab() {
             </div>
 
             <div>
-              <Label htmlFor="codigo">Código *</Label>
+              <Label htmlFor="codigo">Código (opcional - gerado automaticamente se vazio)</Label>
               <Input
                 id="codigo"
                 value={formData.codigo}
                 onChange={(e) => setFormData({ ...formData, codigo: e.target.value })}
-                placeholder="Ex: DIR-01"
+                placeholder="Deixe vazio para gerar automaticamente"
                 maxLength={20}
               />
             </div>
@@ -796,7 +796,7 @@ function AssuntosTab() {
             </Button>
             <Button 
               onClick={handleSubmit}
-              disabled={!formData.disciplinaId || !formData.codigo || !formData.nome || createMutation.isPending || updateMutation.isPending}
+              disabled={!formData.disciplinaId || !formData.nome || createMutation.isPending || updateMutation.isPending}
             >
               {editingId ? 'Salvar' : 'Criar'}
             </Button>
@@ -825,10 +825,7 @@ function TopicosTab() {
   const utils = trpc.useUtils();
   const { data: disciplinas } = trpc.disciplinas.getAll.useQuery({ limit: 100 });
   const { data: assuntos } = trpc.assuntos.getAll.useQuery({ limit: 500 });
-  const { data, isLoading } = trpc.topicos.getAll.useQuery({ 
-    limit: 500, 
-    includeInactive: true 
-  });
+  const { data, isLoading } = trpc.topicos.getAll.useQuery();
 
   const createMutation = trpc.topicos.create.useMutation({
     onSuccess: () => {

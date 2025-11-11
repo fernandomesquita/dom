@@ -24,6 +24,7 @@ import { forumThreadsRouter } from './routers/forumThreads';
 import { forumMessagesRouter } from './routers/forumMessages';
 import { forumModerationRouter } from './routers/forumModeration';
 import { forumNotificationsRouter } from './routers/forumNotifications';
+import { forumStatsRouter } from './routers/forumStats';
 import { metasPlanosRouter } from './routers/metasPlanos';
 import { metasMetasRouter } from './routers/metasMetas';
 import { metasBatchImportRouter } from './routers/metasBatchImport';
@@ -79,6 +80,7 @@ export const appRouter = router({
   forumMessages: forumMessagesRouter,
   forumModeration: forumModerationRouter,
   forumNotifications: forumNotificationsRouter,
+  forumStats: forumStatsRouter,
 
   // Módulo de Metas
   metasPlanos: metasPlanosRouter,
@@ -100,6 +102,9 @@ export const appRouter = router({
     notices_v1: noticesRouter_v1,
     materials_v1: materialsRouter_v1,
   }),
+  
+  // Materiais (namespace direto para compatibilidade)
+  materiais: materialsRouter_v1,
 
   // E10: Dashboard do Aluno
   dashboard: dashboardRouter,

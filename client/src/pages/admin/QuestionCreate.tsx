@@ -73,10 +73,6 @@ export default function QuestionCreate() {
 
   const handleSubmit = () => {
     // Validações
-    if (!uniqueCode.trim()) {
-      toast.error('Código único é obrigatório');
-      return;
-    }
     if (!statementText.trim()) {
       toast.error('Enunciado é obrigatório');
       return;
@@ -94,7 +90,7 @@ export default function QuestionCreate() {
     }
 
     createQuestionMutation.mutate({
-      uniqueCode,
+      uniqueCode: uniqueCode || undefined,
       statementText,
       statementImage: statementImage || undefined,
       questionType,
@@ -144,10 +140,10 @@ export default function QuestionCreate() {
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="uniqueCode">Código Único *</Label>
+                <Label htmlFor="uniqueCode">Código Único (opcional - gerado automaticamente se vazio)</Label>
                 <Input
                   id="uniqueCode"
-                  placeholder="Ex: Q001"
+                  placeholder="Deixe vazio para gerar automaticamente"
                   value={uniqueCode}
                   onChange={(e) => setUniqueCode(e.target.value)}
                 />

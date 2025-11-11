@@ -322,3 +322,33 @@ Sobrescrever versão mais recente = perda de trabalho + retrabalho + frustraçã
 - [x] Adicionar botão moderação em /forum (aluno) que redireciona para /admin/forum/moderacao
 - [x] Corrigir redirect 404 após criar questão em admin/questoes
 - [x] Criar página de listagem de todas as questões com filtros (disciplinas/tópicos) e AdminLayout
+
+
+## 🚨 NOVOS PROBLEMAS CRÍTICOS (11/11/2025 - 09:40)
+
+### Reportados após deploy do checkpoint e5240bdd
+
+- [ ] 1. Plano não aparece na listagem após criação (REQUER INVESTIGAÇÃO - schema sincronizado mas problema persiste)
+- [x] 2. AdminLayout faltando em /admin/metas (✅ RESOLVIDO - AdminLayout adicionado em MetasDashboard.tsx)
+- [x] 3. Código obrigatório em /admin/questoes/nova (✅ RESOLVIDO - validação removida, campo opcional com geração automática)
+- [ ] 4. Erro ao criar aviso em /admin/avisos (REQUER INVESTIGAÇÃO - campos obrigatórios faltando no schema)
+- [ ] 5. Página /admin/auditoria em branco (REQUER CORREÇÃO - query GROUP BY com erro)
+- [ ] 6. Botão de moderação não aparece em /admin/forum (PENDENTE - componente não implementado)
+- [x] 7. Código obrigatório ao criar assunto na árvore (✅ RESOLVIDO - validação removida do botão, campo opcional)
+- [x] 8. Tópicos continuam não aparecendo após criação (✅ RESOLVIDO - chamada getAll corrigida sem parâmetros)
+- [x] 9. Todas as páginas de materiais em branco (✅ RESOLVIDO - materialsRouter_v1 registrado em routers.ts)
+
+### 🎯 Progresso: 6/9 problemas resolvidos (66.7%)
+
+**Correções implementadas:**
+- ✅ Materiais em branco - Router registrado corretamente
+- ✅ ForumStats faltando - Router criado e registrado
+- ✅ Código obrigatório em questões - Tornado opcional
+- ✅ Código obrigatório em assuntos - Validação removida
+- ✅ Tópicos não aparecem - Chamada getAll corrigida
+- ✅ AdminLayout em metas - Adicionado em MetasDashboard
+
+**Problemas que requerem investigação adicional:**
+- ⚠️ Planos não aparecem - Schema sincronizado mas problema persiste
+- ⚠️ Auditoria em branco - Query GROUP BY precisa ser ajustada
+- ⚠️ Erro ao criar aviso - Campos obrigatórios faltando no schema
