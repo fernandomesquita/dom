@@ -1,88 +1,68 @@
-/**
- * Schema Drizzle - Módulo de Planos
- * 
- * Tabelas:
- * - plans: Planos de estudo completos (pagos/gratuitos)
- * - plan_enrollments: Matrículas de usuários em planos
- */
+import { mysqlTable, varchar, text, mysqlEnum, int, boolean, timestamp, json } from 'drizzle-orm/mysql-core';
 
-import { mysqlTable, varchar, text, decimal, date, int, boolean, timestamp, json, mysqlEnum, uniqueIndex, index } from 'drizzle-orm/mysql-core';
-import { users } from './schema';
+// ===== ENUMS =====
 
-// ==================== ENUMS ====================
+export const categoryEnum = mysqlEnum('category', ['Pago', 'Gratuito']);
 
-export const planCategoryEnum = mysqlEnum('plan_category', ['Pago', 'Gratuito']);
-export const planStatusEnum = mysqlEnum('plan_status', ['Ativo', 'Expirado', 'Oculto', 'Em edição']);
-export const editalStatusEnum = mysqlEnum('edital_status', ['Pré-edital', 'Pós-edital', 'N/A']);
-export const enrollmentStatusEnum = mysqlEnum('enrollment_status', ['Ativo', 'Expirado', 'Cancelado', 'Suspenso']);
+export const editalStatusEnum = mysqlEnum('edital_status', [
+  'Pré-edital',
+  'Pós-edital',
+  'N/A'
+]);
 
-// ==================== TABELA: plans ====================
+// ===== TABELA PLANS =====
 
 export const plans = mysqlTable('plans', {
   // Identificação
-  id: varchar('id', { length: 36 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: varchar('id', { length: 36 }).primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
+  slug: varchar('slug', { length: 255 }).notNull(),
   description: text('description'),
-  version: varchar('version', { length: 20 }).default('v1.0'),
-  
-  // Imagens e branding
-  logoUrl: varchar('logo_url', { length: 500 }),
-  featuredImageUrl: varchar('featured_image_url', { length: 500 }).notNull(),
-  landingPageUrl: varchar('landing_page_url', { length: 500 }),
   
   // Classificação e contexto
-  category: mysqlEnum('category', ['Pago', 'Gratuito']).notNull(), // Usar enum inline com nome correto da coluna
-  editalStatus: editalStatusEnum.default('N/A'),
-  entity: varchar('entity', { length: 255 }),        // Ex: "Banco do Brasil"
-  role: varchar('role', { length: 255 }),            // Ex: "Agente Comercial"
-  tags: json('tags').$type<string[]>().default([]),
+  category: categoryEnum.notNull(),
+  entity: varchar('entity', { length: 255 }),
+  role: varchar('role', { length: 255 }),
+  editalStatus: editalStatusEnum.notNull().default('N/A'),
   
-  // Estrutura de conhecimento (OBRIGATÓRIO)
-  // TODO: Adicionar FK quando tabela knowledge_tree estiver disponível
-  knowledgeRootId: varchar('knowledge_root_id', { length: 36 }).notNull(),
+  // Imagens e branding
+  featuredImageUrl: text('featured_image_url'),
   
   // Modelo de negócio
-  paywallRequired: boolean('paywall_required').default(false),
-  price: decimal('price', { precision: 10, scale: 2 }),
-  validityDate: date('validity_date'),
+  price: varchar('price', { length: 50 }), // ⚠️ VARCHAR no banco!
+  landingPageUrl: text('landing_page_url'),
   durationDays: int('duration_days'),
+  validityDate: timestamp('validity_date'), // ⚠️ DATETIME no banco!
+  
+  // Tags e categorização
+  tags: json('tags').$type<string[]>(),
   
   // Status e destaque
-  status: planStatusEnum.default('Em edição').notNull(),
-  isFeatured: boolean('is_featured').default(false),
-  isHidden: boolean('is_hidden').default(false).notNull(),
+  isFeatured: boolean('is_featured').notNull().default(false),
+  isHidden: boolean('is_hidden').notNull().default(false),
   
-  // Responsabilidade e auditoria
-  mentorId: varchar('mentor_id', { length: 36 }).references(() => users.id, { onDelete: 'set null' }),
-  createdBy: varchar('created_by', { length: 36 }).references(() => users.id, { onDelete: 'set null' }),
-  updatedBy: varchar('updated_by', { length: 36 }).references(() => users.id, { onDelete: 'set null' }),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
-  deletedAt: timestamp('deleted_at'),
+  // ⭐ CAMPO NOVO (será adicionado por migration)
+  // disponivel: boolean('disponivel').notNull().default(true),
   
-  // Metadados adicionais
-  customSettings: json('custom_settings').$type<Record<string, any>>().default({}),
-}, (table) => ({
-  // CONSTRAINT: Apenas 1 plano pode estar em destaque
-  uniqueFeaturedIdx: uniqueIndex('idx_unique_featured_plan').on(table.isFeatured),
+  // Responsabilidade
+  mentorId: int('mentor_id'), // ⚠️ INT no banco!
   
-  // ÍNDICES para performance
-  publicListIdx: index('idx_plans_public_list').on(table.status, table.isFeatured, table.category, table.createdAt),
-  entityRoleIdx: index('idx_plans_entity_role').on(table.entity, table.role),
-  mentorIdx: index('idx_plans_mentor').on(table.mentorId),
-  expiredIdx: index('idx_plans_expired').on(table.validityDate),
-  knowledgeRootIdx: index('idx_plans_knowledge_root').on(table.knowledgeRootId),
-}));
+  // Auditoria
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+});
+
+// ===== TYPES =====
 
 export type Plan = typeof plans.$inferSelect;
-export type InsertPlan = typeof plans.$inferInsert;
+export type NewPlan = typeof plans.$inferInsert;
 
-// ==================== TABELA: plan_enrollments ====================
+// ===== TABELA: plan_enrollments =====
 
 export const planEnrollments = mysqlTable('plan_enrollments', {
-  id: varchar('id', { length: 36 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: varchar('id', { length: 36 }).primaryKey(),
   planId: varchar('plan_id', { length: 36 }).notNull().references(() => plans.id, { onDelete: 'cascade' }),
-  userId: varchar('user_id', { length: 36 }).notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: varchar('user_id', { length: 36 }).notNull(),
   
   // Datas e validade
   enrolledAt: timestamp('enrolled_at').defaultNow().notNull(),
@@ -90,70 +70,29 @@ export const planEnrollments = mysqlTable('plan_enrollments', {
   lastAccessedAt: timestamp('last_accessed_at'),
   
   // Status e configurações
-  status: enrollmentStatusEnum.default('Ativo').notNull(),
+  status: mysqlEnum('status', ['Ativo', 'Expirado', 'Cancelado', 'Suspenso']).default('Ativo').notNull(),
   dailyHours: int('daily_hours').default(4).notNull(),
   
   // Personalização por aluno
   customSettings: json('custom_settings').$type<Record<string, any>>().default({}),
   
   // Auditoria
-  createdBy: varchar('created_by', { length: 36 }).references(() => users.id, { onDelete: 'set null' }),
+  createdBy: varchar('created_by', { length: 36 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
-}, (table) => ({
-  // CONSTRAINT: Usuário não pode se matricular 2x no mesmo plano
-  uniqueEnrollmentIdx: uniqueIndex('idx_unique_enrollment').on(table.planId, table.userId),
-  
-  // ÍNDICES para performance
-  userPlansIdx: index('idx_user_plans').on(table.userId, table.status),
-  planEnrollmentsIdx: index('idx_plan_enrollments').on(table.planId, table.status),
-  expiredEnrollmentsIdx: index('idx_expired_enrollments').on(table.expiresAt),
-}));
+});
 
 export type PlanEnrollment = typeof planEnrollments.$inferSelect;
 export type InsertPlanEnrollment = typeof planEnrollments.$inferInsert;
 
-// ==================== TABELA: plan_disciplines ====================
+// ===== TABELA: plan_disciplines =====
 
 export const planDisciplines = mysqlTable("plan_disciplines", {
-  id: varchar("id", { length: 36 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: varchar("id", { length: 36 }).primaryKey(),
   planId: varchar("plan_id", { length: 36 }).notNull().references(() => plans.id, { onDelete: "cascade" }),
   disciplineId: varchar("discipline_id", { length: 36 }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-}, (table) => ({
-  uniquePlanDisciplineIdx: uniqueIndex("idx_unique_plan_discipline").on(table.planId, table.disciplineId),
-  planIdIdx: index("idx_plan_disciplines_plan").on(table.planId),
-  disciplineIdIdx: index("idx_plan_disciplines_discipline").on(table.disciplineId),
-}));
+});
 
 export type PlanDiscipline = typeof planDisciplines.$inferSelect;
 export type InsertPlanDiscipline = typeof planDisciplines.$inferInsert;
-
-// ==================== COMENTÁRIOS ====================
-
-/**
- * REGRAS DE NEGÓCIO (implementadas via tRPC procedures):
- * 
- * 1. DESTAQUE ÚNICO:
- *    - Apenas 1 plano pode ter is_featured = TRUE
- *    - Plano em destaque DEVE estar com status = 'Ativo'
- *    - Ao definir novo destaque, remover destaque do anterior
- * 
- * 2. COERÊNCIA DE PAYWALL:
- *    - Se category = 'Pago', então paywall_required = TRUE, price > 0 e landing_page_url != NULL
- *    - Se category = 'Gratuito', então paywall_required = FALSE, price = NULL
- * 
- * 3. EXPIRAÇÃO AUTOMÁTICA:
- *    - Se validity_date < HOJE, então status = 'Expirado' e is_featured = FALSE
- *    - Job agendado verifica expiração diariamente às 00:00
- * 
- * 4. MATRÍCULA:
- *    - Planos gratuitos: matrícula direta via POST /plans/:id/enroll
- *    - Planos pagos: redirecionamento para landing_page_url (pagamento externo)
- *    - Usuário não pode se matricular 2x no mesmo plano (UNIQUE constraint)
- * 
- * 5. SOFT DELETE:
- *    - Planos deletados têm deleted_at != NULL
- *    - Matrículas são mantidas (CASCADE não aplica a soft delete)
- *    - Queries públicas filtram deleted_at IS NULL
- */
