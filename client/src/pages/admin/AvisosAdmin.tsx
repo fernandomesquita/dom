@@ -42,8 +42,7 @@ export default function AvisosAdmin() {
   });
 
   // Queries
-  const tiposQuery = trpc.avisos.list.useQuery({ ativo: true });
-  const avisosQuery = trpc.avisos.list.useQuery({});
+  const avisosQuery = trpc.avisos.list.useQuery({ page: 1, limit: 50 });
   const templatesQuery = trpc.avisosTemplates.listTemplates.useQuery({});
 
   // Mutations
