@@ -42,6 +42,8 @@ export const plansAdminRouter = router({
       mentorId: z.number().int().optional(),
       tags: z.array(z.string()).optional(),
       isHidden: z.boolean().optional(),
+      isFeatured: z.boolean().optional(),
+      disponivel: z.boolean().optional(),
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
@@ -79,6 +81,8 @@ export const plansAdminRouter = router({
         tags: input.tags || [],
         status: 'Em edição',
         isHidden: input.isHidden ?? false,
+        isFeatured: input.isFeatured ?? false,
+        disponivel: input.disponivel ?? true,
         createdBy: ctx.user.id,
         updatedBy: ctx.user.id,
       });
