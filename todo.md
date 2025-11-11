@@ -596,3 +596,35 @@ Sobrescrever versão mais recente = perda de trabalho + retrabalho + frustraçã
 ---
 
 **Objetivo:** 🎉 **TERMINADO HOJE!**
+
+
+## 🎨 ADICIONAR STUDENT LAYOUT ÀS PÁGINAS DE PLANOS (11/11/2025 - 14:05)
+
+**Status:** ✅ **CONCLUÍDO!**
+
+### Tarefas Realizadas:
+
+- [x] Verificar se StudentLayout existe (encontrado)
+- [x] Adicionar StudentLayout em AllPlans.tsx (/planos)
+- [x] Verificar se existe página /planos/:id (PlanDetails.tsx)
+- [x] Adicionar StudentLayout na página individual
+- [x] Corrigir sintaxe (fechamento de tags)
+- [x] Commit e push (próximo)
+
+### Arquivos Modificados:
+
+- `client/src/pages/AllPlans.tsx` (3 substituições)
+- `client/src/pages/PlanDetails.tsx` (5 substituições)
+
+### Resultado:
+
+✅ Páginas de planos agora têm:
+- DashboardHeader (navegação)
+- XPBar (gamificação)
+- StudentSidebar (menu lateral)
+- AvisosManager (notificações)
+- Footer
+
+---
+
+**Objetivo:** 🎉 **CONCLUÍDO!** Navegação do aluno melhorada

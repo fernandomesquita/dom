@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
-import Header from "@/components/Header";
+import { StudentLayout } from "@/components/StudentLayout";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
@@ -16,9 +16,8 @@ export default function AllPlans() {
   });
 
   return (
-    <>
-      <Header />
-      <div className="min-h-screen bg-gray-50 py-8">
+    <StudentLayout>
+      <div className="bg-gray-50 py-8">
         <div className="container max-w-7xl mx-auto px-4">
           <h1 className="text-3xl font-bold mb-6">Planos de Estudo</h1>
           
@@ -106,6 +105,6 @@ export default function AllPlans() {
           )}
         </div>
       </div>
-    </>
+    </StudentLayout>
   );
 }
