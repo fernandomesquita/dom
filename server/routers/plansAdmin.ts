@@ -257,10 +257,15 @@ export const plansAdminRouter = router({
       const db = await getDb();
       if (!db) throw new Error('Database not available');
 
+      // ✅ LOGS DE DEBUG:
+      console.log('🔍 [listAll] Iniciando query de planos');
+      console.log('🔍 [listAll] Input:', input);
+
       const { search, status, category, mentorId, page, pageSize } = input;
       const offset = (page - 1) * pageSize;
 
       const conditions = [isNull(plans.deletedAt)];
+      console.log('🔍 [listAll] Conditions iniciais:', conditions);
 
       if (search) {
         conditions.push(
@@ -271,7 +276,10 @@ export const plansAdminRouter = router({
         );
       }
 
-      if (status) conditions.push(eq(plans.editalStatus, status));
+      if (status) {
+        conditions.push(eq(plans.editalStatus, status));
+        console.log('🔍 [listAll] Adicionou filtro status:', status);
+      }
       if (category) conditions.push(eq(plans.category, category));
       if (mentorId) conditions.push(eq(plans.mentorId, mentorId));
 
@@ -283,10 +291,15 @@ export const plansAdminRouter = router({
         .limit(pageSize)
         .offset(offset);
 
+      console.log('🔍 [listAll] Resultados encontrados:', items.length);
+      console.log('🔍 [listAll] Primeiro item:', items[0]);
+
       const [{ count }] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(plans)
         .where(and(...conditions));
+
+      console.log('🔍 [listAll] Total de registros:', count);
 
       return {
         items: items.map(item => ({
