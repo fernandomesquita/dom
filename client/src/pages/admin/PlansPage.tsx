@@ -31,13 +31,11 @@ export default function PlansPage() {
   const [status, setStatus] = useState<"ATIVO" | "PAUSADO" | "CONCLUIDO" | "all">("all");
   const [sortBy, setSortBy] = useState<"titulo" | "criado_em" | "data_inicio">("criado_em");
 
-  const { data, isLoading, error } = trpc.admin.plans_v1.list.useQuery({
+  const { data, isLoading, error } = trpc.admin.plans_v1.listNew.useQuery({
     page,
-    limit: 20,
-    status: status === "all" ? undefined : status,
+    pageSize: 20,
     search: search || undefined,
-    sortBy,
-    sortOrder: "desc",
+    // Note: listNew não suporta status e sortBy ainda
   });
 
   const { data: stats } = trpc.admin.plans_v1.stats.useQuery();
