@@ -176,6 +176,9 @@ export default function PlanFormPage() {
 
   const onSubmit = async (data: PlanFormData) => {
     try {
+      // ===== DEBUG: Ver o que está sendo enviado =====
+      console.log('📤 Dados do formulário (RAW):', data);
+      
       // Limpar campos vazios (null, undefined, string vazia)
       const cleanData: any = {};
       
@@ -184,6 +187,11 @@ export default function PlanFormPage() {
         if (Array.isArray(value) && value.length === 0) return;
         cleanData[key] = value;
       });
+      
+      // ===== DEBUG: Ver dados limpos =====
+      console.log('📤 Dados LIMPOS:', cleanData);
+      console.log('📤 Campo name:', cleanData.name);
+      console.log('📤 Tipo de name:', typeof cleanData.name);
       
       if (isEditing) {
         // MODO EDITAR
@@ -195,7 +203,11 @@ export default function PlanFormPage() {
         toast.success('Plano atualizado com sucesso!');
       } else {
         // MODO CRIAR
-        await createMutation.mutateAsync(cleanData);
+        console.log('📤 Enviando para plansAdmin.create:', cleanData);
+        
+        const result = await createMutation.mutateAsync(cleanData);
+        
+        console.log('✅ Resultado:', result);
         
         toast.success('Plano criado com sucesso!');
       }
@@ -204,7 +216,9 @@ export default function PlanFormPage() {
       setLocation('/admin/planos');
       
     } catch (error: any) {
-      console.error('Erro ao salvar plano:', error);
+      console.error('❌ Erro completo:', error);
+      console.error('❌ Error message:', error?.message);
+      console.error('❌ Error data:', error?.data);
       
       // Erro amigável para o usuário
       const errorMessage = error?.message || 'Erro ao salvar plano. Tente novamente.';
