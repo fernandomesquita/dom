@@ -391,3 +391,58 @@ Sobrescrever versão mais recente = perda de trabalho + retrabalho + frustraçã
 6. ✅ Erro aviso - Conversão de strings vazias para undefined
 7. ✅ Botão moderação - Já implementado desde o início
 8. ✅ Materiais em branco - Router já registrado anteriormente
+
+
+## 🚨 DIAGNÓSTICO SISTEMÁTICO - 7 PROBLEMAS CRÍTICOS (11/11/2025 - 12:30)
+
+**Status:** 🟡 **DIAGNÓSTICO COMPLETO - 2 PROBLEMAS REAIS IDENTIFICADOS**  
+**Documento:** SOLICITACAO-DIAGNOSTICO-COMPLETO.md  
+**Relatório:** RELATORIO-DIAGNOSTICO-COMPLETO.md  
+**Prioridade:** Planos > Metas > Questões
+
+### Resultados do Diagnóstico:
+
+- [x] **#1 CRÍTICO:** Planos NÃO são listados - 🔴 **PROBLEMA REAL** (2 tabelas conflitantes)
+- [x] **#2 CRÍTICO:** Criação de plano SEM efeito - 🔴 **RELACIONADO AO #1**
+- [x] **#3 CRÍTICO:** Página de questões NÃO existe - ✅ **JÁ EXISTE E FUNCIONA**
+- [x] **#4 ALTO:** Simulados - botão "Novo Simulado" - ✅ **JÁ IMPLEMENTADO**
+- [x] **#5 ALTO:** Avisos NÃO podem ser publicados - ✅ **JÁ CORRIGIDO (checkpoint e5240bdd)**
+- [x] **#6 MÉDIO:** Auditoria não funciona - ✅ **JÁ CORRIGIDO (checkpoint e5240bdd)**
+- [x] **#7 MÉDIO:** Fórum não cria thread - 🟡 **PROBLEMA PARCIAL** (sidebar_items)
+
+### Problemas Reais Identificados:
+
+**🔴 CRÍTICO - Problema #1 e #2:**
+- Causa: Sistema possui 2 tabelas de planos (`plans` e `metas_planos_estudo`)
+- Tabela antiga não tem coluna `is_hidden`
+- Query falha: `WHERE p.is_hidden = FALSE`
+- Solução: Consolidar em tabela `plans` OU adicionar coluna
+- Tempo: 2h (migração) ou 30min (adicionar coluna)
+
+**🟡 ALTO - Problema #7B:**
+- Causa: Tabela `sidebar_items` pode não existir no banco
+- Schema existe no código mas migration não foi aplicada
+- Solução: Criar tabela via SQL + popular com dados padrão
+- Tempo: 30min
+
+### Falsos Positivos (Já Resolvidos):
+
+- ✅ #3: Página questões existe desde 11/11 07:09
+- ✅ #4: Botão simulados implementado no checkpoint anterior
+- ✅ #5: Avisos corrigido no checkpoint e5240bdd
+- ✅ #6: Auditoria corrigida no checkpoint e5240bdd
+- ✅ #7A: Botão moderação já aponta para rota correta
+
+### Tempo Total Estimado:
+- **Opção A (RECOMENDADA):** 2h45min (migrar para tabela `plans`)
+- **Opção B (RÁPIDA):** 1h15min (adicionar coluna `is_hidden`)
+
+### Próximos Passos:
+
+- [ ] **DECISÃO:** Escolher Opção A ou B para resolver problemas #1 e #2
+- [ ] **IMEDIATO:** Criar tabela `sidebar_items` no banco (30min)
+- [ ] **CRÍTICO:** Implementar solução escolhida para planos (2h ou 30min)
+- [ ] **OPCIONAL:** Adicionar link questões no AdminSidebar (15min)
+- [ ] Testar todos os fluxos em produção
+- [ ] Criar checkpoint final
+- [ ] Commit e push
