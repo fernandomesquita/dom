@@ -9,14 +9,15 @@ let _pool: mysql.Pool | null = null;
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
+  const dbUrl = process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL;
+  if (!_db && dbUrl) {
     try {
       console.log("[Database] Initializing Drizzle ORM...");
       
       // Criar pool se não existe
       if (!_pool) {
         _pool = mysql.createPool({
-          uri: process.env.DATABASE_URL,
+          uri: dbUrl,
           connectionLimit: 10,
           waitForConnections: true,
           queueLimit: 0,
@@ -47,12 +48,13 @@ export async function getDb() {
  * Use quando precisar de db.query() raw
  */
 export async function getRawDb(): Promise<mysql.Pool | null> {
-  if (!_pool && process.env.DATABASE_URL) {
+  const dbUrl = process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL;
+  if (!_pool && dbUrl) {
     try {
       console.log("[Database] Creating MySQL2 connection pool...");
       
       _pool = mysql.createPool({
-        uri: process.env.DATABASE_URL,
+        uri: dbUrl,
         connectionLimit: 10,
         waitForConnections: true,
         queueLimit: 0,
