@@ -13,7 +13,7 @@ import { TRPCError } from '@trpc/server';
 
 // Helper para verificar se usuário é admin
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (ctx.user.role !== 'admin') {
+  if (ctx.user.role !== 'MASTER' && ctx.user.role !== 'ADMINISTRATIVO') {
     throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
   }
   return next({ ctx });
@@ -26,20 +26,22 @@ export const plansAdminRouter = router({
   create: adminProcedure
     .input(z.object({
       name: z.string().min(3).max(255),
+      slug: z.string().optional(), // Frontend envia mas não é usado
       description: z.string().optional(),
       logoUrl: z.string().url().optional(),
-      featuredImageUrl: z.string().url(),
+      featuredImageUrl: z.string().url().optional(),
       landingPageUrl: z.string().url().optional(),
       category: z.enum(['Pago', 'Gratuito']),
       editalStatus: z.enum(['Pré-edital', 'Pós-edital', 'N/A']).optional(),
       entity: z.string().optional(),
       role: z.string().optional(),
-      knowledgeRootId: z.string().uuid(),
-      price: z.number().positive().optional(),
+      knowledgeRootId: z.string().uuid().optional(),
+      price: z.string().optional(), // Frontend envia como string
       validityDate: z.string().optional(),  // ISO date
       durationDays: z.number().int().positive().optional(),
       mentorId: z.number().int().optional(),
       tags: z.array(z.string()).optional(),
+      isHidden: z.boolean().optional(),
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
@@ -70,12 +72,13 @@ export const plansAdminRouter = router({
         role: input.role,
         knowledgeRootId: input.knowledgeRootId,
         paywallRequired: input.category === 'Pago',
-        price: input.price ? input.price.toString() : null,
+        price: input.price || null,
         validityDate: input.validityDate,
         durationDays: input.durationDays,
         mentorId: input.mentorId,
         tags: input.tags || [],
         status: 'Em edição',
+        isHidden: input.isHidden ?? false,
         createdBy: ctx.user.id,
         updatedBy: ctx.user.id,
       });

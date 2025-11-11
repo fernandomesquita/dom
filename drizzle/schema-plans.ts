@@ -53,9 +53,9 @@ export const plans = mysqlTable('plans', {
   isHidden: boolean('is_hidden').default(false).notNull(),
   
   // Responsabilidade e auditoria
-  mentorId: int('mentor_id').references(() => users.id, { onDelete: 'set null' }),
-  createdBy: int('created_by').references(() => users.id, { onDelete: 'set null' }),
-  updatedBy: int('updated_by').references(() => users.id, { onDelete: 'set null' }),
+  mentorId: varchar('mentor_id', { length: 36 }).references(() => users.id, { onDelete: 'set null' }),
+  createdBy: varchar('created_by', { length: 36 }).references(() => users.id, { onDelete: 'set null' }),
+  updatedBy: varchar('updated_by', { length: 36 }).references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
   deletedAt: timestamp('deleted_at'),
@@ -82,7 +82,7 @@ export type InsertPlan = typeof plans.$inferInsert;
 export const planEnrollments = mysqlTable('plan_enrollments', {
   id: varchar('id', { length: 36 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
   planId: varchar('plan_id', { length: 36 }).notNull().references(() => plans.id, { onDelete: 'cascade' }),
-  userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: varchar('user_id', { length: 36 }).notNull().references(() => users.id, { onDelete: 'cascade' }),
   
   // Datas e validade
   enrolledAt: timestamp('enrolled_at').defaultNow().notNull(),
@@ -97,7 +97,7 @@ export const planEnrollments = mysqlTable('plan_enrollments', {
   customSettings: json('custom_settings').$type<Record<string, any>>().default({}),
   
   // Auditoria
-  createdBy: int('created_by').references(() => users.id, { onDelete: 'set null' }),
+  createdBy: varchar('created_by', { length: 36 }).references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
 }, (table) => ({

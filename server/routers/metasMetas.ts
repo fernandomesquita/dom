@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { TRPCError } from '@trpc/server';
 import { publicProcedure, protectedProcedure, router } from '../_core/trpc';
-import { getDb } from '../db';
+import { getRawDb } from '../db';
 import {
   makeOrderKey,
   formatDisplayNumber,
@@ -34,7 +34,7 @@ export const metasMetasRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       // Verificar se plano pertence ao usuário
@@ -97,7 +97,7 @@ export const metasMetasRouter = router({
   getById: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       const result = await db.query(
@@ -134,7 +134,7 @@ export const metasMetasRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       // Verificar se plano pertence ao usuário
@@ -210,7 +210,7 @@ export const metasMetasRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       // Verificar se meta pertence ao usuário e não está concluída
@@ -276,7 +276,7 @@ export const metasMetasRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       // Verificar se meta pertence ao usuário
@@ -357,7 +357,7 @@ export const metasMetasRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       // Buscar meta original
@@ -447,7 +447,7 @@ export const metasMetasRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       // Verificar se meta pertence ao usuário
@@ -488,7 +488,7 @@ export const metasMetasRouter = router({
   restore: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       // Verificar se meta pertence ao usuário
@@ -538,7 +538,7 @@ export const metasMetasRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       // Verificar se meta pertence ao usuário
@@ -596,7 +596,7 @@ export const metasMetasRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       // Verificar se meta pertence ao usuário
@@ -631,7 +631,7 @@ export const metasMetasRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       // Verificar se meta pertence ao usuário
@@ -682,7 +682,7 @@ export const metasMetasRouter = router({
       })
     )
     .query(async ({ input, ctx }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new Error("Database not available");
 
       const [plano] = await db
@@ -776,7 +776,7 @@ export const metasMetasRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       // Buscar meta com KTree

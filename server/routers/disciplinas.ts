@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 // ============================================================================
 
 const disciplinaInput = z.object({
-  codigo: z.string().min(1, "Código é obrigatório").max(20).transform(val => val.trim().toUpperCase()),
+  codigo: z.string().max(20).optional().transform(val => val ? val.trim().toUpperCase() : undefined),
   nome: z.string().min(1, "Nome é obrigatório").max(100).transform(val => val.trim()),
   descricao: z.string().optional(),
   corHex: z.string().regex(/^#[0-9A-F]{6}$/i, "Cor inválida (formato: #RRGGBB)").default("#4F46E5"),
@@ -30,17 +30,26 @@ export const disciplinasRouter = router({
     .mutation(async ({ ctx, input }) => {
       const slug = generateSlug(input.nome);
       
+      // Gerar código automaticamente se não fornecido
+      let codigo = input.codigo;
+      if (!codigo) {
+        // Gerar código baseado nas 3 primeiras letras do nome + timestamp
+        const prefix = input.nome.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, 'X');
+        const timestamp = Date.now().toString().slice(-6);
+        codigo = `${prefix}${timestamp}`;
+      }
+      
       // Verificar código duplicado
       const [existingCodigo] = await ctx.db
         .select({ id: disciplinas.id })
         .from(disciplinas)
-        .where(eq(disciplinas.codigo, input.codigo))
+        .where(eq(disciplinas.codigo, codigo))
         .limit(1);
       
       if (existingCodigo) {
         throw new TRPCError({
           code: "CONFLICT",
-          message: `Código "${input.codigo}" já existe`,
+          message: `Código "${codigo}" já existe`,
         });
       }
       
@@ -63,6 +72,7 @@ export const disciplinasRouter = router({
       await ctx.db.insert(disciplinas).values({
         id,
         ...input,
+        codigo,
         slug,
         createdBy: ctx.user.id,
         ativo: true,

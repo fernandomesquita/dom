@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, name, is_hidden, created_at FROM plans ORDER BY created_at DESC LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute SELECT id, name, is_hidden, created_at FROM plans ORDER BY created_at DESC LIMIT 5",
+  "rows": [
+    {
+      "id": "74d5f34e-043d-4523-bc10-bf6951729381",
+      "name": "Plano Gratuito - Teste",
+      "is_hidden": "0",
+      "created_at": "2025-11-08 20:27:36"
+    },
+    {
+      "id": "9d3303e0-9565-428b-bb44-1d5849dcd010",
+      "name": "EARA Pós-Edital - Reta Final",
+      "is_hidden": "0",
+      "created_at": "2025-11-08 20:27:36"
+    },
+    {
+      "id": "a1254730-d27f-415f-af67-f27fcda88684",
+      "name": "TRF - Técnico Judiciário",
+      "is_hidden": "0",
+      "created_at": "2025-11-08 20:27:36"
+    },
+    {
+      "id": "a2cfd27e-bb66-4b69-9e90-5fe777f421fe",
+      "name": "Receita Federal - Auditor Fiscal",
+      "is_hidden": "0",
+      "created_at": "2025-11-08 20:27:36"
+    },
+    {
+      "id": "6d4d8623-a393-451b-a974-6086e412031d",
+      "name": "Polícia Federal - Agente",
+      "is_hidden": "0",
+      "created_at": "2025-11-08 20:27:36"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tis_hidden\tcreated_at\n74d5f34e-043d-4523-bc10-bf6951729381\tPlano Gratuito - Teste\t0\t2025-11-08 20:27:36\n9d3303e0-9565-428b-bb44-1d5849dcd010\tEARA Pós-Edital - Reta Final\t0\t2025-11-08 20:27:36\na1254730-d27f-415f-af67-f27fcda88684\tTRF - Técnico Judiciário\t0\t2025-11-08 20:27:36\na2cfd27e-bb66-4b69-9e90-5fe777f421fe\tReceita Federal - Auditor Fiscal\t0\t2025-11-08 20:27:36\n6d4d8623-a393-451b-a974-6086e412031d\tPolícia Federal - Agente\t0\t2025-11-08 20:27:36\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}

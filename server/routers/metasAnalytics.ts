@@ -6,14 +6,14 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { protectedProcedure, router } from '../_core/trpc';
-import { getDb } from '../db';
+import { getRawDb } from '../db';
 
 export const metasAnalyticsRouter = router({
   /**
    * Estatísticas globais de todos os planos
    */
   globalStats: protectedProcedure.query(async ({ ctx }) => {
-    const db = await getDb();
+    const db = await getRawDb();
     if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
     // Total de planos
@@ -77,7 +77,7 @@ export const metasAnalyticsRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       let whereClause = 'WHERE p.usuario_id = ?';
@@ -115,7 +115,7 @@ export const metasAnalyticsRouter = router({
    * Metas mais omitidas (top 10)
    */
   metasMaisOmitidas: protectedProcedure.query(async ({ ctx }) => {
-    const db = await getDb();
+    const db = await getRawDb();
     if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
     const result = await db.query(
@@ -142,7 +142,7 @@ export const metasAnalyticsRouter = router({
    * Tempo médio de estudo vs planejado por tipo
    */
   tempoMedioPorTipo: protectedProcedure.query(async ({ ctx }) => {
-    const db = await getDb();
+    const db = await getRawDb();
     if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
     const result = await db.query(
@@ -172,7 +172,7 @@ export const metasAnalyticsRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       const dias = input.dias || 30;
@@ -203,7 +203,7 @@ export const metasAnalyticsRouter = router({
    * Distribuição de metas por dia da semana
    */
   distribuicaoPorDiaSemana: protectedProcedure.query(async ({ ctx }) => {
-    const db = await getDb();
+    const db = await getRawDb();
     if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
     const result = await db.query(
@@ -238,7 +238,7 @@ export const metasAnalyticsRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       const limit = input.limit || 20;

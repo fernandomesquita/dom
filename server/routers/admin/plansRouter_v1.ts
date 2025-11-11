@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { TRPCError } from '@trpc/server';
 import { router, staffProcedure, adminRoleProcedure } from '../../_core/trpc';
-import { getDb } from '../../db';
+import { getRawDb } from '../../db';
 import { logAuditAction, AuditAction, TargetType } from '../../_core/audit';
 
 /**
@@ -46,7 +46,7 @@ export const plansRouter_v1 = router({
       const offset = (page - 1) * limit;
 
       try {
-        const db = await getDb();
+        const db = await getRawDb();
         if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
         // Construir query
@@ -55,8 +55,8 @@ export const plansRouter_v1 = router({
             p.*,
             u.nome_completo as usuario_nome,
             u.email as usuario_email,
-            (SELECT COUNT(*) FROM metas WHERE plano_id = p.id) as total_metas,
-            (SELECT COUNT(*) FROM metas WHERE plano_id = p.id AND concluida = 1) as metas_concluidas
+            (SELECT COUNT(*) FROM metas_cronograma WHERE plano_id = p.id) as total_metas,
+            (SELECT COUNT(*) FROM metas_cronograma WHERE plano_id = p.id AND concluded_at_utc IS NOT NULL) as metas_concluidas
           FROM metas_planos_estudo p
           LEFT JOIN users u ON p.usuario_id = u.id
           WHERE 1=1
@@ -80,8 +80,29 @@ export const plansRouter_v1 = router({
         }
 
         // Contar total
-        const countQuery = query.replace(/SELECT.*FROM/, 'SELECT COUNT(DISTINCT p.id) as total FROM');
-        const [{ total }] = await db.query(countQuery, params);
+        let countQuery = `
+          SELECT COUNT(DISTINCT p.id) as total
+          FROM metas_planos_estudo p
+          LEFT JOIN users u ON p.usuario_id = u.id
+          WHERE 1=1
+        `;
+        const countParams: any[] = [];
+        
+        if (userId) {
+          countQuery += ` AND p.usuario_id = ?`;
+          countParams.push(userId);
+        }
+        if (status) {
+          countQuery += ` AND p.status = ?`;
+          countParams.push(status);
+        }
+        if (search) {
+          countQuery += ` AND (p.titulo LIKE ? OR u.nome_completo LIKE ? OR u.email LIKE ?)`;
+          const searchPattern = `%${search}%`;
+          countParams.push(searchPattern, searchPattern, searchPattern);
+        }
+        
+        const [{ total }] = await db.query(countQuery, countParams);
 
         // Ordenação
         const sortColumn = sortBy === 'titulo' ? 'p.titulo' : sortBy === 'data_inicio' ? 'p.data_inicio' : 'p.criado_em';
@@ -126,7 +147,7 @@ export const plansRouter_v1 = router({
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ input, ctx }) => {
       try {
-        const db = await getDb();
+        const db = await getRawDb();
         if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
         const result = await db.query(
@@ -134,8 +155,8 @@ export const plansRouter_v1 = router({
             p.*,
             u.nome_completo as usuario_nome,
             u.email as usuario_email,
-            (SELECT COUNT(*) FROM metas WHERE plano_id = p.id) as total_metas,
-            (SELECT COUNT(*) FROM metas WHERE plano_id = p.id AND concluida = 1) as metas_concluidas
+            (SELECT COUNT(*) FROM metas_cronograma WHERE plano_id = p.id) as total_metas,
+            (SELECT COUNT(*) FROM metas_cronograma WHERE plano_id = p.id AND concluded_at_utc IS NOT NULL) as metas_concluidas
           FROM metas_planos_estudo p
           LEFT JOIN users u ON p.usuario_id = u.id
           WHERE p.id = ?`,
@@ -171,7 +192,7 @@ export const plansRouter_v1 = router({
       const startTime = Date.now();
 
       try {
-        const db = await getDb();
+        const db = await getRawDb();
         if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
         const planoId = uuidv4();
@@ -180,8 +201,8 @@ export const plansRouter_v1 = router({
         await db.query(
           `INSERT INTO metas_planos_estudo (
             id, usuario_id, titulo, horas_por_dia, dias_disponiveis_bitmask,
-            data_inicio, data_fim, status
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            data_inicio, data_fim, status, criado_por_id
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             planoId,
             targetUserId,
@@ -191,6 +212,7 @@ export const plansRouter_v1 = router({
             input.dataInicio,
             input.dataFim || null,
             input.status,
+            ctx.user.id,
           ]
         );
 
@@ -244,7 +266,7 @@ export const plansRouter_v1 = router({
       const startTime = Date.now();
 
       try {
-        const db = await getDb();
+        const db = await getRawDb();
         if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
         // Verificar se plano existe
@@ -340,7 +362,7 @@ export const plansRouter_v1 = router({
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ input, ctx }) => {
       try {
-        const db = await getDb();
+        const db = await getRawDb();
         if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
         // Verificar se plano existe
@@ -355,7 +377,7 @@ export const plansRouter_v1 = router({
 
         // Verificar se há metas associadas
         const [{ total }] = await db.query(
-          `SELECT COUNT(*) as total FROM metas WHERE plano_id = ?`,
+          `SELECT COUNT(*) as total FROM metas_cronograma WHERE plano_id = ?`,
           [input.id]
         );
 
@@ -404,7 +426,7 @@ export const plansRouter_v1 = router({
    */
   stats: staffProcedure.query(async ({ ctx }) => {
     try {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       const [stats] = await db.query(`

@@ -2,7 +2,9 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../../_core/trpc";
 import { getDb } from "../../db";
 import { dailySummaries, dashboardCustomizations, gamificationXp } from "../../../drizzle/schema-dashboard";
-import { eq, and, gte, lte, desc } from "drizzle-orm";
+import { questionAttempts } from "../../../drizzle/schema-questions";
+import { metas } from "../../../drizzle/schema-metas";
+import { eq, and, gte, lte, desc, sql, count } from "drizzle-orm";
 
 /**
  * E10: Dashboard do Aluno - Router Principal
@@ -406,4 +408,213 @@ export const dashboardRouter = router({
 
       return { success: true };
     }),
+
+  /**
+   * 7. getStats - Estatísticas gerais do aluno
+   * Retorna métricas agregadas para a página de estatísticas
+   */
+  getStats: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+
+    const userId = ctx.user.id;
+
+    // Total de questões respondidas
+    const [questoesResult] = await db
+      .select({
+        total: count(),
+        acertos: sql<number>`SUM(CASE WHEN ${questionAttempts.isCorrect} = 1 THEN 1 ELSE 0 END)`,
+        erros: sql<number>`SUM(CASE WHEN ${questionAttempts.isCorrect} = 0 THEN 1 ELSE 0 END)`,
+      })
+      .from(questionAttempts)
+      .where(eq(questionAttempts.userId, userId));
+
+    const totalQuestoes = questoesResult?.total || 0;
+    const acertos = Number(questoesResult?.acertos) || 0;
+    const erros = Number(questoesResult?.erros) || 0;
+    const taxaAcerto = totalQuestoes > 0 ? Math.round((acertos / totalQuestoes) * 100) : 0;
+
+    // Metas cumpridas
+    const [metasResult] = await db
+      .select({
+        cumpridas: sql<number>`SUM(CASE WHEN ${metas.status} = 'CONCLUIDA' THEN 1 ELSE 0 END)`,
+        total: count(),
+      })
+      .from(metas)
+      .where(eq(metas.userId, userId));
+
+    const metasCumpridas = Number(metasResult?.cumpridas) || 0;
+    const metasTotal = metasResult?.total || 0;
+
+    // Tempo de estudo (soma de tempoEstudo dos dailySummaries)
+    const [tempoResult] = await db
+      .select({
+        total: sql<number>`SUM(${dailySummaries.tempoEstudo})`,
+      })
+      .from(dailySummaries)
+      .where(eq(dailySummaries.userId, userId));
+
+    const tempoEstudo = Math.round((Number(tempoResult?.total) || 0) / 60); // converter minutos para horas
+
+    return {
+      totalQuestoes,
+      taxaAcerto,
+      metasCumpridas,
+      metasTotal,
+      tempoEstudo,
+    };
+  }),
+
+  /**
+   * 8. getProgressoSemanal - Progresso dos últimos 7 dias
+   * Retorna métricas semanais para barras de progresso
+   */
+  getProgressoSemanal: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+
+    const userId = ctx.user.id;
+    const hoje = new Date();
+    const seteDiasAtras = new Date(hoje);
+    seteDiasAtras.setDate(hoje.getDate() - 7);
+    seteDiasAtras.setHours(0, 0, 0, 0);
+
+    // Metas cumpridas nos últimos 7 dias
+    const [metasResult] = await db
+      .select({
+        cumpridas: sql<number>`SUM(CASE WHEN ${metas.status} = 'CONCLUIDA' THEN 1 ELSE 0 END)`,
+        total: count(),
+      })
+      .from(metas)
+      .where(
+        and(
+          eq(metas.userId, userId),
+          gte(metas.dataInicio, seteDiasAtras)
+        )
+      );
+
+    const metas = Number(metasResult?.cumpridas) || 0;
+    const metasTotal = metasResult?.total || 0;
+
+    // Questões respondidas nos últimos 7 dias
+    const [questoesResult] = await db
+      .select({
+        total: count(),
+      })
+      .from(questionAttempts)
+      .where(
+        and(
+          eq(questionAttempts.userId, userId),
+          gte(questionAttempts.attemptedAt, seteDiasAtras)
+        )
+      );
+
+    const questoes = questoesResult?.total || 0;
+    const questoesTotal = 140; // Meta semanal padrão
+
+    return {
+      metas,
+      metasTotal,
+      questoes,
+      questoesTotal,
+    };
+  }),
+
+  /**
+   * 9. getEvolucao30Dias - Evolução dos últimos 30 dias
+   * Retorna dados diários para gráficos de linha (acertos vs erros)
+   */
+  getEvolucao30Dias: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+
+    const userId = ctx.user.id;
+    const hoje = new Date();
+    const trintaDiasAtras = new Date(hoje);
+    trintaDiasAtras.setDate(hoje.getDate() - 30);
+    trintaDiasAtras.setHours(0, 0, 0, 0);
+
+    // Buscar resumos diários dos últimos 30 dias
+    const summaries = await db
+      .select({
+        date: dailySummaries.date,
+        questoesCorretas: dailySummaries.questoesCorretas,
+        questoesErradas: dailySummaries.questoesErradas,
+        metasConcluidas: dailySummaries.metasConcluidas,
+        tempoEstudo: dailySummaries.tempoEstudo,
+      })
+      .from(dailySummaries)
+      .where(
+        and(
+          eq(dailySummaries.userId, userId),
+          gte(dailySummaries.date, trintaDiasAtras)
+        )
+      )
+      .orderBy(dailySummaries.date);
+
+    // Preencher dias faltantes com zeros
+    const evolucao = [];
+    for (let i = 29; i >= 0; i--) {
+      const data = new Date(hoje);
+      data.setDate(hoje.getDate() - i);
+      data.setHours(0, 0, 0, 0);
+
+      const summary = summaries.find(
+        (s) => s.date.getTime() === data.getTime()
+      );
+
+      evolucao.push({
+        data: data.toISOString().split('T')[0], // YYYY-MM-DD
+        acertos: summary?.questoesCorretas || 0,
+        erros: summary?.questoesErradas || 0,
+        metas: summary?.metasConcluidas || 0,
+        tempo: summary?.tempoEstudo || 0,
+      });
+    }
+
+    return evolucao;
+  }),
+
+  /**
+   * 10. getDesempenhoPorDificuldade - Desempenho por nível de dificuldade
+   * Retorna estatísticas de questões agrupadas por dificuldade
+   */
+  getDesempenhoPorDificuldade: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+
+    const userId = ctx.user.id;
+
+    // Buscar questões com dificuldade
+    const result = await db.execute(sql`
+      SELECT 
+        q.difficulty,
+        COUNT(*) as total,
+        SUM(CASE WHEN qa.is_correct = 1 THEN 1 ELSE 0 END) as acertos,
+        SUM(CASE WHEN qa.is_correct = 0 THEN 1 ELSE 0 END) as erros
+      FROM question_attempts qa
+      INNER JOIN questions q ON qa.question_id = q.id
+      WHERE qa.user_id = ${userId}
+      GROUP BY q.difficulty
+    `);
+
+    const dificuldades = [
+      { nivel: 'facil', label: 'Fácil', total: 0, acertos: 0, erros: 0 },
+      { nivel: 'media', label: 'Média', total: 0, acertos: 0, erros: 0 },
+      { nivel: 'dificil', label: 'Difícil', total: 0, acertos: 0, erros: 0 },
+    ];
+
+    // Processar resultados
+    const rows = result as any[];
+    rows.forEach((row: any) => {
+      const dif = dificuldades.find((d) => d.nivel === row.difficulty);
+      if (dif) {
+        dif.total = Number(row.total) || 0;
+        dif.acertos = Number(row.acertos) || 0;
+        dif.erros = Number(row.erros) || 0;
+      }
+    });
+
+    return dificuldades;
+  }),
 });

@@ -1,5 +1,5 @@
 /**
- * ExamGenerator - Gerador de simulados com filtros
+ * ExamGenerator - Gerador de simulados com filtros (versão simplificada)
  */
 
 import { useState } from 'react';
@@ -8,15 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { Loader2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLocation } from 'wouter';
@@ -24,15 +15,7 @@ import { useLocation } from 'wouter';
 export function ExamGenerator() {
   const [, setLocation] = useLocation();
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [disciplinaId, setDisciplinaId] = useState<string>('');
-  const [difficulty, setDifficulty] = useState<string>('');
   const [questionCount, setQuestionCount] = useState(20);
-  const [timeLimit, setTimeLimit] = useState<number>(60);
-  const [isPublic, setIsPublic] = useState(false);
-
-  // Queries
-  const { data: disciplinas } = trpc.disciplinas.getAll.useQuery({ includeInactive: false });
 
   // Mutations
   const createExamMutation = trpc.exams.create.useMutation({
@@ -67,12 +50,8 @@ export function ExamGenerator() {
 
     await createExamMutation.mutateAsync({
       title: title.trim(),
-      description: description.trim() || undefined,
-      disciplinaId: disciplinaId || undefined,
-      difficulty: difficulty as 'easy' | 'medium' | 'hard' | undefined,
       questionCount,
-      timeLimit: timeLimit || undefined,
-      isPublic,
+      isPublic: false,
     });
   };
 
@@ -106,103 +85,20 @@ export function ExamGenerator() {
             />
           </div>
 
-          {/* Descrição */}
+          {/* Quantidade de questões */}
           <div className="space-y-2">
-            <Label htmlFor="description">Descrição (opcional)</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Adicione uma descrição para o simulado..."
-              rows={3}
+            <Label htmlFor="questionCount">Quantidade de Questões *</Label>
+            <Input
+              id="questionCount"
+              type="number"
+              value={questionCount}
+              onChange={(e) => setQuestionCount(parseInt(e.target.value) || 0)}
+              min={1}
+              max={100}
               disabled={isSubmitting}
+              required
             />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Disciplina */}
-            <div className="space-y-2">
-              <Label htmlFor="disciplina">Disciplina</Label>
-              <Select value={disciplinaId} onValueChange={setDisciplinaId} disabled={isSubmitting}>
-                <SelectTrigger id="disciplina">
-                  <SelectValue placeholder="Todas as disciplinas" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Todas as disciplinas</SelectItem>
-                  {disciplinas?.items?.map((d: any) => (
-                    <SelectItem key={d.id} value={d.id}>
-                      {d.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Dificuldade */}
-            <div className="space-y-2">
-              <Label htmlFor="difficulty">Dificuldade</Label>
-              <Select value={difficulty} onValueChange={setDifficulty} disabled={isSubmitting}>
-                <SelectTrigger id="difficulty">
-                  <SelectValue placeholder="Todas as dificuldades" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Todas as dificuldades</SelectItem>
-                  <SelectItem value="easy">Fácil</SelectItem>
-                  <SelectItem value="medium">Média</SelectItem>
-                  <SelectItem value="hard">Difícil</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Quantidade de questões */}
-            <div className="space-y-2">
-              <Label htmlFor="questionCount">Quantidade de Questões *</Label>
-              <Input
-                id="questionCount"
-                type="number"
-                value={questionCount}
-                onChange={(e) => setQuestionCount(parseInt(e.target.value) || 0)}
-                min={1}
-                max={100}
-                disabled={isSubmitting}
-                required
-              />
-              <p className="text-xs text-muted-foreground">Mínimo: 1 | Máximo: 100</p>
-            </div>
-
-            {/* Tempo limite */}
-            <div className="space-y-2">
-              <Label htmlFor="timeLimit">Tempo Limite (minutos)</Label>
-              <Input
-                id="timeLimit"
-                type="number"
-                value={timeLimit}
-                onChange={(e) => setTimeLimit(parseInt(e.target.value) || 0)}
-                min={1}
-                max={300}
-                disabled={isSubmitting}
-                placeholder="Sem limite"
-              />
-              <p className="text-xs text-muted-foreground">Deixe vazio para sem limite</p>
-            </div>
-          </div>
-
-          {/* Público */}
-          <div className="flex items-center justify-between rounded-lg border p-4">
-            <div className="space-y-0.5">
-              <Label htmlFor="isPublic" className="text-base">
-                Simulado Público
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Permitir que outros usuários vejam e realizem este simulado
-              </p>
-            </div>
-            <Switch
-              id="isPublic"
-              checked={isPublic}
-              onCheckedChange={setIsPublic}
-              disabled={isSubmitting}
-            />
+            <p className="text-xs text-muted-foreground">Mínimo: 1 | Máximo: 100</p>
           </div>
 
           {/* Botão de submit */}

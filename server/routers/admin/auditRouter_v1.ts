@@ -53,10 +53,11 @@ export const auditRouter_v1 = router({
           .offset(offset);
 
         // Contar total
-        const [{ count }] = await ctx.db
+        const countResult = await ctx.db
           .select({ count: sql<number>`count(*)` })
           .from(auditLogs)
           .where(filters.length > 0 ? and(...filters) : undefined);
+        const count = Number(countResult[0]?.count || 0);
 
         const duration = Date.now() - startTime;
 
@@ -187,11 +188,11 @@ export const auditRouter_v1 = router({
       const byUser = await ctx.db
         .select({
           actorId: auditLogs.actorId,
-          actorRole: auditLogs.actorRole,
+          actorRole: sql<string>`MAX(${auditLogs.actorRole})`,
           count: sql<number>`count(*)`,
         })
         .from(auditLogs)
-        .groupBy(auditLogs.actorId, auditLogs.actorRole)
+        .groupBy(auditLogs.actorId)
         .orderBy(desc(sql`count(*)`))
         .limit(10);
 

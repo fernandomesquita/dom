@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS `taxonomia_imports` (\n  `id` varchar(36) NOT NULL,\n  `batch_id` varchar(36) NOT NULL UNIQUE,\n  `total_disciplinas` int NOT NULL DEFAULT 0,\n  `total_assuntos` int NOT NULL DEFAULT 0,\n  `total_topicos` int NOT NULL DEFAULT 0,\n  `status` enum('ATIVO','DESFEITO') NOT NULL DEFAULT 'ATIVO',\n  `imported_by` varchar(36) NOT NULL,\n  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `undone_at` timestamp NULL,\n  `undone_by` varchar(36) NULL,\n  CONSTRAINT `taxonomia_imports_id` PRIMARY KEY(`id`),\n  KEY `idx_batch_id` (`batch_id`),\n  KEY `idx_status` (`status`),\n  KEY `idx_created_at` (`created_at`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute CREATE TABLE IF NOT EXISTS `taxonomia_imports` (\n  `id` varchar(36) NOT NULL,\n  `batch_id` varchar(36) NOT NULL UNIQUE,\n  `total_disciplinas` int NOT NULL DEFAULT 0,\n  `total_assuntos` int NOT NULL DEFAULT 0,\n  `total_topicos` int NOT NULL DEFAULT 0,\n  `status` enum('ATIVO','DESFEITO') NOT NULL DEFAULT 'ATIVO',\n  `imported_by` varchar(36) NOT NULL,\n  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `undone_at` timestamp NULL,\n  `undone_by` varchar(36) NULL,\n  CONSTRAINT `taxonomia_imports_id` PRIMARY KEY(`id`),\n  KEY `idx_batch_id` (`batch_id`),\n  KEY `idx_status` (`status`),\n  KEY `idx_created_at` (`created_at`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1521
+}

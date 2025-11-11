@@ -1,4 +1,9 @@
 import { systemRouter } from "./_core/systemRouter";
+/**
+ * Hotfix 08/11/2025: Correção de tela branca em AllPlans e MetasCronograma
+ * - Tratamento de erro no AvisosCentral
+ * - Correção de schema nos widgets (planos → plans)
+ */
 import { ktreeRouter } from "./routers/ktree";
 import { router } from "./_core/trpc";
 import { authRouter } from "./routers/auth";
@@ -31,11 +36,17 @@ import { plansRouter_v1 } from './routers/admin/plansRouter_v1';
 import { goalsRouter_v1 } from './routers/admin/goalsRouter_v1';
 import { usersRouter_v1 } from './routers/admin/usersRouter_v1';
 import { noticesRouter_v1 } from './routers/admin/noticesRouter_v1';
+import { materialsRouter_v1 } from './routers/admin/materialsRouter_v1';
 import { dashboardRouter } from './routers/dashboard/dashboardRouter';
 import { widgetsRouter } from './routers/dashboard/widgetsRouter';
 import { streakRouter } from './routers/dashboard/streakRouter';
 import { telemetryRouter } from './routers/dashboard/telemetryRouter';
 import { gamificationRouter } from './routers/dashboard/gamificationRouter';
+import { sidebarRouter } from './routers/sidebarRouter';
+import { userRouter } from './routers/userRouter';
+import { adminConfigRouter } from './routers/adminConfig';
+import { adminStatsRouter } from './routers/adminStats';
+import { taxonomiaImportRouter } from './routers/taxonomiaImport';
 
 /**
  * Sistema DOM - Routers principais
@@ -51,6 +62,7 @@ export const appRouter = router({
   disciplinas: disciplinasRouter,
   assuntos: assuntosRouter,
   topicos: topicosRouter,
+  taxonomiaImport: taxonomiaImportRouter,
   materials: materialsRouter,
   questions: questionsRouter,
   avisos: avisosRouter,
@@ -60,7 +72,7 @@ export const appRouter = router({
   agendamentos: agendamentosRouter,
   comments: commentsRouter,
   exams: examsRouter,
-
+  
   // Fórum
   forumCategories: forumCategoriesRouter,
   forumThreads: forumThreadsRouter,
@@ -86,6 +98,7 @@ export const appRouter = router({
     goals_v1: goalsRouter_v1,
     users_v1: usersRouter_v1,
     notices_v1: noticesRouter_v1,
+    materials_v1: materialsRouter_v1,
   }),
 
   // E10: Dashboard do Aluno
@@ -94,6 +107,16 @@ export const appRouter = router({
   streak: streakRouter,
   telemetry: telemetryRouter,
   gamification: gamificationRouter,
+  
+  // Sidebar
+  sidebar: sidebarRouter,
+  
+  // Usuário
+  user: userRouter,
+  
+  // Admin - Configurações
+  adminConfig: adminConfigRouter,
+  adminStats: adminStatsRouter,
 });
 
 export type AppRouter = typeof appRouter;

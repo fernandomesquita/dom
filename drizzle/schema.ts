@@ -243,6 +243,27 @@ export const topicos = mysqlTable("topicos", {
   nomeIdx: index("idx_topicos_nome").on(table.nome),
 }));
 
+/**
+ * Tabela de controle de importações em batch da taxonomia
+ * Permite rastrear e desfazer importações
+ */
+export const taxonomiaImports = mysqlTable("taxonomia_imports", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  batchId: varchar("batch_id", { length: 36 }).notNull().unique(),
+  totalDisciplinas: int("total_disciplinas").default(0).notNull(),
+  totalAssuntos: int("total_assuntos").default(0).notNull(),
+  totalTopicos: int("total_topicos").default(0).notNull(),
+  status: mysqlEnum("status", ["ATIVO", "DESFEITO"]).default("ATIVO").notNull(),
+  importedBy: varchar("imported_by", { length: 36 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  undoneAt: timestamp("undone_at"),
+  undoneBy: varchar("undone_by", { length: 36 }),
+}, (table) => ({
+  batchIdIdx: uniqueIndex("idx_batch_id").on(table.batchId),
+  statusIdx: index("idx_status").on(table.status),
+  createdAtIdx: index("idx_created_at").on(table.createdAt),
+}));
+
 // ============================================================================
 // 4. MATERIAIS (COM DRM)
 // ============================================================================
@@ -500,6 +521,7 @@ export const progressoAssuntos = mysqlTable("progresso_assuntos", {
 // ============================================================================
 
 export * from './schema-materials-v4';
+export * from './schema-sidebar';
 
 // ============================================================================
 // TIPOS EXPORTADOS
