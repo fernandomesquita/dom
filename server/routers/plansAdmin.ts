@@ -296,6 +296,13 @@ export const plansAdminRouter = router({
       console.log('🔍 [listAll] Iniciando query de planos');
       console.log('🔍 [listAll] Input:', input);
 
+      // ✅ ADICIONAR ESTAS 3 LINHAS:
+      const testQuery = db.select().from(plans).limit(1);
+      console.log('🔥 SQL REAL:', testQuery.toSQL());
+      const testResult = await testQuery;
+      console.log('🔥 CAMPOS RETORNADOS:', Object.keys(testResult[0] || {}));
+      console.log('🔥 PRIMEIRO REGISTRO:', JSON.stringify(testResult[0], null, 2));
+
       const { search, status, category, mentorId, page, pageSize } = input;
       const offset = (page - 1) * pageSize;
 
