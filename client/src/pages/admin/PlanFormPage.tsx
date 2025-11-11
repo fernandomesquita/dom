@@ -26,60 +26,68 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 
+// ===== SCHEMA ZOD COMPLETO (17 CAMPOS) =====
+// Baseado em drizzle/schema-plans.ts
+
 const planFormSchema = z.object({
-  titulo: z.string().min(3, "Título deve ter no mínimo 3 caracteres").max(200),
-  horasPorDia: z.coerce
-    .number()
-    .min(0.5, "Mínimo 30 minutos")
-    .max(12, "Máximo 12 horas"),
-  diasDisponiveis: z.object({
-    domingo: z.boolean(),
-    segunda: z.boolean(),
-    terca: z.boolean(),
-    quarta: z.boolean(),
-    quinta: z.boolean(),
-    sexta: z.boolean(),
-    sabado: z.boolean(),
-  }),
-  dataInicio: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida"),
-  dataFim: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida").optional().or(z.literal("")),
-  status: z.enum(["ATIVO", "PAUSADO", "CONCLUIDO"]),
-});
+  // Seção 1: Informações Básicas
+  name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres").max(255),
+  slug: z.string().min(3).max(255).optional(),
+  description: z.string().optional(),
+  
+  // Seção 2: Classificação
+  category: z.enum(['Pago', 'Gratuito']),
+  editalStatus: z.enum(['Pré-edital', 'Pós-edital', 'N/A']).default('N/A'),
+  entity: z.string().optional(),
+  role: z.string().optional(),
+  
+  // Seção 3: Modelo de Negócio (condicionais)
+  price: z.string().optional(),
+  landingPageUrl: z.string().url("URL inválida").optional().or(z.literal('')),
+  
+  // Seção 4: Duração e Validade
+  durationDays: z.coerce.number().int().positive().optional(),
+  validityDate: z.string().optional(), // ISO date string
+  
+  // Seção 5: Imagens e Destaque
+  featuredImageUrl: z.string().url("URL inválida").optional().or(z.literal('')),
+  tags: z.array(z.string()).optional(),
+  isFeatured: z.boolean().default(false),
+  
+  // Seção 6: Disponibilidade
+  disponivel: z.boolean().default(true),
+  isHidden: z.boolean().default(false),
+  mentorId: z.coerce.number().int().positive().optional(),
+}).refine(
+  (data) => {
+    // Validação: Plano Pago DEVE ter price e landingPageUrl
+    if (data.category === 'Pago') {
+      return data.price && data.price.length > 0 && data.landingPageUrl && data.landingPageUrl.length > 0;
+    }
+    return true;
+  },
+  {
+    message: "Planos pagos devem ter preço e landing page URL",
+    path: ["price"],
+  }
+);
 
-type PlanFormValues = z.infer<typeof planFormSchema>;
+type PlanFormData = z.infer<typeof planFormSchema>;
 
-/**
- * Converte objeto de dias disponíveis para bitmask
- * Domingo = bit 0, Segunda = bit 1, ..., Sábado = bit 6
- */
-function diasToBitmask(dias: PlanFormValues["diasDisponiveis"]): number {
-  let bitmask = 0;
-  if (dias.domingo) bitmask |= 1 << 0;
-  if (dias.segunda) bitmask |= 1 << 1;
-  if (dias.terca) bitmask |= 1 << 2;
-  if (dias.quarta) bitmask |= 1 << 3;
-  if (dias.quinta) bitmask |= 1 << 4;
-  if (dias.sexta) bitmask |= 1 << 5;
-  if (dias.sabado) bitmask |= 1 << 6;
-  return bitmask;
-}
-
-/**
- * Converte bitmask para objeto de dias disponíveis
- */
-function bitmaskToDias(bitmask: number): PlanFormValues["diasDisponiveis"] {
-  return {
-    domingo: Boolean(bitmask & (1 << 0)),
-    segunda: Boolean(bitmask & (1 << 1)),
-    terca: Boolean(bitmask & (1 << 2)),
-    quarta: Boolean(bitmask & (1 << 3)),
-    quinta: Boolean(bitmask & (1 << 4)),
-    sexta: Boolean(bitmask & (1 << 5)),
-    sabado: Boolean(bitmask & (1 << 6)),
-  };
+// ===== HELPER: Auto-formatar slug =====
+function formatSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+    .replace(/[^a-z0-9\s-]/g, '') // Remove caracteres especiais
+    .trim()
+    .replace(/\s+/g, '-') // Espaços viram hífens
+    .replace(/-+/g, '-'); // Remove hífens duplicados
 }
 
 export default function PlanFormPage() {
@@ -88,28 +96,31 @@ export default function PlanFormPage() {
   const planId = params?.id === "novo" ? null : params?.id;
   const isEditing = Boolean(planId);
 
-  const form = useForm<PlanFormValues>({
+  const form = useForm<PlanFormData>({
     resolver: zodResolver(planFormSchema),
     defaultValues: {
-      titulo: "",
-      horasPorDia: 4,
-      diasDisponiveis: {
-        domingo: false,
-        segunda: true,
-        terca: true,
-        quarta: true,
-        quinta: true,
-        sexta: true,
-        sabado: false,
-      },
-      dataInicio: new Date().toISOString().split("T")[0],
-      dataFim: "",
-      status: "ATIVO",
+      name: '',
+      slug: '',
+      description: '',
+      category: 'Gratuito',
+      editalStatus: 'N/A',
+      entity: '',
+      role: '',
+      price: '',
+      landingPageUrl: '',
+      durationDays: undefined,
+      validityDate: '',
+      featuredImageUrl: '',
+      tags: [],
+      isFeatured: false,
+      disponivel: true,
+      isHidden: false,
+      mentorId: undefined,
     },
   });
 
   // Carregar dados do plano se estiver editando
-  const { data: planData, isLoading: isLoadingPlan } = trpc.admin.plans_v1.getById.useQuery(
+  const { data: planData, isLoading: isLoadingPlan } = trpc.plansAdmin.getById.useQuery(
     { id: planId! },
     { enabled: isEditing }
   );
@@ -117,23 +128,33 @@ export default function PlanFormPage() {
   useEffect(() => {
     if (planData) {
       form.reset({
-        titulo: planData.titulo,
-        horasPorDia: planData.horas_por_dia,
-        diasDisponiveis: bitmaskToDias(planData.dias_disponiveis_bitmask),
-        dataInicio: planData.data_inicio.split("T")[0],
-        dataFim: planData.data_fim ? planData.data_fim.split("T")[0] : "",
-        status: planData.status,
+        name: planData.name || '',
+        slug: planData.slug || '',
+        description: planData.description || '',
+        category: planData.category || 'Gratuito',
+        editalStatus: planData.editalStatus || 'N/A',
+        entity: planData.entity || '',
+        role: planData.role || '',
+        price: planData.price || '',
+        landingPageUrl: planData.landingPageUrl || '',
+        durationDays: planData.durationDays || undefined,
+        validityDate: planData.validityDate ? new Date(planData.validityDate).toISOString().split('T')[0] : '',
+        featuredImageUrl: planData.featuredImageUrl || '',
+        tags: planData.tags || [],
+        isFeatured: planData.isFeatured || false,
+        disponivel: planData.disponivel ?? true,
+        isHidden: planData.isHidden || false,
+        mentorId: planData.mentorId || undefined,
       });
     }
   }, [planData, form]);
 
   const utils = trpc.useUtils();
 
-  const createMutation = trpc.admin.plans_v1.create.useMutation({
+  const createMutation = trpc.plansAdmin.create.useMutation({
     onSuccess: () => {
       toast.success("Plano criado com sucesso!");
-      utils.admin.plans_v1.list.invalidate();
-      utils.admin.plans_v1.stats.invalidate();
+      utils.plansAdmin.listAll.invalidate();
       setLocation("/admin/planos");
     },
     onError: (error) => {
@@ -141,11 +162,11 @@ export default function PlanFormPage() {
     },
   });
 
-  const updateMutation = trpc.admin.plans_v1.update.useMutation({
+  const updateMutation = trpc.plansAdmin.update.useMutation({
     onSuccess: () => {
       toast.success("Plano atualizado com sucesso!");
-      utils.admin.plans_v1.list.invalidate();
-      utils.admin.plans_v1.getById.invalidate({ id: planId! });
+      utils.plansAdmin.listAll.invalidate();
+      utils.plansAdmin.getById.invalidate({ id: planId! });
       setLocation("/admin/planos");
     },
     onError: (error) => {
@@ -153,30 +174,41 @@ export default function PlanFormPage() {
     },
   });
 
-  const onSubmit = (values: PlanFormValues) => {
-    const bitmask = diasToBitmask(values.diasDisponiveis);
-
-    if (bitmask === 0) {
-      toast.error("Selecione pelo menos um dia da semana");
-      return;
-    }
-
-    const payload = {
-      titulo: values.titulo,
-      horasPorDia: values.horasPorDia,
-      diasDisponiveisBitmask: bitmask,
-      dataInicio: values.dataInicio,
-      dataFim: values.dataFim || undefined,
-      status: values.status,
-    };
-
-    if (isEditing) {
-      updateMutation.mutate({
-        id: planId!,
-        data: payload,
+  const onSubmit = async (data: PlanFormData) => {
+    try {
+      // Limpar campos vazios (null, undefined, string vazia)
+      const cleanData: any = {};
+      
+      Object.entries(data).forEach(([key, value]) => {
+        if (value === null || value === undefined || value === '') return;
+        if (Array.isArray(value) && value.length === 0) return;
+        cleanData[key] = value;
       });
-    } else {
-      createMutation.mutate(payload);
+      
+      if (isEditing) {
+        // MODO EDITAR
+        await updateMutation.mutateAsync({
+          id: planId!,
+          ...cleanData,
+        });
+        
+        toast.success('Plano atualizado com sucesso!');
+      } else {
+        // MODO CRIAR
+        await createMutation.mutateAsync(cleanData);
+        
+        toast.success('Plano criado com sucesso!');
+      }
+      
+      // Redirecionar para lista de planos
+      setLocation('/admin/planos');
+      
+    } catch (error: any) {
+      console.error('Erro ao salvar plano:', error);
+      
+      // Erro amigável para o usuário
+      const errorMessage = error?.message || 'Erro ao salvar plano. Tente novamente.';
+      toast.error(errorMessage);
     }
   };
 
@@ -217,53 +249,115 @@ export default function PlanFormPage() {
         </div>
 
         {/* Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Informações do Plano</CardTitle>
-            <CardDescription>
-              Preencha os dados do plano de estudo
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            
+            {/* ===== SEÇÃO 1: INFORMAÇÕES BÁSICAS ===== */}
+            <Card>
+              <CardHeader>
+                <CardTitle>1. Informações Básicas</CardTitle>
+                <CardDescription>
+                  Nome, slug e descrição do plano
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="titulo"
+                  name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Título *</FormLabel>
+                      <FormLabel>Nome do Plano *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Ex: Plano TRF 5ª Região 2025" {...field} />
+                        <Input 
+                          placeholder="Ex: Plano EARA Pré-Edital - Auditor Fiscal RF" 
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            // Auto-gerar slug se estiver vazio
+                            if (!form.getValues('slug')) {
+                              form.setValue('slug', formatSlug(e.target.value));
+                            }
+                          }}
+                        />
                       </FormControl>
                       <FormDescription>
-                        Nome identificador do plano de estudo
+                        Nome completo e descritivo do plano
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
+                <FormField
+                  control={form.control}
+                  name="slug"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Slug (URL amigável)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="plano-eara-pre-edital-auditor-rf" 
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Gerado automaticamente. Edite se necessário.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Descrição</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Descreva o plano, objetivos, público-alvo..." 
+                          rows={4}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Descrição completa do plano (opcional)
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            {/* ===== SEÇÃO 2: CLASSIFICAÇÃO ===== */}
+            <Card>
+              <CardHeader>
+                <CardTitle>2. Classificação</CardTitle>
+                <CardDescription>
+                  Categoria, entidade, cargo e momento do edital
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
-                    name="horasPorDia"
+                    name="category"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Horas por dia *</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.5"
-                            min="0.5"
-                            max="12"
-                            placeholder="4"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Entre 0.5 (30min) e 12 horas
-                        </FormDescription>
+                        <FormLabel>Categoria *</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione a categoria" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Gratuito">Gratuito</SelectItem>
+                            <SelectItem value="Pago">Pago</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -271,20 +365,20 @@ export default function PlanFormPage() {
 
                   <FormField
                     control={form.control}
-                    name="status"
+                    name="editalStatus"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Status *</FormLabel>
+                        <FormLabel>Momento do Edital *</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Selecione o status" />
+                              <SelectValue placeholder="Selecione o momento" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="ATIVO">Ativo</SelectItem>
-                            <SelectItem value="PAUSADO">Pausado</SelectItem>
-                            <SelectItem value="CONCLUIDO">Concluído</SelectItem>
+                            <SelectItem value="Pré-edital">Pré-edital</SelectItem>
+                            <SelectItem value="Pós-edital">Pós-edital</SelectItem>
+                            <SelectItem value="N/A">N/A (Não se aplica)</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -293,53 +387,129 @@ export default function PlanFormPage() {
                   />
                 </div>
 
-                <div className="space-y-3">
-                  <FormLabel>Dias disponíveis *</FormLabel>
-                  <div className="grid grid-cols-7 gap-2">
-                    {[
-                      { name: "domingo", label: "Dom" },
-                      { name: "segunda", label: "Seg" },
-                      { name: "terca", label: "Ter" },
-                      { name: "quarta", label: "Qua" },
-                      { name: "quinta", label: "Qui" },
-                      { name: "sexta", label: "Sex" },
-                      { name: "sabado", label: "Sáb" },
-                    ].map((dia) => (
-                      <FormField
-                        key={dia.name}
-                        control={form.control}
-                        name={`diasDisponiveis.${dia.name as keyof PlanFormValues["diasDisponiveis"]}`}
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col items-center space-y-2">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormLabel className="text-xs font-normal">
-                              {dia.label}
-                            </FormLabel>
-                          </FormItem>
-                        )}
-                      />
-                    ))}
-                  </div>
-                  <FormDescription>
-                    Selecione os dias da semana disponíveis para estudo
-                  </FormDescription>
-                </div>
+                <FormField
+                  control={form.control}
+                  name="entity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Entidade</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Ex: Receita Federal, Petrobras, TRF 5ª Região" 
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Órgão ou empresa do concurso
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cargo</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Ex: Auditor Fiscal, Analista, Técnico" 
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Cargo específico do concurso
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            {/* ===== SEÇÃO 3: MODELO DE NEGÓCIO (CONDICIONAL) ===== */}
+            {form.watch('category') === 'Pago' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>3. Modelo de Negócio</CardTitle>
+                  <CardDescription>
+                    Preço e landing page (obrigatório para planos pagos)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Preço *</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Ex: R$ 299,90" 
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Valor do plano (obrigatório para planos pagos)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="landingPageUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Landing Page URL *</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="url"
+                            placeholder="https://exemplo.com/plano-auditor-rf" 
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          URL da página de venda (obrigatório para planos pagos)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            )}
+
+            {/* ===== SEÇÃO 4: DURAÇÃO E VALIDADE ===== */}
+            <Card>
+              <CardHeader>
+                <CardTitle>4. Duração e Validade</CardTitle>
+                <CardDescription>
+                  Tempo de acesso e data de expiração
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
-                    name="dataInicio"
+                    name="durationDays"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Data de início *</FormLabel>
+                        <FormLabel>Duração (dias)</FormLabel>
                         <FormControl>
-                          <Input type="date" {...field} />
+                          <Input 
+                            type="number"
+                            placeholder="Ex: 180, 365"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          />
                         </FormControl>
+                        <FormDescription>
+                          Deixe vazio para acesso vitalício
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -347,47 +517,165 @@ export default function PlanFormPage() {
 
                   <FormField
                     control={form.control}
-                    name="dataFim"
+                    name="validityDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Data de término</FormLabel>
+                        <FormLabel>Data de Validade</FormLabel>
                         <FormControl>
-                          <Input type="date" {...field} />
+                          <Input 
+                            type="date"
+                            {...field}
+                          />
                         </FormControl>
-                        <FormDescription>Opcional</FormDescription>
+                        <FormDescription>
+                          Data limite de acesso ao plano
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
+              </CardContent>
+            </Card>
 
-                <div className="flex justify-end gap-3 pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setLocation("/admin/planos")}
-                    disabled={isSubmitting}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Salvando...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="w-4 h-4 mr-2" />
-                        {isEditing ? "Atualizar" : "Criar"} Plano
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+            {/* ===== SEÇÃO 5: IMAGENS E DESTAQUE ===== */}
+            <Card>
+              <CardHeader>
+                <CardTitle>5. Imagens e Destaque</CardTitle>
+                <CardDescription>
+                  Imagem de capa e configurações de destaque
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="featuredImageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>URL da Imagem de Destaque</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="url"
+                          placeholder="https://exemplo.com/imagem-plano.jpg" 
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Imagem de capa do plano (opcional)
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="isFeatured"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                          Plano em Destaque
+                        </FormLabel>
+                        <FormDescription>
+                          Exibir este plano em posição de destaque na listagem
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            {/* ===== SEÇÃO 6: DISPONIBILIDADE ===== */}
+            <Card>
+              <CardHeader>
+                <CardTitle>6. Disponibilidade</CardTitle>
+                <CardDescription>
+                  Controle de visibilidade e disponibilidade para matrícula
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="disponivel"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                          Disponível para Matrícula
+                        </FormLabel>
+                        <FormDescription>
+                          Permite que alunos se matriculem neste plano
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="isHidden"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                          Ocultar da Listagem Pública
+                        </FormLabel>
+                        <FormDescription>
+                          Plano não aparece na página pública de planos
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            {/* ===== BOTÕES DE AÇÃO ===== */}
+            <div className="flex justify-end gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setLocation("/admin/planos")}
+                disabled={isSubmitting}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    {isEditing ? "Atualizar" : "Criar"} Plano
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </div>
     </AdminLayout>
   );
