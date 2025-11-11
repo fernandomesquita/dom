@@ -5,7 +5,7 @@ import { router, staffProcedure, adminRoleProcedure } from '../../_core/trpc';
 import { getRawDb, getDb } from '../../db';
 import { logAuditAction, AuditAction, TargetType } from '../../_core/audit';
 import { plans } from '../../../drizzle/schema-plans';
-import { isNull } from 'drizzle-orm';
+import { isNull, desc } from 'drizzle-orm';
 
 /**
  * Router de Gestão de Planos de Estudo (Admin) - v1
@@ -493,6 +493,7 @@ export const plansRouter_v1 = router({
           .select()
           .from(plans)
           .where(isNull(plans.deletedAt))
+          .orderBy(desc(plans.createdAt))
           .limit(pageSize)
           .offset(offset);
 
