@@ -1,0 +1,34 @@
+{
+  "query": "SELECT id, title, type, category FROM materials;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute SELECT id, title, type, category FROM materials;",
+  "rows": [
+    {
+      "id": "1",
+      "title": "Princípios Constitucionais",
+      "type": "pdf",
+      "category": "base"
+    },
+    {
+      "id": "2",
+      "title": "Direitos Fundamentais",
+      "type": "video",
+      "category": "base"
+    },
+    {
+      "id": "3",
+      "title": "Organização do Estado",
+      "type": "pdf",
+      "category": "base"
+    },
+    {
+      "id": "4",
+      "title": "Poder Legislativo",
+      "type": "audio",
+      "category": "base"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\ttype\tcategory\n1\tPrincípios Constitucionais\tpdf\tbase\n2\tDireitos Fundamentais\tvideo\tbase\n3\tOrganização do Estado\tpdf\tbase\n4\tPoder Legislativo\taudio\tbase\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}

@@ -6,6 +6,7 @@ import { MessageCircle, Pin, TrendingUp, Users } from 'lucide-react';
 import { Link } from 'wouter';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { StudentLayout } from '@/components/StudentLayout';
 
 /**
  * Página Principal do Fórum
@@ -24,10 +25,11 @@ export default function Forum() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b">
-        <div className="container py-8">
+    <StudentLayout>
+      <div className="bg-gray-50">
+        {/* Header */}
+        <div className="bg-white border-b">
+          <div className="container py-8">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Fórum Colaborativo</h1>
@@ -201,8 +203,9 @@ export default function Forum() {
               </CardContent>
             </Card>
           </div>
+          </div>
         </div>
       </div>
-    </div>
+    </StudentLayout>
   );
 }

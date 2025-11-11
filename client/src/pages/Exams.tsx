@@ -18,76 +18,104 @@ import {
   Play,
   Trophy,
   Calendar,
+  AlertCircle,
 } from 'lucide-react';
 import { ExamGenerator } from '@/components/exams/ExamGenerator';
 import { useLocation } from 'wouter';
-import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { StudentLayout } from '@/components/StudentLayout';
 
 export default function Exams() {
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState('create');
 
-  // Queries
-  const { data: attemptsData, isLoading } = trpc.exams.listMyAttempts.useQuery({
-    limit: 20,
-    offset: 0,
-  });
+  // Query de tentativas de simulados
+  const { data: attemptsData, isLoading, error } = trpc.exams.listMyAttempts.useQuery(
+    {
+      limit: 20,
+      offset: 0,
+    },
+    {
+      retry: 1,
+      onError: (err) => {
+        console.error('Erro ao carregar simulados:', err);
+      },
+    }
+  );
 
   const handleResumeAttempt = (attemptId: number) => {
     setLocation(`/simulados/${attemptId}`);
   };
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <Badge variant="default">Concluído</Badge>;
-      case 'in_progress':
-        return <Badge variant="secondary">Em andamento</Badge>;
-      case 'abandoned':
-        return <Badge variant="destructive">Abandonado</Badge>;
-      default:
-        return null;
-    }
+    const statusConfig = {
+      in_progress: { label: 'Em Andamento', variant: 'default' as const, icon: Play },
+      completed: { label: 'Concluído', variant: 'secondary' as const, icon: CheckCircle2 },
+      abandoned: { label: 'Abandonado', variant: 'destructive' as const, icon: XCircle },
+    };
+
+    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.in_progress;
+    const Icon = config.icon;
+
+    return (
+      <Badge variant={config.variant} className="gap-1">
+        <Icon className="h-3 w-3" />
+        {config.label}
+      </Badge>
+    );
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 70) return 'text-green-600';
-    if (score >= 50) return 'text-yellow-600';
-    return 'text-red-600';
+  const formatDate = (date: string | Date) => {
+    const d = new Date(date);
+    return d.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   return (
-    <div className="container max-w-7xl py-8">
-      <div className="space-y-6">
+    <StudentLayout>
+      <div className="bg-background">
+      <div className="container max-w-7xl mx-auto py-8 px-4">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold">Simulados</h1>
-          <p className="text-muted-foreground mt-2">
-            Crie simulados personalizados e teste seus conhecimentos
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Simulados</h1>
+          <p className="text-muted-foreground">
+            Teste seus conhecimentos com simulados completos
           </p>
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="create">Criar Simulado</TabsTrigger>
             <TabsTrigger value="history">Histórico</TabsTrigger>
           </TabsList>
 
           {/* Tab: Criar Simulado */}
-          <TabsContent value="create" className="mt-6">
+          <TabsContent value="create" className="space-y-6">
             <ExamGenerator />
           </TabsContent>
 
           {/* Tab: Histórico */}
-          <TabsContent value="history" className="mt-6 space-y-4">
-            {isLoading ? (
+          <TabsContent value="history" className="space-y-6">
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Erro ao carregar histórico de simulados. Tente novamente mais tarde.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {isLoading && (
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
                   <Card key={i}>
                     <CardHeader>
-                      <Skeleton className="h-6 w-2/3" />
+                      <Skeleton className="h-6 w-3/4" />
                       <Skeleton className="h-4 w-1/2 mt-2" />
                     </CardHeader>
                     <CardContent>
@@ -96,118 +124,124 @@ export default function Exams() {
                   </Card>
                 ))}
               </div>
-            ) : attemptsData && attemptsData.items.length > 0 ? (
-              <div className="space-y-4">
-                {attemptsData.items.map(({ attempt, exam }) => {
-                  const timeAgo = formatDistanceToNow(new Date(attempt.startedAt), {
-                    addSuffix: true,
-                    locale: ptBR,
-                  });
+            )}
 
-                  return (
-                    <Card key={attempt.id}>
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-1">
-                            <CardTitle className="text-xl">{exam.title}</CardTitle>
-                            {exam.description && (
-                              <CardDescription>{exam.description}</CardDescription>
+            {!isLoading && !error && attemptsData && (
+              <>
+                {attemptsData.items.length === 0 ? (
+                  <Card>
+                    <CardContent className="flex flex-col items-center justify-center py-12">
+                      <Trophy className="h-12 w-12 text-muted-foreground mb-4" />
+                      <p className="text-lg font-medium mb-2">
+                        Você ainda não realizou nenhum simulado
+                      </p>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Crie um novo simulado para começar!
+                      </p>
+                      <Button onClick={() => setActiveTab('create')}>
+                        Criar Primeiro Simulado
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="grid gap-4">
+                    {attemptsData.items.map((attempt) => (
+                      <Card key={attempt.id} className="hover:shadow-md transition-shadow">
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-1">
+                              <CardTitle className="text-xl">
+                                {attempt.exam?.title || 'Simulado sem título'}
+                              </CardTitle>
+                              <CardDescription className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4" />
+                                {formatDate(attempt.startedAt)}
+                              </CardDescription>
+                            </div>
+                            {getStatusBadge(attempt.status)}
+                          </div>
+                        </CardHeader>
+
+                        <CardContent>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                            <div className="space-y-1">
+                              <p className="text-sm text-muted-foreground">Questões</p>
+                              <p className="text-lg font-semibold flex items-center gap-1">
+                                <FileText className="h-4 w-4" />
+                                {attempt.exam?.totalQuestions || 0}
+                              </p>
+                            </div>
+
+                            <div className="space-y-1">
+                              <p className="text-sm text-muted-foreground">Tempo Limite</p>
+                              <p className="text-lg font-semibold flex items-center gap-1">
+                                <Clock className="h-4 w-4" />
+                                {attempt.exam?.timeLimit ? `${attempt.exam.timeLimit}min` : 'Ilimitado'}
+                              </p>
+                            </div>
+
+                            {attempt.status === 'completed' && (
+                              <>
+                                <div className="space-y-1">
+                                  <p className="text-sm text-muted-foreground">Nota</p>
+                                  <p className="text-lg font-semibold flex items-center gap-1">
+                                    <Trophy className="h-4 w-4" />
+                                    {attempt.score?.toFixed(1) || '0.0'}%
+                                  </p>
+                                </div>
+
+                                <div className="space-y-1">
+                                  <p className="text-sm text-muted-foreground">Acertos</p>
+                                  <p className="text-lg font-semibold flex items-center gap-1">
+                                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                                    {attempt.correctAnswers || 0}/{attempt.exam?.totalQuestions || 0}
+                                  </p>
+                                </div>
+                              </>
                             )}
                           </div>
-                          {getStatusBadge(attempt.status)}
-                        </div>
-                      </CardHeader>
 
-                      <CardContent className="space-y-4">
-                        {/* Estatísticas */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-4 w-4 text-muted-foreground" />
-                            <div>
-                              <p className="text-sm font-medium">{exam.totalQuestions}</p>
-                              <p className="text-xs text-muted-foreground">Questões</p>
-                            </div>
+                          <div className="flex gap-2">
+                            {attempt.status === 'in_progress' && (
+                              <Button
+                                onClick={() => handleResumeAttempt(attempt.id)}
+                                className="flex-1"
+                              >
+                                <Play className="h-4 w-4 mr-2" />
+                                Continuar Simulado
+                              </Button>
+                            )}
+
+                            {attempt.status === 'completed' && (
+                              <>
+                                <Button
+                                  onClick={() => setLocation(`/simulados/${attempt.id}/relatorio`)}
+                                  variant="default"
+                                  className="flex-1"
+                                >
+                                  <Trophy className="h-4 w-4 mr-2" />
+                                  Ver Relatório
+                                </Button>
+                                <Button
+                                  onClick={() => handleResumeAttempt(attempt.id)}
+                                  variant="outline"
+                                >
+                                  Revisar
+                                </Button>
+                              </>
+                            )}
                           </div>
-
-                          {attempt.status === 'completed' && (
-                            <>
-                              <div className="flex items-center gap-2">
-                                <Trophy
-                                  className={`h-4 w-4 ${getScoreColor(attempt.score || 0)}`}
-                                />
-                                <div>
-                                  <p className={`text-sm font-medium ${getScoreColor(attempt.score || 0)}`}>
-                                    {attempt.score?.toFixed(1)}%
-                                  </p>
-                                  <p className="text-xs text-muted-foreground">Nota</p>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-2">
-                                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                                <div>
-                                  <p className="text-sm font-medium">{attempt.correctCount}</p>
-                                  <p className="text-xs text-muted-foreground">Acertos</p>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-2">
-                                <XCircle className="h-4 w-4 text-red-600" />
-                                <div>
-                                  <p className="text-sm font-medium">{attempt.wrongCount}</p>
-                                  <p className="text-xs text-muted-foreground">Erros</p>
-                                </div>
-                              </div>
-                            </>
-                          )}
-
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-muted-foreground" />
-                            <div>
-                              <p className="text-sm font-medium">
-                                {Math.floor((attempt.timeSpent || 0) / 60)}min
-                              </p>
-                              <p className="text-xs text-muted-foreground">Tempo</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Footer */}
-                        <div className="flex items-center justify-between pt-4 border-t">
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Calendar className="h-4 w-4" />
-                            <span>{timeAgo}</span>
-                          </div>
-
-                          {attempt.status === 'in_progress' ? (
-                            <Button onClick={() => handleResumeAttempt(attempt.id)}>
-                              <Play className="mr-2 h-4 w-4" />
-                              Continuar
-                            </Button>
-                          ) : (
-                            <Button
-                              variant="outline"
-                              onClick={() => handleResumeAttempt(attempt.id)}
-                            >
-                              Ver Resultado
-                            </Button>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            ) : (
-              <Alert>
-                <AlertDescription>
-                  Você ainda não realizou nenhum simulado. Crie um novo simulado para começar!
-                </AlertDescription>
-              </Alert>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+      </div>
+    </StudentLayout>
   );
 }

@@ -194,7 +194,7 @@ export const forumThreadsRouter = router({
         conteudo: conteudoSanitizado,
         autorId: ctx.user.id,
         categoriaId: input.categoriaId,
-        tags: input.tags ? JSON.stringify(input.tags) : null,
+        tags: input.tags || null,
         status,
       });
 

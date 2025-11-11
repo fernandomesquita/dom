@@ -19,9 +19,11 @@ import {
   TrendingUp,
   Lock,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Heart
 } from "lucide-react";
 import { Link } from "wouter";
+import { StudentLayout } from "@/components/StudentLayout";
 
 /**
  * Página de listagem de materiais para alunos
@@ -78,9 +80,10 @@ export default function Materiais() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b">
+    <StudentLayout>
+      <div className="bg-gray-50">
+        {/* Header */}
+        <div className="bg-white border-b">
         <div className="container py-6">
           <div className="flex items-center gap-2 mb-4">
             <Link href="/">
@@ -225,6 +228,12 @@ export default function Materiais() {
                             <ThumbsUp className="h-3 w-3" />
                             {material.upvotes}
                           </span>
+                          {material.favoriteCount > 0 && (
+                            <span className="flex items-center gap-1 text-red-500">
+                              <Heart className="h-3 w-3 fill-current" />
+                              {material.favoriteCount}
+                            </span>
+                          )}
                           <span className="flex items-center gap-1">
                             <Eye className="h-3 w-3" />
                             {material.viewCount}
@@ -286,7 +295,8 @@ export default function Materiais() {
             </p>
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </StudentLayout>
   );
 }

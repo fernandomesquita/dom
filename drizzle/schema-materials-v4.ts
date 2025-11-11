@@ -55,8 +55,8 @@ export const materials = mysqlTable("materials", {
   categoryPaidIdx: index("categoryPaidIdx")
     .on(table.category, table.isPaid, table.isAvailable),
     
-  // Índice para full-text search (MySQL 5.7+)
-  titleDescIdx: index("titleDescIdx").on(table.title, table.description),
+  // Nota: Removido titleDescIdx pois MySQL não permite índice em TEXT sem tamanho
+  // Para busca full-text, usar FULLTEXT index ou busca via aplicação
 }));
 
 /**
@@ -131,10 +131,11 @@ export const materialViews = mysqlTable("materialViews", {
   materialTimeIdx: index("materialTimeIdx")
     .on(table.materialId, table.viewedAt),
   
-  // De-duplication: 1 visualização por usuário/material/dia
-  // Evita explosão da tabela e ainda mantém analytics útil
-  uniqueDailyView: uniqueIndex("unique_daily_view")
-    .on(table.userId, table.materialId, sql`DATE(${table.viewedAt})`),
+  // De-duplication: 1 visualização por usuário/material
+  // Nota: Removido DATE() do índice por incompatibilidade com MySQL 9.4
+  // A de-duplicação agora é por usuário/material (sem filtro de dia)
+  uniqueView: uniqueIndex("unique_view")
+    .on(table.userId, table.materialId),
 }));
 
 /**

@@ -5,12 +5,12 @@ import { trpc } from '@/lib/trpc';
 import {
   MessageCircle,
   Users,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
+  ThumbsUp,
   Ban,
   TrendingUp,
   Eye,
+  Pin,
+  Lock,
 } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -24,24 +24,31 @@ export default function ForumDashboard() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
 
-  // Verificar permissão
-  if (user?.role !== 'admin') {
+  // Verificar permissão (apenas ADMIN ou MASTER)
+  if (!user || (user.role !== 'ADMIN' && user.role !== 'MASTER')) {
     setLocation('/forum');
     return null;
   }
 
-  // Buscar estatísticas de moderação
-  const { data: moderationStats, isLoading: loadingModeration } =
-    trpc.forumModeration.getStats.useQuery();
+  // Buscar estatísticas gerais
+  const { data: stats, isLoading: loadingStats } = trpc.forumStats.getOverview.useQuery();
 
   // Buscar threads recentes
-  const { data: recentThreads, isLoading: loadingThreads } = trpc.forumThreads.list.useQuery({
-    ordenar: 'recente',
+  const { data: recentThreads, isLoading: loadingThreads } = trpc.forumStats.getRecentThreads.useQuery({
     limit: 10,
   });
 
-  // Buscar categorias
-  const { data: categories } = trpc.forumCategories.listAll.useQuery();
+  // Buscar threads populares
+  const { data: popularThreads, isLoading: loadingPopular } = trpc.forumStats.getPopularThreads.useQuery({
+    limit: 10,
+    periodo: '30d',
+  });
+
+  // Buscar usuários mais ativos
+  const { data: topUsers, isLoading: loadingUsers } = trpc.forumStats.getTopUsers.useQuery({
+    limit: 10,
+    tipo: 'threads',
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -57,7 +64,7 @@ export default function ForumDashboard() {
             <div className="flex items-center gap-3">
               <Link href="/admin/forum/moderation">
                 <Button variant="outline">
-                  <AlertTriangle className="w-4 h-4 mr-2" />
+                  <Ban className="w-4 h-4 mr-2" />
                   Moderação
                 </Button>
               </Link>
@@ -79,11 +86,11 @@ export default function ForumDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">Total de Discussões</p>
-                    {loadingThreads ? (
+                    {loadingStats ? (
                       <Skeleton className="h-8 w-20 mt-2" />
                     ) : (
                       <p className="text-3xl font-bold text-gray-900 mt-1">
-                        {recentThreads?.total || 0}
+                        {stats?.totalThreads || 0}
                       </p>
                     )}
                   </div>
@@ -94,43 +101,43 @@ export default function ForumDashboard() {
               </CardContent>
             </Card>
 
-            {/* Pendentes de Moderação */}
+            {/* Total de Respostas */}
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Pendentes</p>
-                    {loadingModeration ? (
+                    <p className="text-sm text-gray-600">Total de Respostas</p>
+                    {loadingStats ? (
                       <Skeleton className="h-8 w-20 mt-2" />
                     ) : (
-                      <p className="text-3xl font-bold text-orange-600 mt-1">
-                        {moderationStats?.pendentes || 0}
+                      <p className="text-3xl font-bold text-gray-900 mt-1">
+                        {stats?.totalMessages || 0}
                       </p>
                     )}
                   </div>
-                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <AlertTriangle className="w-6 h-6 text-orange-600" />
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <MessageCircle className="w-6 h-6 text-green-600" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Aprovados */}
+            {/* Usuários Ativos */}
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Aprovados</p>
-                    {loadingModeration ? (
+                    <p className="text-sm text-gray-600">Usuários Ativos</p>
+                    {loadingStats ? (
                       <Skeleton className="h-8 w-20 mt-2" />
                     ) : (
-                      <p className="text-3xl font-bold text-green-600 mt-1">
-                        {moderationStats?.aprovados || 0}
+                      <p className="text-3xl font-bold text-gray-900 mt-1">
+                        {stats?.activeUsers || 0}
                       </p>
                     )}
                   </div>
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <CheckCircle className="w-6 h-6 text-green-600" />
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Users className="w-6 h-6 text-purple-600" />
                   </div>
                 </div>
               </CardContent>
@@ -141,12 +148,12 @@ export default function ForumDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Suspensos</p>
-                    {loadingModeration ? (
+                    <p className="text-sm text-gray-600">Usuários Suspensos</p>
+                    {loadingStats ? (
                       <Skeleton className="h-8 w-20 mt-2" />
                     ) : (
-                      <p className="text-3xl font-bold text-red-600 mt-1">
-                        {moderationStats?.usuariosSuspensos || 0}
+                      <p className="text-3xl font-bold text-gray-900 mt-1">
+                        {stats?.suspendedUsers || 0}
                       </p>
                     )}
                   </div>
@@ -158,86 +165,164 @@ export default function ForumDashboard() {
             </Card>
           </div>
 
+          {/* Estatísticas Adicionais */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Total de Upvotes</p>
+                    {loadingStats ? (
+                      <Skeleton className="h-8 w-20 mt-2" />
+                    ) : (
+                      <p className="text-2xl font-bold text-gray-900 mt-1">
+                        {stats?.totalUpvotes || 0}
+                      </p>
+                    )}
+                  </div>
+                  <ThumbsUp className="w-8 h-8 text-blue-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Threads Fixadas</p>
+                    {loadingStats ? (
+                      <Skeleton className="h-8 w-20 mt-2" />
+                    ) : (
+                      <p className="text-2xl font-bold text-gray-900 mt-1">
+                        {stats?.pinnedThreads || 0}
+                      </p>
+                    )}
+                  </div>
+                  <Pin className="w-8 h-8 text-yellow-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Threads Trancadas</p>
+                    {loadingStats ? (
+                      <Skeleton className="h-8 w-20 mt-2" />
+                    ) : (
+                      <p className="text-2xl font-bold text-gray-900 mt-1">
+                        {stats?.lockedThreads || 0}
+                      </p>
+                    )}
+                  </div>
+                  <Lock className="w-8 h-8 text-gray-600" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Threads Recentes e Populares */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Categorias */}
+            {/* Threads Recentes */}
             <Card>
               <CardHeader>
-                <CardTitle>Categorias</CardTitle>
-                <CardDescription>Gerenciar categorias do fórum</CardDescription>
+                <CardTitle>Discussões Recentes</CardTitle>
+                <CardDescription>Últimas 10 threads criadas</CardDescription>
               </CardHeader>
               <CardContent>
-                {categories?.length === 0 ? (
-                  <p className="text-center text-gray-500 py-8">Nenhuma categoria</p>
+                {loadingThreads ? (
+                  <div className="space-y-3">
+                    {[...Array(5)].map((_, i) => (
+                      <Skeleton key={i} className="h-16 w-full" />
+                    ))}
+                  </div>
                 ) : (
                   <div className="space-y-3">
-                    {categories?.map((cat) => (
-                      <div
-                        key={cat.id}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl" style={{ color: cat.cor || '#3B82F6' }}>
-                            {cat.icone || '📁'}
-                          </span>
-                          <div>
-                            <p className="font-semibold text-gray-900">{cat.nome}</p>
-                            {cat.descricao && (
-                              <p className="text-sm text-gray-600">{cat.descricao}</p>
-                            )}
+                    {recentThreads?.map((thread) => (
+                      <Link key={thread.id} href={`/forum/thread/${thread.id}`}>
+                        <div className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-medium text-gray-900 line-clamp-1">
+                                {thread.titulo}
+                              </h4>
+                              <p className="text-sm text-gray-600 mt-1">
+                                Por {thread.userName || 'Anônimo'}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2 ml-4">
+                              {thread.fixado && (
+                                <Badge variant="secondary">
+                                  <Pin className="w-3 h-3" />
+                                </Badge>
+                              )}
+                              {thread.trancado && (
+                                <Badge variant="secondary">
+                                  <Lock className="w-3 h-3" />
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                            <span className="flex items-center gap-1">
+                              <MessageCircle className="w-4 h-4" />
+                              {thread.totalRespostas || 0}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Eye className="w-4 h-4" />
+                              {thread.visualizacoes || 0}
+                            </span>
                           </div>
                         </div>
-                        <Badge variant={cat.isAtiva ? 'default' : 'secondary'}>
-                          {cat.isAtiva ? 'Ativa' : 'Inativa'}
-                        </Badge>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Discussões Recentes */}
+            {/* Threads Populares */}
             <Card>
               <CardHeader>
-                <CardTitle>Discussões Recentes</CardTitle>
-                <CardDescription>Últimas 10 discussões criadas</CardDescription>
+                <CardTitle>Discussões Populares</CardTitle>
+                <CardDescription>Mais visualizadas nos últimos 30 dias</CardDescription>
               </CardHeader>
               <CardContent>
-                {loadingThreads ? (
+                {loadingPopular ? (
                   <div className="space-y-3">
-                    {[1, 2, 3].map((i) => (
+                    {[...Array(5)].map((_, i) => (
                       <Skeleton key={i} className="h-16 w-full" />
                     ))}
                   </div>
-                ) : recentThreads?.threads.length === 0 ? (
-                  <p className="text-center text-gray-500 py-8">Nenhuma discussão</p>
                 ) : (
                   <div className="space-y-3">
-                    {recentThreads?.threads.map(({ thread, autor, categoria }) => (
+                    {popularThreads?.map((thread, index) => (
                       <Link key={thread.id} href={`/forum/thread/${thread.id}`}>
-                        <div className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-gray-900 line-clamp-1">
-                                {thread.titulo}
-                              </p>
-                              <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
-                                <span>{autor?.nome || 'Anônimo'}</span>
-                                <span>•</span>
-                                <Badge variant="outline" className="text-xs">
-                                  {categoria?.nome}
-                                </Badge>
-                              </div>
+                        <div className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                              <span className="text-sm font-bold text-blue-600">
+                                {index + 1}
+                              </span>
                             </div>
-                            <div className="flex items-center gap-3 text-sm text-gray-500">
-                              <span className="flex items-center gap-1">
-                                <Eye className="w-4 h-4" />
-                                {thread.visualizacoes}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <MessageCircle className="w-4 h-4" />
-                                {thread.totalMensagens}
-                              </span>
+                            <div className="flex-1">
+                              <h4 className="font-medium text-gray-900 line-clamp-1">
+                                {thread.titulo}
+                              </h4>
+                              <p className="text-sm text-gray-600 mt-1">
+                                Por {thread.userName || 'Anônimo'}
+                              </p>
+                              <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                                <span className="flex items-center gap-1">
+                                  <Eye className="w-4 h-4" />
+                                  {thread.visualizacoes || 0}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <MessageCircle className="w-4 h-4" />
+                                  {thread.totalRespostas || 0}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -249,35 +334,45 @@ export default function ForumDashboard() {
             </Card>
           </div>
 
-          {/* Ações Rápidas */}
+          {/* Usuários Mais Ativos */}
           <Card>
             <CardHeader>
-              <CardTitle>Ações Rápidas</CardTitle>
-              <CardDescription>Gerenciamento do fórum</CardDescription>
+              <CardTitle>Usuários Mais Ativos</CardTitle>
+              <CardDescription>Top 10 usuários por threads criadas</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Link href="/admin/forum/moderation">
-                  <Button variant="outline" className="w-full justify-start" size="lg">
-                    <AlertTriangle className="w-5 h-5 mr-3" />
-                    Fila de Moderação
-                  </Button>
-                </Link>
-
-                <Link href="/admin/forum/categories">
-                  <Button variant="outline" className="w-full justify-start" size="lg">
-                    <MessageCircle className="w-5 h-5 mr-3" />
-                    Gerenciar Categorias
-                  </Button>
-                </Link>
-
-                <Link href="/admin/forum/suspensions">
-                  <Button variant="outline" className="w-full justify-start" size="lg">
-                    <Ban className="w-5 h-5 mr-3" />
-                    Usuários Suspensos
-                  </Button>
-                </Link>
-              </div>
+              {loadingUsers ? (
+                <div className="space-y-3">
+                  {[...Array(5)].map((_, i) => (
+                    <Skeleton key={i} className="h-12 w-full" />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {topUsers?.map((user, index) => (
+                    <div
+                      key={user.userId}
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                          <span className="text-sm font-bold text-purple-600">
+                            {index + 1}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">{user.userName}</p>
+                          <p className="text-sm text-gray-600">{user.userEmail}</p>
+                        </div>
+                      </div>
+                      <Badge variant="secondary">
+                        <TrendingUp className="w-3 h-3 mr-1" />
+                        {user.count} threads
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

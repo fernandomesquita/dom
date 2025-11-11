@@ -1,0 +1,74 @@
+{
+  "query": "SELECT id, label, path, icon, ordem, visivel FROM sidebar_items ORDER BY ordem;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute SELECT id, label, path, icon, ordem, visivel FROM sidebar_items ORDER BY ordem;",
+  "rows": [
+    {
+      "id": "1",
+      "label": "Dashboard",
+      "path": "/dashboard",
+      "icon": "LayoutDashboard",
+      "ordem": "1",
+      "visivel": "1"
+    },
+    {
+      "id": "2",
+      "label": "Cronograma",
+      "path": "/metas/cronograma",
+      "icon": "Calendar",
+      "ordem": "2",
+      "visivel": "1"
+    },
+    {
+      "id": "3",
+      "label": "Questões",
+      "path": "/questoes",
+      "icon": "FileQuestion",
+      "ordem": "3",
+      "visivel": "1"
+    },
+    {
+      "id": "4",
+      "label": "Simulados",
+      "path": "/simulados",
+      "icon": "GraduationCap",
+      "ordem": "4",
+      "visivel": "1"
+    },
+    {
+      "id": "5",
+      "label": "Materiais",
+      "path": "/materiais",
+      "icon": "BookOpen",
+      "ordem": "5",
+      "visivel": "1"
+    },
+    {
+      "id": "6",
+      "label": "Fórum",
+      "path": "/forum",
+      "icon": "MessageSquare",
+      "ordem": "6",
+      "visivel": "1"
+    },
+    {
+      "id": "7",
+      "label": "Estatísticas",
+      "path": "/estatisticas",
+      "icon": "BarChart3",
+      "ordem": "7",
+      "visivel": "1"
+    },
+    {
+      "id": "8",
+      "label": "Meu Perfil",
+      "path": "/perfil",
+      "icon": "User",
+      "ordem": "8",
+      "visivel": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tlabel\tpath\ticon\tordem\tvisivel\n1\tDashboard\t/dashboard\tLayoutDashboard\t1\t1\n2\tCronograma\t/metas/cronograma\tCalendar\t2\t1\n3\tQuestões\t/questoes\tFileQuestion\t3\t1\n4\tSimulados\t/simulados\tGraduationCap\t4\t1\n5\tMateriais\t/materiais\tBookOpen\t5\t1\n6\tFórum\t/forum\tMessageSquare\t6\t1\n7\tEstatísticas\t/estatisticas\tBarChart3\t7\t1\n8\tMeu Perfil\t/perfil\tUser\t8\t1\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}

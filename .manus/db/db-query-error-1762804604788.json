@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO users (\n  id,\n  nome_completo,\n  cpf,\n  email,\n  telefone,\n  data_nascimento,\n  password_hash,\n  role,\n  ativo,\n  email_verificado,\n  telefone_verificado,\n  ultimo_acesso,\n  created_at,\n  updated_at\n) VALUES (\n  UUID(),\n  'Administrador Master',\n  NULL,\n  'master@dom.com',\n  NULL,\n  NULL,\n  '$2b$10$TBe0oz3T9mqYA9B64/.InuHKhSeXevTag/kShW1V5nDc0oDDu0MgW',\n  'MASTER',\n  1,\n  1,\n  0,\n  NOW(),\n  NOW(),\n  NOW()\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute INSERT INTO users (\n  id,\n  nome_completo,\n  cpf,\n  email,\n  telefone,\n  data_nascimento,\n  password_hash,\n  role,\n  ativo,\n  email_verificado,\n  telefone_verificado,\n  ultimo_acesso,\n  created_at,\n  updated_at\n) VALUES (\n  UUID(),\n  'Administrador Master',\n  NULL,\n  'master@dom.com',\n  NULL,\n  NULL,\n  '$2b$10$TBe0oz3T9mqYA9B64/.InuHKhSeXevTag/kShW1V5nDc0oDDu0MgW',\n  'MASTER',\n  1,\n  1,\n  0,\n  NOW(),\n  NOW(),\n  NOW()\n);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'telefone_verificado' in 'field list'"
+  ]
+}

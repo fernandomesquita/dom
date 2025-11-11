@@ -1,0 +1,138 @@
+{
+  "query": "DESCRIBE forum_threads",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute DESCRIBE forum_threads",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "varchar(36)",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "titulo",
+      "Type": "varchar(200)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "conteudo",
+      "Type": "text",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "autor_id",
+      "Type": "varchar(36)",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "categoria_id",
+      "Type": "varchar(36)",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "tags",
+      "Type": "json",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "is_pinned",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "is_locked",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "visualizacoes",
+      "Type": "int(11)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "total_mensagens",
+      "Type": "int(11)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "ultima_atividade",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "criado_em",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "editado_em",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "status",
+      "Type": "varchar(20)",
+      "Null": "YES",
+      "Key": "MUL",
+      "Default": "ativo",
+      "Extra": ""
+    },
+    {
+      "Field": "deletado_por_id",
+      "Type": "varchar(36)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "motivo_delecao",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tvarchar(36)\tNO\tPRI\tNULL\t\ntitulo\tvarchar(200)\tNO\t\tNULL\t\nconteudo\ttext\tNO\t\tNULL\t\nautor_id\tvarchar(36)\tNO\tMUL\tNULL\t\ncategoria_id\tvarchar(36)\tNO\tMUL\tNULL\t\ntags\tjson\tYES\t\tNULL\t\nis_pinned\ttinyint(1)\tYES\t\t0\t\nis_locked\ttinyint(1)\tYES\t\t0\t\nvisualizacoes\tint(11)\tYES\t\t0\t\ntotal_mensagens\tint(11)\tYES\t\t0\t\nultima_atividade\ttimestamp\tNO\tMUL\tCURRENT_TIMESTAMP\t\ncriado_em\ttimestamp\tNO\tMUL\tCURRENT_TIMESTAMP\t\neditado_em\ttimestamp\tYES\t\tNULL\t\nstatus\tvarchar(20)\tYES\tMUL\tativo\t\ndeletado_por_id\tvarchar(36)\tYES\t\tNULL\t\nmotivo_delecao\ttext\tYES\t\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 48
+}

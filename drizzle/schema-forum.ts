@@ -28,6 +28,7 @@ export const forumCategories = mysqlTable(
     icone: varchar('icone', { length: 50 }), // emoji ou nome de ícone
     cor: varchar('cor', { length: 7 }), // hex color (#FF5733)
     ordem: int('ordem').notNull().default(0),
+    tipoEara: mysqlEnum('tipoEara', ['ESTUDO', 'APLICACAO', 'REVISAO', 'ADAPTACAO']),
     isAtiva: boolean('is_ativa').default(true),
     criadoEm: timestamp('criado_em').defaultNow().notNull(),
     atualizadoEm: timestamp('atualizado_em').defaultNow().onUpdateNow().notNull(),

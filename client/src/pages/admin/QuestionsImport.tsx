@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Upload, FileSpreadsheet, CheckCircle2, XCircle, AlertCircle, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 interface ParsedQuestion {
   uniqueCode?: string;
@@ -184,7 +185,15 @@ export default function QuestionsImport() {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
+    <AdminLayout
+      title="Importação de Questões"
+      breadcrumbs={[
+        { label: 'Admin', href: '/admin' },
+        { label: 'Questões', href: '/admin/questoes/importar' },
+        { label: 'Importar' },
+      ]}
+    >
+      <div className="container mx-auto py-8 space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Importação em Lote de Questões</h1>
@@ -375,5 +384,6 @@ export default function QuestionsImport() {
         </Card>
       )}
     </div>
+    </AdminLayout>
   );
 }
