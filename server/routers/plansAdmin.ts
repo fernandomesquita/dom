@@ -293,15 +293,18 @@ export const plansAdminRouter = router({
         console.log('🔍 [DB] Erro ao contar "metas_planos_estudo":', e.message);
       }
       
+      console.log('========== DEBUG PLANS START ==========');
+      
+      // Query de teste simples:
+      const testResult = await db.select().from(plans).limit(1);
+      
+      console.log('TOTAL ITEMS:', testResult.length);
+      console.log('FIRST ITEM:', JSON.stringify(testResult[0], null, 2));
+      console.log('KEYS:', Object.keys(testResult[0] || {}));
+      console.log('========== DEBUG PLANS END ==========');
+      
       console.log('🔍 [listAll] Iniciando query de planos');
       console.log('🔍 [listAll] Input:', input);
-
-      // ✅ ADICIONAR ESTAS 3 LINHAS:
-      const testQuery = db.select().from(plans).limit(1);
-      console.log('🔥 SQL REAL:', testQuery.toSQL());
-      const testResult = await testQuery;
-      console.log('🔥 CAMPOS RETORNADOS:', Object.keys(testResult[0] || {}));
-      console.log('🔥 PRIMEIRO REGISTRO:', JSON.stringify(testResult[0], null, 2));
 
       const { search, status, category, mentorId, page, pageSize } = input;
       const offset = (page - 1) * pageSize;
