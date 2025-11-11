@@ -446,3 +446,44 @@ Sobrescrever versão mais recente = perda de trabalho + retrabalho + frustraçã
 - [ ] Testar todos os fluxos em produção
 - [ ] Criar checkpoint final
 - [ ] Commit e push
+
+
+## 🔄 REFATORAÇÃO COMPLETA - PÁGINA DE PLANOS (11/11/2025 - 12:15)
+
+**Documento:** INSTRUCOES-REFATORACAO-PLANOS-MANUS.md (2.250 linhas)  
+**Branch:** refactor/plans-page  
+**Tempo estimado:** 15-20 horas  
+**Princípio:** ❌ ZERO CÓDIGO ASPIRACIONAL
+
+### FASE 1: PREPARAÇÃO (30min)
+- [ ] Etapa 1.1: Criar branch refactor/plans-page
+- [ ] Etapa 1.2: Localizar arquivos importantes
+- [ ] Etapa 1.3: Documentar estado atual (prints)
+
+### FASE 2: BACKEND - SCHEMA E MIGRATION (2-3h)
+- [ ] Etapa 2.1: Atualizar schema-plans.ts (adicionar campos)
+- [ ] Etapa 2.2: Criar migration SQL
+- [ ] Etapa 2.3: Atualizar plansRouter_v1.ts - Tipos
+- [ ] Etapa 2.4: Procedure enrollFree
+- [ ] Etapa 2.5: Procedure listPublic
+
+### FASE 3: FRONTEND (4-6h)
+- [ ] Etapa 3.1: Atualizar tipos TypeScript
+- [ ] Etapa 3.2: Refatorar PlanCard
+- [ ] Etapa 3.3: Refatorar AllPlans
+- [ ] Etapa 3.4: Implementar filtros
+- [ ] Etapa 3.5: Botões dinâmicos
+
+### FASE 4: VALIDAÇÃO (2h)
+- [ ] Testar CRUD completo
+- [ ] Testar filtros
+- [ ] Testar botões
+- [ ] Tirar prints
+- [ ] Commit e push
+
+### FASE 5: MERGE E DEPLOY (1h)
+- [ ] Aprovação do Fernando
+- [ ] Merge para main
+- [ ] Deploy Railway
+- [ ] Monitoramento
+
