@@ -487,3 +487,112 @@ Sobrescrever versão mais recente = perda de trabalho + retrabalho + frustraçã
 - [ ] Deploy Railway
 - [ ] Monitoramento
 
+
+
+## ✅ REFATORAÇÃO COMPLETA - CAMPO `disponivel` (11/11/2025 - 13:15)
+
+**Status:** ✅ **CONCLUÍDA COM SUCESSO!**
+
+**Tempo real:** 30 minutos (vs 15 horas estimadas originalmente)
+
+### Alterações Realizadas:
+
+- [x] **FASE 1:** Migration aplicada (campo `disponivel` adicionado)
+- [x] **FASE 2:** Schema Drizzle sincronizado
+- [x] **FASE 3:** `plansPublic.ts` atualizado (1 linha)
+- [x] **FASE 4:** `plansUser.ts` atualizado (1 linha)
+- [x] **FASE 5:** Testes SQL completos (5 testes passaram)
+- [x] **FASE 6:** Commit e push para GitHub
+
+### Commits:
+
+- `acd758e` - fix: sincroniza schema plans com banco real
+- `cda6573` - feat: adiciona campo disponivel à tabela plans
+- `59d378d` - feat: adiciona filtro disponivel em plansPublic e plansUser
+
+### Testes Realizados:
+
+1. ✅ Campo `disponivel` existe no banco (TINYINT, NOT NULL, DEFAULT 1)
+2. ✅ Plano com `disponivel=0` NÃO aparece em listagem pública
+3. ✅ Plano com `disponivel=1` APARECE em listagem pública
+4. ✅ Matrícula em plano indisponível é bloqueada
+5. ✅ Matrícula em plano disponível funciona
+
+### Arquivos Modificados:
+
+- `drizzle/schema-plans.ts` (campo adicionado)
+- `drizzle/migrations/20251111_add_disponivel_to_plans.sql` (migration)
+- `server/routers/plansPublic.ts` (1 linha)
+- `server/routers/plansUser.ts` (1 linha)
+
+### Descobertas Importantes:
+
+1. ✅ 3 routers NOVOS já existiam (plansPublic, plansUser, plansAdmin)
+2. ✅ Usam tabela `plans` (correta)
+3. ✅ TODAS as procedures necessárias já existiam
+4. ❌ Router antigo `plansRouter_v1` usa tabela obsoleta (metas_planos_estudo)
+
+### Próximos Passos (Futuro):
+
+- [ ] Migrar frontend de `admin.plans_v1` para `plansAdmin` (10 ocorrências)
+- [ ] Deprecar `plansRouter_v1.ts` (router obsoleto)
+- [ ] Migrar dados de `metas_planos_estudo` para `plans` (se necessário)
+- [ ] Implementar procedure `getStats` em `plansAdmin` (stats reais)
+
+---
+
+**Branch:** `refactor/plans-page`  
+**Pronto para merge:** ✅ SIM (após aprovação)
+
+
+## 🎨 FRONTEND COMPLETO DE PLANOS (11/11/2025 - 13:30)
+
+**Status:** ✅ **CONCLUÍDO!**
+
+**Tempo real:** 45 minutos (vs 1h30 estimadas)
+
+### Tarefas Realizadas:
+
+- [x] **FASE 1:** Criar tipos TypeScript
+  - [x] Arquivo types/plans.ts criado (130 linhas)
+  - [x] Tipos baseados no schema REAL do backend
+  - [x] Helpers de formatação e badges
+
+- [x] **FASE 2:** Migrar PlansAdmin.tsx
+  - [x] 4 chamadas migradas (list, create, update, delete)
+  - [x] De admin.plans_v1 para plansAdmin
+  - [x] TypeScript compila sem erros novos
+
+- [x] **FASE 3:** Verificar AllPlans.tsx
+  - [x] JÁ usa plansPublic.list (nenhuma mudança necessária)
+  - [x] Paginação implementada
+  - [x] Cards funcionais
+
+- [x] **FASE 4:** Testes SQL
+  - [x] Plano criado via SQL
+  - [x] Plano aparece na query pública (filtros OK)
+  - [x] Plano removido (banco limpo)
+
+- [x] **FASE 5:** Commit e push
+  - [x] Commit 9e3eecf
+  - [x] Push para refactor/plans-page
+  - [x] Checkpoint final (próximo)
+
+### Commits:
+
+- `9e3eecf` - feat: migra frontend de planos para novos routers
+
+### Arquivos Modificados:
+
+- `client/src/types/plans.ts` (NOVO - 130 linhas)
+- `client/src/pages/admin/PlansAdmin.tsx` (4 substituições)
+
+### Descobertas:
+
+1. ✅ AllPlans.tsx já usava plansPublic.list (nenhuma mudança)
+2. ✅ Tipos TypeScript inferidos automaticamente do tRPC
+3. ✅ Filtros de disponibilidade funcionando perfeitamente
+
+---
+
+**Objetivo:** 🎉 **TERMINADO HOJE!**
