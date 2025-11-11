@@ -90,7 +90,7 @@ export default function QuestionCreate() {
     }
 
     createQuestionMutation.mutate({
-      uniqueCode: uniqueCode || undefined,
+      // uniqueCode removido - backend gera automaticamente
       statementText,
       statementImage: statementImage || undefined,
       questionType,

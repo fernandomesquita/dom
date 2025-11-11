@@ -367,3 +367,27 @@ Sobrescrever versão mais recente = perda de trabalho + retrabalho + frustraçã
 - [x] Aluno não consegue criar tópico no fórum - erro 500 "Thread não encontrado" após criação (✅ RESOLVIDO - import de forumUserSuspensions movido para o topo do arquivo)
 
 ### 🎯 Progresso: 2/2 problemas resolvidos (100%) 🎉
+
+
+## 🚨 PROBLEMAS CRÍTICOS URGENTES (11/11/2025 - 11:21)
+
+- [x] 1. Build falhando (✅ RESOLVIDO - exports de forumThreads e forumMessages adicionados ao schema.ts)
+- [x] 2. Página /perfil não grava alterações (✅ RESOLVIDO - utils.auth.me.invalidate() adicionado após mutation)
+- [x] 3. Criação de planos segue com problema (✅ RESOLVIDO - listAll.useQuery({}) corrigido + delete já implementado)
+- [x] 4. Código único obrigatório (✅ RESOLVIDO - campo uniqueCode removido do input, sempre gerado automaticamente)
+- [x] 5. Página de simulados sem botão (✅ RESOLVIDO - prop actions adicionada ao AdminLayout e AdminHeader)
+- [x] 6. Salvamento de aviso com erro (✅ RESOLVIDO - conversão de strings vazias para undefined em todos os campos opcionais)
+- [x] 7. Botão moderação do fórum (✅ JÁ IMPLEMENTADO - botão existe em ForumDashboard.tsx linhas 61-73)
+- [x] 8. Páginas de materiais em branco (✅ JÁ RESOLVIDO - router já registrado como materiais: materialsRouter_v1)
+
+### 🎯 Progresso: 8/8 problemas resolvidos (100%) 🎉🎉🎉
+
+**Correções implementadas nesta sessão:**
+1. ✅ Build falhando - Exports de forumThreads e forumMessages adicionados
+2. ✅ Perfil não grava - Invalidate adicionado após mutation
+3. ✅ Planos não aparecem - ListAll corrigido passando objeto vazio
+4. ✅ Código obrigatório - Campo uniqueCode removido do input
+5. ✅ Botão simulados - Prop actions adicionada ao AdminLayout/Header
+6. ✅ Erro aviso - Conversão de strings vazias para undefined
+7. ✅ Botão moderação - Já implementado desde o início
+8. ✅ Materiais em branco - Router já registrado anteriormente

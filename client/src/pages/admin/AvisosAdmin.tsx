@@ -128,9 +128,13 @@ export default function AvisosAdmin() {
     // Transformar strings vazias em undefined para campos opcionais
     const payload = {
       ...formData,
-      midiaUrl: formData.midiaUrl || undefined,
-      ctaUrl: formData.ctaUrl || undefined,
-      ctaTexto: formData.ctaTexto || undefined,
+      midiaUrl: formData.midiaUrl?.trim() || undefined,
+      midiaThumbnail: formData.midiaThumbnail?.trim() || undefined,
+      ctaUrl: formData.ctaUrl?.trim() || undefined,
+      ctaTexto: formData.ctaTexto?.trim() || undefined,
+      ctaSecundarioUrl: formData.ctaSecundarioUrl?.trim() || undefined,
+      ctaSecundarioTexto: formData.ctaSecundarioTexto?.trim() || undefined,
+      subtitulo: formData.subtitulo?.trim() || undefined,
     };
 
     createMutation.mutate(payload);

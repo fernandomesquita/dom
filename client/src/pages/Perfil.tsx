@@ -20,10 +20,14 @@ export default function Perfil() {
   const [nome, setNome] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
 
+  const utils = trpc.useUtils();
+
   // Mutation para atualizar perfil
   const updateProfileMutation = trpc.user.updateProfile.useMutation({
     onSuccess: () => {
       toast.success('Perfil atualizado com sucesso!');
+      // Invalidar cache para recarregar dados do usuário
+      utils.auth.me.invalidate();
     },
     onError: (error) => {
       toast.error(error.message);

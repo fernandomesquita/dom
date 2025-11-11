@@ -571,3 +571,19 @@ export type InsertMeta = typeof metas.$inferInsert;
 
 export type EstatisticaDiaria = typeof estatisticasDiarias.$inferSelect;
 export type InsertEstatisticaDiaria = typeof estatisticasDiarias.$inferInsert;
+
+// Re-export forum tables from schema-forum.ts
+export {
+  forumThreads,
+  forumMessages,
+  forumUserSuspensions,
+  forumReports,
+  type ForumThread,
+  type InsertForumThread,
+  type ForumMessage,
+  type InsertForumMessage,
+  type ForumUserSuspension,
+  type InsertForumUserSuspension,
+  type ForumReport,
+  type InsertForumReport,
+} from "./schema-forum";

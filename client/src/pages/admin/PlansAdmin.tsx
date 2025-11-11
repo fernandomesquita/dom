@@ -53,7 +53,8 @@ export default function PlansAdmin() {
   const [editingPlan, setEditingPlan] = useState<any>(null);
 
   // Queries
-  const { data: plans, isLoading, refetch } = trpc.plansAdmin.listAll.useQuery();
+  const { data: plansData, isLoading, refetch } = trpc.plansAdmin.listAll.useQuery({});
+  const plans = plansData?.items || [];
   const { data: stats } = trpc.plansAdmin.getStats.useQuery();
 
   // Mutations

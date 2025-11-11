@@ -289,6 +289,7 @@ export const questionsRouter = router({
 
   create: adminProcedure
     .input(z.object({
+      // uniqueCode removido - sempre gerado automaticamente
       disciplinaId: z.string().optional(),
       assuntoId: z.string().optional(),
       topicoId: z.string().optional(),
