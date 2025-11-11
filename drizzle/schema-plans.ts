@@ -40,9 +40,7 @@ export const plans = mysqlTable('plans', {
   // Status e destaque
   isFeatured: boolean('is_featured').notNull().default(false),
   isHidden: boolean('is_hidden').notNull().default(false),
-  
-  // ⭐ CAMPO NOVO (será adicionado por migration)
-  // disponivel: boolean('disponivel').notNull().default(true),
+  disponivel: boolean('disponivel').notNull().default(true),
   
   // Responsabilidade
   mentorId: int('mentor_id'), // ⚠️ INT no banco!
