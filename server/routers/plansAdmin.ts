@@ -271,7 +271,7 @@ export const plansAdminRouter = router({
         );
       }
 
-      if (status) conditions.push(eq(plans.status, status));
+      if (status) conditions.push(eq(plans.editalStatus, status));
       if (category) conditions.push(eq(plans.category, category));
       if (mentorId) conditions.push(eq(plans.mentorId, mentorId));
 
