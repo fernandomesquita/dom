@@ -254,7 +254,14 @@ export const plansAdminRouter = router({
       pageSize: z.number().int().positive().max(100).default(20),
     }))
     .query(async ({ input }) => {
+      // ✅ LOGO NO INÍCIO, ANTES DE TUDO:
+      console.log('========== LISTALL INICIOU ==========');
+      console.log('Input recebido:', JSON.stringify(input));
+      
       const db = await getDb();
+      console.log('========== DB OBTIDO ==========');
+      console.log('DB é null?', db === null);
+      
       if (!db) throw new Error('Database not available');
 
       // ✅ LOGS DE DEBUG:
