@@ -2,8 +2,10 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { TRPCError } from '@trpc/server';
 import { router, staffProcedure, adminRoleProcedure } from '../../_core/trpc';
-import { getRawDb } from '../../db';
+import { getRawDb, getDb } from '../../db';
 import { logAuditAction, AuditAction, TargetType } from '../../_core/audit';
+import { plans } from '../../../drizzle/schema-plans';
+import { isNull } from 'drizzle-orm';
 
 /**
  * Router de Gestão de Planos de Estudo (Admin) - v1
@@ -452,4 +454,77 @@ export const plansRouter_v1 = router({
       throw error;
     }
   }),
+
+  /**
+   * Listar planos NOVOS (tabela plans)
+   * Endpoint paralelo para testar novo sistema sem quebrar o antigo
+   */
+  listNew: staffProcedure
+    .input(z.object({
+      page: z.number().min(1).default(1),
+      pageSize: z.number().min(1).max(100).default(20),
+      search: z.string().optional(),
+      category: z.enum(['Pago', 'Gratuito']).optional(),
+    }))
+    .query(async ({ input, ctx }) => {
+      const startTime = Date.now();
+      const { page, pageSize, search, category } = input;
+      const offset = (page - 1) * pageSize;
+
+      try {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+
+        console.log('========== LISTNEW DEBUG START ==========');
+        console.log('Input:', input);
+
+        // Buscar planos da tabela NOVA
+        const conditions = [isNull(plans.deletedAt)];
+        
+        if (search) {
+          // TODO: Adicionar filtro de busca quando Drizzle suportar LIKE
+        }
+        
+        if (category) {
+          // TODO: Adicionar filtro de categoria
+        }
+
+        const items = await db
+          .select()
+          .from(plans)
+          .where(isNull(plans.deletedAt))
+          .limit(pageSize)
+          .offset(offset);
+
+        console.log('TOTAL ITEMS:', items.length);
+        console.log('FIRST ITEM:', JSON.stringify(items[0], null, 2));
+        console.log('========== LISTNEW DEBUG END ==========');
+
+        const duration = Date.now() - startTime;
+
+        ctx.logger.info(
+          {
+            action: 'LIST_PLANS_NEW',
+            user_id: ctx.user.id,
+            filters: { search, category },
+            results: items.length,
+            duration_ms: duration,
+          },
+          'Plans (NEW) listed successfully'
+        );
+
+        return {
+          plans: items,
+          pagination: {
+            page,
+            pageSize,
+            total: items.length,
+            totalPages: Math.ceil(items.length / pageSize),
+          },
+        };
+      } catch (error) {
+        ctx.logger.error({ error: String(error) }, 'Failed to list plans (NEW)');
+        throw error;
+      }
+    }),
 });

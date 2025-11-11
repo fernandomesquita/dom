@@ -254,9 +254,6 @@ export const plansAdminRouter = router({
       pageSize: z.number().int().positive().max(100).default(20),
     }))
     .query(async ({ input }) => {
-      // ✅ PRIMEIRA LINHA:
-      throw new Error('🔥 LISTALL FOI CHAMADO! ENDPOINT CORRETO!');
-      
       // ✅ LOGO NO INÍCIO, ANTES DE TUDO:
       console.log('========== LISTALL INICIOU ==========');
       console.log('Input recebido:', JSON.stringify(input));
