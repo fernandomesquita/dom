@@ -35,6 +35,7 @@ export const plansPublicRouter = router({
       // Construir WHERE clause dinamicamente
       const conditions = [
         eq(plans.isHidden, false), // Usar is_hidden ao invés de status
+        eq(plans.disponivel, true), // ✅ Filtrar apenas planos disponíveis
       ];
 
       if (search) {
