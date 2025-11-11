@@ -61,23 +61,32 @@ export const plansAdminRouter = router({
 
       const planId = crypto.randomUUID();
 
+      // Gerar slug automaticamente se não fornecido
+      const slug = input.slug || 
+        input.name.toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '');
+
       await db.insert(plans).values({
         id: planId,
         name: input.name,
-        description: input.description,
-        logoUrl: input.logoUrl,
-        featuredImageUrl: input.featuredImageUrl,
-        landingPageUrl: input.landingPageUrl,
+        slug: slug,
+        description: input.description || null,
+        logoUrl: input.logoUrl || null,
+        featuredImageUrl: input.featuredImageUrl || null,
+        landingPageUrl: input.landingPageUrl || null,
         category: input.category,
         editalStatus: input.editalStatus || 'N/A',
-        entity: input.entity,
-        role: input.role,
-        knowledgeRootId: input.knowledgeRootId,
+        entity: input.entity || null,
+        role: input.role || null,
+        knowledgeRootId: input.knowledgeRootId || null,
         paywallRequired: input.category === 'Pago',
         price: input.price || null,
-        validityDate: input.validityDate,
-        durationDays: input.durationDays,
-        mentorId: input.mentorId,
+        validityDate: input.validityDate || null,
+        durationDays: input.durationDays || null,
+        mentorId: input.mentorId || null,
         tags: input.tags || [],
         status: 'Em edição',
         isHidden: input.isHidden ?? false,
