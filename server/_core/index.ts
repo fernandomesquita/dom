@@ -17,7 +17,7 @@ import "../queues/worker"; // Inicializar worker de filas
 import { initializeSocket } from "./socket";
 import { iniciarScheduler } from "../scheduler/avisos";
 import { iniciarSchedulerMetasNotificacoes } from "../scheduler/metasNotificacoes";
-import { adminGuard } from "./adminGuard";
+// import { adminGuard } from "./adminGuard"; // Removido - proteção via tRPC apenas
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -72,7 +72,9 @@ async function startServer() {
   
   // Proteção de rotas admin (antes do Vite/static)
   // Redireciona para /admin/login se não autenticado ou role inválido
-  app.use('/admin', adminGuard);
+  // ❌ REMOVIDO: Causava redirect HTTP 302 ao digitar URL ou F5
+  // ✅ SOLUÇÃO: Proteção apenas via tRPC (protectedProcedure + adminProcedure)
+  // app.use('/admin', adminGuard);
   
   // tRPC API
   app.use(
