@@ -53,42 +53,40 @@ export function useAuth(options?: UseAuthOptions) {
   }, [logoutMutation, utils]);
 
   const state = useMemo(() => {
-    let userData = meQuery.data;
+    // 🎯 PRIORIZA LOCALSTORAGE SEMPRE!
+    let userData = null;
     
-    // ✅ SE query não tem dados E não está loading, tenta localStorage
-    if (!userData && !meQuery.isLoading) {
-      const cached = localStorage.getItem("manus-runtime-user-info");
-      if (cached && cached !== "null" && cached !== "undefined") {
-        try {
-          userData = JSON.parse(cached);
-        } catch (e) {
-          console.error('❌ Erro ao ler localStorage:', e);
-        }
+    // 1. Primeiro tenta localStorage (sempre disponível)
+    const cached = localStorage.getItem("manus-runtime-user-info");
+    if (cached && cached !== "null" && cached !== "undefined") {
+      try {
+        userData = JSON.parse(cached);
+        console.log('📦 useAuth usando localStorage:', userData?.email);
+      } catch (e) {
+        console.error('❌ Erro ao ler localStorage:', e);
       }
     }
     
-    // ✅ Salva novos dados quando disponíveis
+    // 2. Se query tem dados NOVOS, atualiza
     if (meQuery.data) {
-      localStorage.setItem(
-        "manus-runtime-user-info",
-        JSON.stringify(meQuery.data)
-      );
+      userData = meQuery.data;
+      localStorage.setItem("manus-runtime-user-info", JSON.stringify(meQuery.data));
+      console.log('✅ useAuth usando query:', userData?.email);
     }
     
+    // 3. Se query deu erro E não tem cache, aí sim é null
+    if (meQuery.error && !userData) {
+      console.error('❌ useAuth: query falhou e sem cache');
+      localStorage.removeItem("manus-runtime-user-info");
+    }
     
     return {
-      user: userData ?? null,
-      loading: meQuery.isLoading || logoutMutation.isPending,
-      error: meQuery.error ?? logoutMutation.error ?? null,
+      user: userData,
+      loading: meQuery.isLoading && !userData, // Só loading se não tem cache
+      error: meQuery.error,
       isAuthenticated: Boolean(userData),
     };
-  }, [
-    meQuery.data,
-    meQuery.error,
-    meQuery.isLoading,
-    logoutMutation.error,
-    logoutMutation.isPending,
-  ]);
+  }, [meQuery.data, meQuery.error, meQuery.isLoading]);
 
   useEffect(() => {
     if (!redirectOnUnauthenticated) return;
