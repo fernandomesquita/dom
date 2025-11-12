@@ -2,10 +2,8 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { TRPCError } from '@trpc/server';
 import { router, staffProcedure, adminRoleProcedure } from '../../_core/trpc';
-import { getRawDb, getDb } from '../../db';
+import { getRawDb } from '../../db';
 import { logAuditAction, AuditAction, TargetType } from '../../_core/audit';
-import { plans } from '../../../drizzle/schema-plans';
-import { isNull, desc, sql } from 'drizzle-orm';
 
 /**
  * Router de Gestão de Planos de Estudo (Admin) - v1
@@ -28,18 +26,7 @@ const planUpdateSchema = planCreateSchema.partial().omit({ userId: true });
 
 export const plansRouter_v1 = router({
   /**
-   * ⚠️ SISTEMA ANTIGO - EM PROCESSO DE DEPRECAÇÃO
-   * 
-   * Este endpoint lê da tabela `metas_planos_estudo` (antiga).
-   * NÃO MODIFICAR sem consultar docs/DECISOES-ARQUITETURAIS-PLANOS.md
-   * 
-   * Sistema novo: admin.plans_v1.listNew
-   * Tabela nova: plans
-   * Data de criação do novo: 11/11/2025
-   * 
-   * @deprecated Use admin.plans_v1.listNew quando possível
-   * @see docs/DECISOES-ARQUITETURAIS-PLANOS.md
-   * @see docs/SAGA-CORRECAO-PLANOS-11-11-2025.md
+   * Listar planos com filtros e paginação
    */
   list: staffProcedure
     .input(
@@ -465,78 +452,4 @@ export const plansRouter_v1 = router({
       throw error;
     }
   }),
-
-  /**
-   * ✅ SISTEMA NOVO - ESTRUTURA CORRETA
-   * 
-   * Este endpoint lê da tabela `plans` (nova estrutura).
-   * Schema: drizzle/schema-plans.ts
-   * 
-   * Diferenças do sistema antigo:
-   * - Campos: name (não titulo), createdAt (não criado_em)
-   * - Tabela: plans (não metas_planos_estudo)
-   * - Estrutura: normalizada e com soft delete
-   * 
-   * @created 11/11/2025
-   * @see docs/DECISOES-ARQUITETURAIS-PLANOS.md
-   * @see docs/SAGA-CORRECAO-PLANOS-11-11-2025.md
-   */
-  listNew: staffProcedure
-    .input(z.object({
-      page: z.number().min(1).default(1),
-      pageSize: z.number().min(1).max(100).default(20),
-      search: z.string().optional(),
-      category: z.enum(['Pago', 'Gratuito']).optional(),
-    }))
-    .query(async ({ input, ctx }) => {
-      const startTime = Date.now();
-      const { page, pageSize, search, category } = input;
-      const offset = (page - 1) * pageSize;
-
-      try {
-        const db = await getDb();
-        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-
-        console.log('========== LISTNEW DEBUG START ==========');
-        console.log('Input:', input);
-
-        // Buscar planos da tabela NOVA (SEM .where() por enquanto)
-        const items = await db
-          .select()
-          .from(plans)
-          .orderBy(desc(plans.createdAt))
-          .limit(pageSize)
-          .offset(offset);
-
-        console.log('TOTAL ITEMS:', items.length);
-        console.log('FIRST ITEM:', JSON.stringify(items[0], null, 2));
-        console.log('========== LISTNEW DEBUG END ==========');
-
-        const duration = Date.now() - startTime;
-
-        ctx.logger.info(
-          {
-            action: 'LIST_PLANS_NEW',
-            user_id: ctx.user.id,
-            filters: { search, category },
-            results: items.length,
-            duration_ms: duration,
-          },
-          'Plans (NEW) listed successfully'
-        );
-
-        return {
-          plans: items,
-          pagination: {
-            page,
-            pageSize,
-            total: items.length,
-            totalPages: 1, // Simplificado por enquanto
-          },
-        };
-      } catch (error) {
-        ctx.logger.error({ error: String(error) }, 'Failed to list plans (NEW)');
-        throw error;
-      }
-    }),
 });

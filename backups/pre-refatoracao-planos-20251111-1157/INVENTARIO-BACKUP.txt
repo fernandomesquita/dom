@@ -1,0 +1,21 @@
+=================================
+BACKUP PRÉ-REFATORAÇÃO DE PLANOS
+=================================
+
+Data: $(date)
+Branch atual: main
+Último commit: 7eab9e9
+
+BANCO DE DADOS:
+---------------
+mysql: [Warning] Using a password on the command line interface can be insecure.
+tabela	registros
+metas_planos_estudo	11
+plans	0
+planos_estudo	0
+planos	0
+
+ARQUIVOS DE BACKUP:
+-------------------
+-rw-rw-r-- 1 ubuntu ubuntu  13K Nov 11 11:58 backup-planos-tables-20251111-115821.sql
+-rw-rw-r-- 1 ubuntu ubuntu 146K Nov 11 11:57 backup-railway-completo-20251111-115755.sql

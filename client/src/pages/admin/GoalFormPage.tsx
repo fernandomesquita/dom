@@ -50,12 +50,11 @@ export default function GoalFormPage() {
     { enabled: isEditing }
   );
 
-  const { data: planos = [] } = trpc.admin.plans_v1.list.useQuery({
+  const { data: planosData } = trpc.admin.plans_v1.listNew.useQuery({
     page: 1,
-    limit: 100,
-    sortBy: 'criado_em',
-    sortOrder: 'desc',
+    pageSize: 100,
   });
+  const planos = planosData?.plans || [];
 
   const { data: disciplinas = [] } = trpc.ktree.disciplinas.list.useQuery();
   

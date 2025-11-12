@@ -7,6 +7,7 @@
 import { useParams, useLocation } from 'wouter';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/_core/hooks/useAuth';
+import { StudentLayout } from '@/components/StudentLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -50,32 +51,37 @@ export default function PlanDetails() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Skeleton className="h-96 w-full" />
-        <div className="container py-8">
-          <Skeleton className="h-12 w-3/4 mb-4" />
-          <Skeleton className="h-6 w-full mb-2" />
-          <Skeleton className="h-6 w-full mb-2" />
-          <Skeleton className="h-6 w-2/3" />
+      <StudentLayout>
+        <div className="bg-background">
+          <Skeleton className="h-96 w-full" />
+          <div className="container py-8">
+            <Skeleton className="h-12 w-3/4 mb-4" />
+            <Skeleton className="h-6 w-full mb-2" />
+            <Skeleton className="h-6 w-full mb-2" />
+            <Skeleton className="h-6 w-2/3" />
+          </div>
         </div>
-      </div>
+      </StudentLayout>
     );
   }
 
   if (!plan) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Plano não encontrado</h1>
-          <p className="text-muted-foreground mb-4">O plano que você está procurando não existe ou foi removido.</p>
-          <Button onClick={() => setLocation('/allplans')}>Ver todos os planos</Button>
+      <StudentLayout>
+        <div className="bg-background flex items-center justify-center py-20">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-2">Plano não encontrado</h1>
+            <p className="text-muted-foreground mb-4">O plano que você está procurando não existe ou foi removido.</p>
+            <Button onClick={() => setLocation('/allplans')}>Ver todos os planos</Button>
+          </div>
         </div>
-      </div>
+      </StudentLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <StudentLayout>
+      <div className="bg-background">
       {/* Hero Section */}
       <div className="relative h-96 overflow-hidden">
         <img
@@ -281,6 +287,7 @@ export default function PlanDetails() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </StudentLayout>
   );
 }

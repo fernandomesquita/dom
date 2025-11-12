@@ -53,13 +53,13 @@ export default function PlansAdmin() {
   const [editingPlan, setEditingPlan] = useState<any>(null);
 
   // Queries
-  const { data: plansData, isLoading, refetch } = trpc.plansAdmin.listAll.useQuery({});
+  const { data: plansData, isLoading, refetch } = trpc.admin.plans_v1.list.useQuery({ page: 1, limit: 100 });
   const plans = plansData?.items || [];
   // const { data: stats } = trpc.plansAdmin.getStats.useQuery(); // TODO: Implementar getStats no plans_v1
   const stats = { data: { total: 0, ativos: 0, usuariosComPlanos: 0, totalMetas: 0 } };
 
   // Mutations
-  const deleteMutation = trpc.plansAdmin.delete.useMutation({
+  const deleteMutation = trpc.admin.plans_v1.delete.useMutation({
     onSuccess: () => {
       toast.success("Plano deletado com sucesso!");
       refetch();
@@ -79,7 +79,7 @@ export default function PlansAdmin() {
     },
   });
 
-  const updateMutation = trpc.plansAdmin.update.useMutation({
+  const updateMutation = trpc.admin.plans_v1.update.useMutation({
     onSuccess: () => {
       toast.success("Plano atualizado com sucesso!");
       refetch();
@@ -526,7 +526,7 @@ function CreatePlanDialog({
     isHidden: false,
   });
 
-  const createMutation = trpc.plansAdmin.create.useMutation({
+  const createMutation = trpc.admin.plans_v1.create.useMutation({
     onSuccess: () => {
       toast.success("Plano criado com sucesso!");
       onSuccess();

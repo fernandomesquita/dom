@@ -35,6 +35,7 @@ export const plansUserRouter = router({
           and(
             eq(plans.id, planId),
             eq(plans.isHidden, false),
+            eq(plans.disponivel, true), // ✅ Verificar se plano está disponível
             eq(plans.category, 'Gratuito')
           )
         )

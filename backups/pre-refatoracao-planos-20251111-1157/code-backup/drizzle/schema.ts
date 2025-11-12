@@ -577,10 +577,13 @@ export {
   forumThreads,
   forumMessages,
   forumUserSuspensions,
+  forumReports,
   type ForumThread,
   type InsertForumThread,
   type ForumMessage,
   type InsertForumMessage,
   type ForumUserSuspension,
   type InsertForumUserSuspension,
+  type ForumReport,
+  type InsertForumReport,
 } from "./schema-forum";
