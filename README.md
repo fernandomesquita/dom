@@ -174,6 +174,26 @@ dom-eara-v4/
 
 ## 📚 Documentação
 
+### ⚠️ Módulos Críticos
+
+#### Sistema de Planos 🚨
+
+O sistema de planos possui arquitetura complexa com **dois sistemas paralelos**.
+
+**ANTES de modificar qualquer código relacionado a planos:**
+- 📄 Leia: [Decisões Arquiteturais - Planos](docs/DECISOES-ARQUITETURAIS-PLANOS.md)
+- 📄 Leia: [Saga de Correção - 11/11/2025](docs/SAGA-CORRECAO-PLANOS-11-11-2025.md)
+
+**Arquivos críticos:**
+- `server/routers/admin/plansRouter_v1.ts` - Endpoints (antigo + novo)
+- `server/routers/plansAdmin.ts` - CRUD de planos
+- `drizzle/schema-plans.ts` - Schema da tabela plans
+- `client/src/pages/admin/PlansPage.tsx` - Interface
+
+**🔥 Não subestime estes avisos!** Sistema levou 4h de debugging.
+
+---
+
 ### Documentos Obrigatórios (Leia Antes de Desenvolver)
 
 1. **[LEIA-ME-DIARIAMENTE.md](./LEIA-ME-DIARIAMENTE.md)** - Sumário executivo com erros críticos

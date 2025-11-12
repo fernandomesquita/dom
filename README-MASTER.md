@@ -431,3 +431,85 @@ Se você não encontrou a documentação que procura, verifique:
 ---
 
 **Este documento é o ponto de entrada para toda a documentação do Sistema DOM. Mantenha-o atualizado conforme o projeto evolui.**
+
+
+---
+
+## 📅 Atualização 10/11/2025 - Footer Global e Usuário MASTER
+
+### ✨ Novas Funcionalidades
+
+#### 1. Footer Global para Páginas do Aluno
+**Arquivo:** `client/src/components/Footer.tsx`
+
+**Características:**
+- Exibido automaticamente em todas as páginas do aluno via `StudentLayout`
+- **Versão automática** extraída do `package.json` (v1.0.0)
+- Copyright dinâmico com ano atual
+- 3 colunas responsivas:
+  * **Sobre:** Descrição da plataforma DOM-EARA
+  * **Links Úteis:** Sobre, Planos, Contato, Termos de Uso
+  * **Suporte:** Central de Ajuda, FAQ, Email de suporte
+- Linha inferior com:
+  * Copyright + ícone de coração animado
+  * Links de Privacidade e LGPD
+  * Versão do sistema (auto-atualizada)
+
+**Integração:**
+```tsx
+// client/src/components/StudentLayout.tsx
+import Footer from "./Footer";
+
+// Footer renderizado dentro do <main> com flexbox
+<main className="flex-1 overflow-auto">
+  <div className="min-h-full flex flex-col">
+    <div className="flex-1">{children}</div>
+    <Footer />
+  </div>
+</main>
+```
+
+**Benefícios:**
+- Consistência visual em todas as páginas
+- Manutenção centralizada (um único componente)
+- Versão sempre atualizada automaticamente
+- Informações institucionais acessíveis
+
+#### 2. Usuário MASTER Criado
+**Email:** master@dom.com  
+**Senha:** Adfsl$%%sd4  
+**Role:** MASTER (perfil administrador máximo)
+
+**Atualização no Banco:**
+```sql
+UPDATE users SET role = 'MASTER' WHERE email = 'master@dom.com';
+```
+
+**Permissões:**
+- Acesso total ao sistema
+- Perfil mais alto da hierarquia (MASTER > ADMINISTRATIVO > MENTOR > PROFESSOR > ALUNO)
+- Usado para operações administrativas críticas
+
+### 📝 Arquivos Modificados
+
+1. **client/src/components/Footer.tsx** (NOVO)
+   - Componente Footer global
+   - Importa versão do package.json
+   - 3 colunas + linha inferior
+
+2. **client/src/components/StudentLayout.tsx**
+   - Importado Footer
+   - Estrutura flexbox ajustada
+   - Footer renderizado no final do <main>
+
+3. **todo.md**
+   - Tarefas marcadas como concluídas
+
+### 🎯 Próximos Passos Recomendados
+
+1. **Criar páginas institucionais** - Implementar rotas `/sobre`, `/contato`, `/termos`, `/privacidade`, `/lgpd`, `/ajuda`, `/faq`
+2. **Testar Footer em todas as páginas** - Verificar responsividade e layout
+3. **Adicionar analytics no Footer** - Rastrear cliques nos links institucionais
+4. **Criar painel MASTER** - Interface administrativa exclusiva para role MASTER
+
+---

@@ -28,17 +28,20 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 export default function PlansPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<"ATIVO" | "PAUSADO" | "CONCLUIDO" | "all">("all");
-  const [sortBy, setSortBy] = useState<"titulo" | "criado_em" | "data_inicio">("criado_em");
+  const [category, setCategory] = useState<"Pago" | "Gratuito" | "all">("all");
+  const [sortBy, setSortBy] = useState<"name" | "createdAt">("createdAt");
 
-  const { data, isLoading, error } = trpc.admin.plans_v1.list.useQuery({
+  const { data, isLoading, error } = trpc.admin.plans_v1.listNew.useQuery({
     page,
-    limit: 20,
-    status: status === "all" ? undefined : status,
+    pageSize: 20,
     search: search || undefined,
-    sortBy,
-    sortOrder: "desc",
+    // Note: listNew não suporta status e sortBy ainda
   });
+
+  // 🎨 DEBUG: Log dos dados recebidos
+  console.log('🎨 FRONTEND DATA:', data);
+  console.log('🎨 FRONTEND PLANS:', data?.plans);
+  console.log('🎨 FRONTEND PRIMEIRO:', data?.plans?.[0]);
 
   const { data: stats } = trpc.admin.plans_v1.stats.useQuery();
 
@@ -127,20 +130,19 @@ export default function PlansPage() {
               </div>
 
               <Select
-                value={status}
+                value={category}
                 onValueChange={(value: any) => {
-                  setStatus(value);
+                  setCategory(value);
                   setPage(1);
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Status" />
+                  <SelectValue placeholder="Categoria" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos os status</SelectItem>
-                  <SelectItem value="ATIVO">Ativo</SelectItem>
-                  <SelectItem value="PAUSADO">Pausado</SelectItem>
-                  <SelectItem value="CONCLUIDO">Concluído</SelectItem>
+                  <SelectItem value="all">Todas as categorias</SelectItem>
+                  <SelectItem value="Pago">Pago</SelectItem>
+                  <SelectItem value="Gratuito">Gratuito</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -152,9 +154,8 @@ export default function PlansPage() {
                   <SelectValue placeholder="Ordenar por" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="criado_em">Data de criação</SelectItem>
-                  <SelectItem value="titulo">Título</SelectItem>
-                  <SelectItem value="data_inicio">Data de início</SelectItem>
+                  <SelectItem value="createdAt">Data de criação</SelectItem>
+                  <SelectItem value="name">Nome</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -162,8 +163,8 @@ export default function PlansPage() {
                 variant="outline"
                 onClick={() => {
                   setSearch("");
-                  setStatus("all");
-                  setSortBy("criado_em");
+                  setCategory("all");
+                  setSortBy("createdAt");
                   setPage(1);
                 }}
               >
@@ -200,11 +201,11 @@ export default function PlansPage() {
               <Target className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">Nenhum plano encontrado</h3>
               <p className="text-muted-foreground mb-4">
-                {search || status !== "all"
+                {search || category !== "all"
                   ? "Tente ajustar os filtros"
                   : "Crie o primeiro plano de estudo"}
               </p>
-              {!search && status === "all" && (
+              {!search && category === "all" && (
                 <Link href="/admin/planos/novo">
                   <Button>
                     <Plus className="w-4 h-4 mr-2" />
@@ -217,71 +218,78 @@ export default function PlansPage() {
         ) : (
           <>
             <div className="space-y-4">
-              {data?.plans.map((plan: any) => (
-                <Card key={plan.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1 flex-1">
-                        <div className="flex items-center gap-2">
-                          <CardTitle className="text-xl">{plan.titulo}</CardTitle>
-                          <Badge
-                            variant={
-                              plan.status === "ATIVO"
-                                ? "default"
-                                : plan.status === "PAUSADO"
-                                ? "secondary"
-                                : "outline"
-                            }
-                          >
-                            {plan.status}
-                          </Badge>
-                        </div>
-                        <CardDescription>
-                          <div className="flex items-center gap-4 text-sm">
-                            <span className="flex items-center gap-1">
-                              <Users className="w-3 h-3" />
-                              {plan.usuario_nome || "Sem usuário"}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              {new Date(plan.data_inicio).toLocaleDateString("pt-BR")}
-                              {plan.data_fim && ` - ${new Date(plan.data_fim).toLocaleDateString("pt-BR")}`}
-                            </span>
+              {data?.plans.map((plan: any) => {
+                console.log('🎨 RENDERING PLAN:', plan.name, plan);
+                return (
+                  <Card key={plan.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1 flex-1">
+                          <div className="flex items-center gap-2">
+                            <CardTitle className="text-xl">{plan.name}</CardTitle>
+                            <Badge
+                              variant={
+                                plan.category === "Pago"
+                                  ? "default"
+                                  : "secondary"
+                              }
+                            >
+                              {plan.category}
+                            </Badge>
+                            {plan.isFeatured && (
+                              <Badge variant="outline" className="bg-yellow-100">
+                                Destaque
+                              </Badge>
+                            )}
                           </div>
-                        </CardDescription>
+                          <CardDescription>
+                            <div className="flex items-center gap-4 text-sm">
+                              <span className="flex items-center gap-1">
+                                <Target className="w-3 h-3" />
+                                {plan.entity} - {plan.role}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                {plan.editalStatus}
+                              </span>
+                            </div>
+                          </CardDescription>
+                        </div>
+                        <Link href={`/admin/planos/${plan.id}`}>
+                          <Button variant="outline" size="sm">
+                            Editar
+                          </Button>
+                        </Link>
                       </div>
-                      <Link href={`/admin/planos/${plan.id}`}>
-                        <Button variant="outline" size="sm">
-                          Editar
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Horas por dia</p>
-                        <p className="font-semibold">{plan.horas_por_dia}h</p>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <p className="text-muted-foreground">Preço</p>
+                          <p className="font-semibold">
+                            {plan.category === "Pago" ? `R$ ${plan.price}` : "Gratuito"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Duração</p>
+                          <p className="font-semibold">{plan.durationDays} dias</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Status</p>
+                          <p className="font-semibold">
+                            {plan.isHidden ? "Oculto" : plan.disponivel ? "Disponível" : "Indisponível"}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-muted-foreground">Total de metas</p>
-                        <p className="font-semibold">{plan.total_metas || 0}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Metas concluídas</p>
-                        <p className="font-semibold">
-                          {plan.metas_concluidas || 0}
-                          {plan.total_metas > 0 && (
-                            <span className="text-muted-foreground ml-1">
-                              ({Math.round((plan.metas_concluidas / plan.total_metas) * 100)}%)
-                            </span>
-                          )}
+                      {plan.description && (
+                        <p className="text-sm text-muted-foreground mt-3 line-clamp-2">
+                          {plan.description}
                         </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
 
             {/* Pagination */}

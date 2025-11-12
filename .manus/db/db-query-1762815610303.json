@@ -1,0 +1,90 @@
+{
+  "query": "DESCRIBE taxonomia_imports;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute DESCRIBE taxonomia_imports;",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "varchar(36)",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "batch_id",
+      "Type": "varchar(36)",
+      "Null": "NO",
+      "Key": "UNI",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "total_disciplinas",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "total_assuntos",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "total_topicos",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "status",
+      "Type": "enum('ATIVO','DESFEITO')",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": "ATIVO",
+      "Extra": ""
+    },
+    {
+      "Field": "imported_by",
+      "Type": "varchar(36)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "created_at",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "undone_at",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "undone_by",
+      "Type": "varchar(36)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tvarchar(36)\tNO\tPRI\tNULL\t\nbatch_id\tvarchar(36)\tNO\tUNI\tNULL\t\ntotal_disciplinas\tint(11)\tNO\t\t0\t\ntotal_assuntos\tint(11)\tNO\t\t0\t\ntotal_topicos\tint(11)\tNO\t\t0\t\nstatus\tenum('ATIVO','DESFEITO')\tNO\tMUL\tATIVO\t\nimported_by\tvarchar(36)\tNO\t\tNULL\t\ncreated_at\ttimestamp\tNO\tMUL\tCURRENT_TIMESTAMP\t\nundone_at\ttimestamp\tYES\t\tNULL\t\nundone_by\tvarchar(36)\tYES\t\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 171
+}

@@ -2,8 +2,10 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { TRPCError } from '@trpc/server';
 import { router, staffProcedure, adminRoleProcedure } from '../../_core/trpc';
-import { getDb } from '../../db';
+import { getRawDb, getDb } from '../../db';
 import { logAuditAction, AuditAction, TargetType } from '../../_core/audit';
+import { plans } from '../../../drizzle/schema-plans';
+import { isNull, desc, sql } from 'drizzle-orm';
 
 /**
  * Router de Gestão de Planos de Estudo (Admin) - v1
@@ -26,7 +28,18 @@ const planUpdateSchema = planCreateSchema.partial().omit({ userId: true });
 
 export const plansRouter_v1 = router({
   /**
-   * Listar planos com filtros e paginação
+   * ⚠️ SISTEMA ANTIGO - EM PROCESSO DE DEPRECAÇÃO
+   * 
+   * Este endpoint lê da tabela `metas_planos_estudo` (antiga).
+   * NÃO MODIFICAR sem consultar docs/DECISOES-ARQUITETURAIS-PLANOS.md
+   * 
+   * Sistema novo: admin.plans_v1.listNew
+   * Tabela nova: plans
+   * Data de criação do novo: 11/11/2025
+   * 
+   * @deprecated Use admin.plans_v1.listNew quando possível
+   * @see docs/DECISOES-ARQUITETURAIS-PLANOS.md
+   * @see docs/SAGA-CORRECAO-PLANOS-11-11-2025.md
    */
   list: staffProcedure
     .input(
@@ -46,7 +59,7 @@ export const plansRouter_v1 = router({
       const offset = (page - 1) * limit;
 
       try {
-        const db = await getDb();
+        const db = await getRawDb();
         if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
         // Construir query
@@ -55,11 +68,10 @@ export const plansRouter_v1 = router({
             p.*,
             u.nome_completo as usuario_nome,
             u.email as usuario_email,
-            (SELECT COUNT(*) FROM metas WHERE plano_id = p.id) as total_metas,
-            (SELECT COUNT(*) FROM metas WHERE plano_id = p.id AND concluida = 1) as metas_concluidas
+            (SELECT COUNT(*) FROM metas_cronograma WHERE plano_id = p.id) as total_metas,
+            (SELECT COUNT(*) FROM metas_cronograma WHERE plano_id = p.id AND concluded_at_utc IS NOT NULL) as metas_concluidas
           FROM metas_planos_estudo p
           LEFT JOIN users u ON p.usuario_id = u.id
-          WHERE 1=1
         `;
         const params: any[] = [];
 
@@ -80,8 +92,28 @@ export const plansRouter_v1 = router({
         }
 
         // Contar total
-        const countQuery = query.replace(/SELECT.*FROM/, 'SELECT COUNT(DISTINCT p.id) as total FROM');
-        const [{ total }] = await db.query(countQuery, params);
+        let countQuery = `
+          SELECT COUNT(DISTINCT p.id) as total
+          FROM metas_planos_estudo p
+          LEFT JOIN users u ON p.usuario_id = u.id
+        `;
+        const countParams: any[] = [];
+        
+        if (userId) {
+          countQuery += ` AND p.usuario_id = ?`;
+          countParams.push(userId);
+        }
+        if (status) {
+          countQuery += ` AND p.status = ?`;
+          countParams.push(status);
+        }
+        if (search) {
+          countQuery += ` AND (p.titulo LIKE ? OR u.nome_completo LIKE ? OR u.email LIKE ?)`;
+          const searchPattern = `%${search}%`;
+          countParams.push(searchPattern, searchPattern, searchPattern);
+        }
+        
+        const [{ total }] = await db.query(countQuery, countParams);
 
         // Ordenação
         const sortColumn = sortBy === 'titulo' ? 'p.titulo' : sortBy === 'data_inicio' ? 'p.data_inicio' : 'p.criado_em';
@@ -126,7 +158,7 @@ export const plansRouter_v1 = router({
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ input, ctx }) => {
       try {
-        const db = await getDb();
+        const db = await getRawDb();
         if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
         const result = await db.query(
@@ -134,8 +166,8 @@ export const plansRouter_v1 = router({
             p.*,
             u.nome_completo as usuario_nome,
             u.email as usuario_email,
-            (SELECT COUNT(*) FROM metas WHERE plano_id = p.id) as total_metas,
-            (SELECT COUNT(*) FROM metas WHERE plano_id = p.id AND concluida = 1) as metas_concluidas
+            (SELECT COUNT(*) FROM metas_cronograma WHERE plano_id = p.id) as total_metas,
+            (SELECT COUNT(*) FROM metas_cronograma WHERE plano_id = p.id AND concluded_at_utc IS NOT NULL) as metas_concluidas
           FROM metas_planos_estudo p
           LEFT JOIN users u ON p.usuario_id = u.id
           WHERE p.id = ?`,
@@ -171,7 +203,7 @@ export const plansRouter_v1 = router({
       const startTime = Date.now();
 
       try {
-        const db = await getDb();
+        const db = await getRawDb();
         if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
         const planoId = uuidv4();
@@ -180,8 +212,8 @@ export const plansRouter_v1 = router({
         await db.query(
           `INSERT INTO metas_planos_estudo (
             id, usuario_id, titulo, horas_por_dia, dias_disponiveis_bitmask,
-            data_inicio, data_fim, status
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            data_inicio, data_fim, status, criado_por_id
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             planoId,
             targetUserId,
@@ -191,6 +223,7 @@ export const plansRouter_v1 = router({
             input.dataInicio,
             input.dataFim || null,
             input.status,
+            ctx.user.id,
           ]
         );
 
@@ -244,7 +277,7 @@ export const plansRouter_v1 = router({
       const startTime = Date.now();
 
       try {
-        const db = await getDb();
+        const db = await getRawDb();
         if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
         // Verificar se plano existe
@@ -340,7 +373,7 @@ export const plansRouter_v1 = router({
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ input, ctx }) => {
       try {
-        const db = await getDb();
+        const db = await getRawDb();
         if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
         // Verificar se plano existe
@@ -355,7 +388,7 @@ export const plansRouter_v1 = router({
 
         // Verificar se há metas associadas
         const [{ total }] = await db.query(
-          `SELECT COUNT(*) as total FROM metas WHERE plano_id = ?`,
+          `SELECT COUNT(*) as total FROM metas_cronograma WHERE plano_id = ?`,
           [input.id]
         );
 
@@ -404,7 +437,7 @@ export const plansRouter_v1 = router({
    */
   stats: staffProcedure.query(async ({ ctx }) => {
     try {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       const [stats] = await db.query(`
@@ -432,4 +465,78 @@ export const plansRouter_v1 = router({
       throw error;
     }
   }),
+
+  /**
+   * ✅ SISTEMA NOVO - ESTRUTURA CORRETA
+   * 
+   * Este endpoint lê da tabela `plans` (nova estrutura).
+   * Schema: drizzle/schema-plans.ts
+   * 
+   * Diferenças do sistema antigo:
+   * - Campos: name (não titulo), createdAt (não criado_em)
+   * - Tabela: plans (não metas_planos_estudo)
+   * - Estrutura: normalizada e com soft delete
+   * 
+   * @created 11/11/2025
+   * @see docs/DECISOES-ARQUITETURAIS-PLANOS.md
+   * @see docs/SAGA-CORRECAO-PLANOS-11-11-2025.md
+   */
+  listNew: staffProcedure
+    .input(z.object({
+      page: z.number().min(1).default(1),
+      pageSize: z.number().min(1).max(100).default(20),
+      search: z.string().optional(),
+      category: z.enum(['Pago', 'Gratuito']).optional(),
+    }))
+    .query(async ({ input, ctx }) => {
+      const startTime = Date.now();
+      const { page, pageSize, search, category } = input;
+      const offset = (page - 1) * pageSize;
+
+      try {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+
+        console.log('========== LISTNEW DEBUG START ==========');
+        console.log('Input:', input);
+
+        // Buscar planos da tabela NOVA (SEM .where() por enquanto)
+        const items = await db
+          .select()
+          .from(plans)
+          .orderBy(desc(plans.createdAt))
+          .limit(pageSize)
+          .offset(offset);
+
+        console.log('TOTAL ITEMS:', items.length);
+        console.log('FIRST ITEM:', JSON.stringify(items[0], null, 2));
+        console.log('========== LISTNEW DEBUG END ==========');
+
+        const duration = Date.now() - startTime;
+
+        ctx.logger.info(
+          {
+            action: 'LIST_PLANS_NEW',
+            user_id: ctx.user.id,
+            filters: { search, category },
+            results: items.length,
+            duration_ms: duration,
+          },
+          'Plans (NEW) listed successfully'
+        );
+
+        return {
+          plans: items,
+          pagination: {
+            page,
+            pageSize,
+            total: items.length,
+            totalPages: 1, // Simplificado por enquanto
+          },
+        };
+      } catch (error) {
+        ctx.logger.error({ error: String(error) }, 'Failed to list plans (NEW)');
+        throw error;
+      }
+    }),
 });

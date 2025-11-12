@@ -25,6 +25,12 @@ export default function Login() {
       console.log('[LOGIN] onSuccess chamado:', data);
       toast.success(data.message);
       
+      // ✅ Salvar refresh token para auto-refresh posterior
+      if (data.tokens?.refreshToken) {
+        localStorage.setItem('refresh_token', data.tokens.refreshToken);
+        console.log('[LOGIN] Refresh token salvo no localStorage');
+      }
+      
       // Invalidar query auth.me para forçar refetch com novo cookie
       console.log('[LOGIN] Invalidando query auth.me');
       await utils.auth.me.invalidate();
@@ -124,11 +130,16 @@ export default function Login() {
           </CardContent>
         </Card>
 
-        {/* Link para voltar */}
-        <div className="mt-4 text-center">
+        {/* Links */}
+        <div className="mt-4 flex items-center justify-between text-sm">
           <Link href="/">
-            <span className="text-sm text-slate-600 hover:text-slate-900 cursor-pointer">
+            <span className="text-slate-600 hover:text-slate-900 cursor-pointer">
               ← Voltar para página inicial
+            </span>
+          </Link>
+          <Link href="/admin/login">
+            <span className="text-slate-500 hover:text-slate-700 cursor-pointer text-xs">
+              Acesso para equipe →
             </span>
           </Link>
         </div>

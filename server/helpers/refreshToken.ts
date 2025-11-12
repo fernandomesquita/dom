@@ -9,7 +9,7 @@
  * 5. Token antigo inválido
  */
 
-import { createHash, randomBytes } from 'crypto';
+import { createHash, randomBytes, randomUUID } from 'crypto';
 import { getDb } from '../db';
 import { refreshTokens } from '../../drizzle/schema';
 import { eq, and, gt } from 'drizzle-orm';
@@ -70,7 +70,7 @@ export async function createRefreshToken(
   expiresAt.setDate(expiresAt.getDate() + REFRESH_TOKEN_EXPIRY_DAYS);
 
   await db.insert(refreshTokens).values({
-    id: crypto.randomUUID(),
+    id: randomUUID(),
     userId,
     tokenHash,
     expiresAt,

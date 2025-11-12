@@ -61,6 +61,8 @@ export default function AuditLogsPage() {
   };
 
   const getActionBadgeColor = (action: string) => {
+    if (action === "TAXONOMIA_IMPORT") return "bg-green-100 text-green-800";
+    if (action === "TAXONOMIA_UNDO") return "bg-orange-100 text-orange-800";
     if (action.startsWith("CREATE")) return "bg-green-100 text-green-800";
     if (action.startsWith("UPDATE")) return "bg-blue-100 text-blue-800";
     if (action.startsWith("DELETE")) return "bg-red-100 text-red-800";
@@ -199,6 +201,8 @@ export default function AuditLogsPage() {
                     <SelectItem value="CREATE_NOTICE">Criar Aviso</SelectItem>
                     <SelectItem value="UPDATE_NOTICE">Atualizar Aviso</SelectItem>
                     <SelectItem value="DELETE_NOTICE">Deletar Aviso</SelectItem>
+                    <SelectItem value="TAXONOMIA_IMPORT">Importar Taxonomia</SelectItem>
+                    <SelectItem value="TAXONOMIA_UNDO">Desfazer Importação</SelectItem>
                     <SelectItem value="LOGIN">Login</SelectItem>
                     <SelectItem value="LOGOUT">Logout</SelectItem>
                   </SelectContent>
@@ -220,6 +224,7 @@ export default function AuditLogsPage() {
                     <SelectItem value="ENROLLMENT">Matrícula</SelectItem>
                     <SelectItem value="AUTH">Autenticação</SelectItem>
                     <SelectItem value="SETTINGS">Configurações</SelectItem>
+                    <SelectItem value="taxonomia">Árvore do Conhecimento</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

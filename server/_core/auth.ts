@@ -107,7 +107,7 @@ export function setAccessTokenCookie(res: Response, token: string): void {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: 15 * 60 * 1000, // 15 minutos
+    maxAge: 7 * 24 * 60 * 60 * 1000, // ✅ 7 dias (604800000ms) - Fix: alinha com validade do refresh token
   });
 }
 

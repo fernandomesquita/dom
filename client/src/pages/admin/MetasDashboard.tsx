@@ -1,4 +1,5 @@
 import { trpc } from '@/lib/trpc';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -21,7 +22,14 @@ export default function MetasDashboard() {
   const globalStats = globalStatsQuery.data;
 
   return (
-    <div className="container py-8">
+    <AdminLayout
+      title="Dashboard de Metas"
+      breadcrumbs={[
+        { label: 'Admin', href: '/admin' },
+        { label: 'Metas', href: '/admin/metas' },
+        { label: 'Dashboard' },
+      ]}
+    >
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
@@ -289,6 +297,6 @@ export default function MetasDashboard() {
           </>
         )}
       </div>
-    </div>
+    </AdminLayout>
   );
 }

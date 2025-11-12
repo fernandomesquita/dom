@@ -1,0 +1,13 @@
+{
+  "query": "SHOW TABLES LIKE 'sidebar_items'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute SHOW TABLES LIKE 'sidebar_items'",
+  "rows": [
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u (sidebar_items)": "sidebar_items"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_E9go4Z3vKfQ64CyBjNz69u (sidebar_items)\nsidebar_items\n",
+  "stderr": "",
+  "execution_time_ms": 792
+}

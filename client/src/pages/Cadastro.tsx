@@ -22,7 +22,7 @@ export default function Cadastro() {
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [dataNascimento, setDataNascimento] = useState("");
   const [cpf, setCpf] = useState("");
-  const [telefone, setTelefone] = useState("");
+  const [sexo, setSexo] = useState("");
 
   const registerMutation = trpc.auth.register.useMutation({
     onSuccess: (data) => {
@@ -48,9 +48,9 @@ export default function Cadastro() {
       nomeCompleto,
       email,
       senha,
-      dataNascimento,
+      dataNascimento: dataNascimento || undefined,
       cpf: cpf || undefined,
-      telefone: telefone || undefined,
+      sexo: sexo || undefined,
     });
   };
 
@@ -136,18 +136,6 @@ export default function Cadastro() {
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="dataNascimento">Data de Nascimento *</Label>
-                  <Input
-                    id="dataNascimento"
-                    type="date"
-                    value={dataNascimento}
-                    onChange={(e) => setDataNascimento(e.target.value)}
-                    required
-                    disabled={registerMutation.isPending}
-                  />
-                </div>
-
-                <div className="space-y-2">
                   <Label htmlFor="cpf">CPF (opcional)</Label>
                   <Input
                     id="cpf"
@@ -158,18 +146,33 @@ export default function Cadastro() {
                     disabled={registerMutation.isPending}
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="dataNascimento">Data de Nascimento (opcional)</Label>
+                  <Input
+                    id="dataNascimento"
+                    type="date"
+                    value={dataNascimento}
+                    onChange={(e) => setDataNascimento(e.target.value)}
+                    disabled={registerMutation.isPending}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="telefone">Telefone (opcional)</Label>
-                <Input
-                  id="telefone"
-                  type="tel"
-                  placeholder="(00) 00000-0000"
-                  value={telefone}
-                  onChange={(e) => setTelefone(e.target.value)}
+                <Label htmlFor="sexo">Sexo (opcional)</Label>
+                <select
+                  id="sexo"
+                  value={sexo}
+                  onChange={(e) => setSexo(e.target.value)}
                   disabled={registerMutation.isPending}
-                />
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="">Selecione...</option>
+                  <option value="masculino">Masculino</option>
+                  <option value="feminino">Feminino</option>
+                  <option value="prefiro_nao_informar">Prefiro não informar</option>
+                </select>
               </div>
 
               <div className="text-xs text-slate-500">

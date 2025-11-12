@@ -1,0 +1,46 @@
+{
+  "query": "SHOW TABLES LIKE 'material%'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute SHOW TABLES LIKE 'material%'",
+  "rows": [
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u (material%)": "materialComments"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u (material%)": "materialDownloads"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u (material%)": "materialFavorites"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u (material%)": "materialItems"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u (material%)": "materialLinks"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u (material%)": "materialRatings"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u (material%)": "materialSeenMarks"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u (material%)": "materialUpvotes"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u (material%)": "materialViews"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u (material%)": "material_ratings"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u (material%)": "material_votes"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u (material%)": "materials"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_E9go4Z3vKfQ64CyBjNz69u (material%)\nmaterialComments\nmaterialDownloads\nmaterialFavorites\nmaterialItems\nmaterialLinks\nmaterialRatings\nmaterialSeenMarks\nmaterialUpvotes\nmaterialViews\nmaterial_ratings\nmaterial_votes\nmaterials\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}

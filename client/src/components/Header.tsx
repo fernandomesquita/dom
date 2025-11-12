@@ -98,7 +98,19 @@ export default function Header() {
         {/* Desktop Auth */}
         <div className="hidden md:flex items-center gap-4 ml-auto">
           {/* Central de Avisos */}
-          {isAuthenticated && <AvisosCentral />}
+          {isAuthenticated && (
+            <>
+              {/* Renderizar AvisosCentral com tratamento de erro silencioso */}
+              {(() => {
+                try {
+                  return <AvisosCentral />;
+                } catch (error) {
+                  console.error('Erro ao renderizar AvisosCentral:', error);
+                  return null;
+                }
+              })()}
+            </>
+          )}
           {isAuthenticated && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

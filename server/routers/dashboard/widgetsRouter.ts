@@ -2,7 +2,8 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../../_core/trpc";
 import { getDb } from "../../db";
 import { widgetConfigs } from "../../../drizzle/schema-dashboard";
-import { metas, questoesResolvidas, cronograma, estatisticasDiarias, materiais, materiaisEstudados, planos, assinaturas, forumTopicos } from "../../../drizzle/schema";
+import { metas, questoesResolvidas, cronograma, estatisticasDiarias, materiais, materiaisEstudados, assinaturas, forumTopicos } from "../../../drizzle/schema";
+import { plans } from "../../../drizzle/schema-plans";
 import { streakLogs, streakProtections } from "../../../drizzle/schema-dashboard";
 import { eq, and, gte, lte, desc, sql, count } from "drizzle-orm";
 
@@ -442,14 +443,14 @@ export const widgetsRouter = router({
         dataInicio: assinaturas.dataInicio,
         dataFim: assinaturas.dataFim,
         renovacaoAutomatica: assinaturas.renovacaoAutomatica,
-        planoNome: planos.nome,
-        planoDescricao: planos.descricao,
-        planoPreco: planos.preco,
-        planoDuracao: planos.duracaoMeses,
-        planoFeatured: planos.featured,
+        planoNome: plans.name,
+        planoDescricao: plans.description,
+        planoPreco: plans.price,
+        planoDuracao: plans.durationDays,
+        planoFeatured: plans.isFeatured,
       })
       .from(assinaturas)
-      .innerJoin(planos, eq(assinaturas.planoId, planos.id))
+      .innerJoin(plans, eq(assinaturas.planoId, plans.id))
       .where(
         and(
           eq(assinaturas.userId, ctx.user.id),
@@ -498,7 +499,6 @@ export const widgetsRouter = router({
     const discussoes = await db
       .select()
       .from(forumTopicos)
-      .where(eq(forumTopicos.ativo, true))
       .orderBy(desc(forumTopicos.updatedAt))
       .limit(5);
 

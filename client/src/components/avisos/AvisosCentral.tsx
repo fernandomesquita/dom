@@ -135,6 +135,13 @@ export function AvisosCentral() {
     return avisos.filter((a) => a.tipo === filtroTipo);
   };
 
+  // Tratamento de erro: se houver erro nas queries, não renderizar o componente
+  // Hotfix 08/11/2025: Adicionado para evitar quebra de páginas que usam Header
+  if (pendentesQuery.error || historicoQuery.error) {
+    console.error('Erro ao carregar avisos:', pendentesQuery.error || historicoQuery.error);
+    return null; // Não quebrar a página inteira
+  }
+
   const avisosPendentes = filtrarAvisos(pendentesQuery.data || []);
   const totalNaoLidos = avisosPendentes.length;
 

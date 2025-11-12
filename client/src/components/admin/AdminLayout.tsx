@@ -10,6 +10,7 @@ interface AdminLayoutProps {
   children: ReactNode;
   title?: string;
   breadcrumbs?: { label: string; href?: string }[];
+  actions?: ReactNode;
 }
 
 /**
@@ -22,7 +23,7 @@ interface AdminLayoutProps {
  * - Proteção de rota (apenas staff)
  * - Loading state durante autenticação
  */
-export function AdminLayout({ children, title, breadcrumbs }: AdminLayoutProps) {
+export function AdminLayout({ children, title, breadcrumbs, actions }: AdminLayoutProps) {
   const { user, loading } = useAuth();
   const [, setLocation] = useLocation();
 
@@ -65,7 +66,7 @@ export function AdminLayout({ children, title, breadcrumbs }: AdminLayoutProps) 
       {/* Main Content */}
       <div className="flex flex-1 flex-col overflow-hidden ml-64">
         {/* Header */}
-        <AdminHeader title={title} breadcrumbs={breadcrumbs} />
+        <AdminHeader title={title} breadcrumbs={breadcrumbs} actions={actions} />
 
         {/* Content */}
         <main className="flex-1 overflow-y-auto bg-muted/10">

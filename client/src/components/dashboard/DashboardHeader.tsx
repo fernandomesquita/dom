@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { Bell, Menu, X, Flame, User, LogOut, Settings } from "lucide-react";
+import { Bell, Menu, X, Flame, User, LogOut, Settings, Heart, FileQuestion, GraduationCap } from "lucide-react";
 import { AchievementsDialog } from "./AchievementsDialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,6 +34,9 @@ export function DashboardHeader() {
   const { data: streakData } = trpc.streak.getCurrentStreak.useQuery(undefined, {
     refetchInterval: 60000, // Atualizar a cada 1 minuto
   });
+  
+  // Buscar contagem de favoritos
+  const { data: favoritesCount } = trpc.admin.materials_v1.getFavoritesCount.useQuery();
 
   const streak = streakData?.diasConsecutivos || 0;
   const emRisco = streakData?.emRisco || false;
@@ -57,11 +60,27 @@ export function DashboardHeader() {
             <Link href="/metas/cronograma" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Metas
             </Link>
-            <Link href="/questoes" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Questões
+            <Link href="/questoes" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors group">
+              <FileQuestion className="h-4 w-4 text-blue-600 group-hover:scale-110 transition-transform" />
+              <span>Questões</span>
+            </Link>
+            <Link href="/simulados" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors group">
+              <GraduationCap className="h-4 w-4 text-purple-600 group-hover:scale-110 transition-transform" />
+              <span>Simulados</span>
             </Link>
             <Link href="/materiais" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Materiais
+            </Link>
+            <Link href="/materiais/favoritos" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors group">
+              <div className="relative inline-block">
+                <Heart className="h-4 w-4 text-red-500 group-hover:fill-current transition-all" />
+                {favoritesCount && favoritesCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold min-w-[16px] h-[16px] rounded-full flex items-center justify-center px-1 shadow-sm">
+                    {favoritesCount > 99 ? '99+' : favoritesCount}
+                  </span>
+                )}
+              </div>
+              <span>Favoritos</span>
             </Link>
             <Link href="/forum" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Fórum
@@ -185,10 +204,19 @@ export function DashboardHeader() {
             </Link>
             <Link
               href="/questoes"
-              className="px-3 py-2 text-sm font-medium hover:bg-accent rounded-lg"
+              className="flex items-center gap-2 px-3 py-2 text-sm font-medium hover:bg-accent rounded-lg"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Questões
+              <FileQuestion className="h-4 w-4 text-blue-600" />
+              <span>Questões</span>
+            </Link>
+            <Link
+              href="/simulados"
+              className="flex items-center gap-2 px-3 py-2 text-sm font-medium hover:bg-accent rounded-lg"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <GraduationCap className="h-4 w-4 text-purple-600" />
+              <span>Simulados</span>
             </Link>
             <Link
               href="/materiais"
@@ -196,6 +224,21 @@ export function DashboardHeader() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Materiais
+            </Link>
+            <Link
+              href="/materiais/favoritos"
+              className="flex items-center gap-2 px-3 py-2 text-sm font-medium hover:bg-accent rounded-lg"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <div className="relative inline-block">
+                <Heart className="h-4 w-4 text-red-500" />
+                {favoritesCount && favoritesCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold min-w-[16px] h-[16px] rounded-full flex items-center justify-center px-1 shadow-sm">
+                    {favoritesCount > 99 ? '99+' : favoritesCount}
+                  </span>
+                )}
+              </div>
+              <span>Favoritos</span>
             </Link>
             <Link
               href="/forum"

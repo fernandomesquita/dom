@@ -1,0 +1,29 @@
+{
+  "query": "SELECT * FROM users WHERE email = 'master@dom.com' LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute SELECT * FROM users WHERE email = 'master@dom.com' LIMIT 1;",
+  "rows": [
+    {
+      "id": "f09a3540-56f2-43bf-a6c5-9c7af40dc267",
+      "nome_completo": "Master Admin",
+      "cpf": "NULL",
+      "email": "master@dom.com",
+      "password_hash": "$2b$12$1ocn5t9EmNEtZ/LdRHr3puCO2BOIS4.cCUhfL2xr9jkTzRFap1IUG",
+      "password_version": "1",
+      "data_nascimento": "1990-01-01",
+      "email_verificado": "1",
+      "role": "MASTER",
+      "avatar_url": "NULL",
+      "telefone": "NULL",
+      "ativo": "1",
+      "created_at": "2025-11-08 17:48:52",
+      "updated_at": "2025-11-08 18:33:53",
+      "forum_banned": "0",
+      "forum_banned_until": "NULL",
+      "forum_banned_reason": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tnome_completo\tcpf\temail\tpassword_hash\tpassword_version\tdata_nascimento\temail_verificado\trole\tavatar_url\ttelefone\tativo\tcreated_at\tupdated_at\tforum_banned\tforum_banned_until\tforum_banned_reason\nf09a3540-56f2-43bf-a6c5-9c7af40dc267\tMaster Admin\tNULL\tmaster@dom.com\t$2b$12$1ocn5t9EmNEtZ/LdRHr3puCO2BOIS4.cCUhfL2xr9jkTzRFap1IUG\t1\t1990-01-01\t1\tMASTER\tNULL\tNULL\t1\t2025-11-08 17:48:52\t2025-11-08 18:33:53\t0\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 49
+}
