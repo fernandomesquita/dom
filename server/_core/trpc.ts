@@ -13,10 +13,19 @@ export const publicProcedure = t.procedure;
 const requireUser = t.middleware(async opts => {
   const { ctx, next } = opts;
 
+  console.log('🔐 PROTECTED PROCEDURE - Verificando auth:', {
+    hasUser: !!ctx.user,
+    userId: ctx.user?.id,
+    userRole: ctx.user?.role,
+    userEmail: ctx.user?.email,
+  });
+
   if (!ctx.user) {
+    console.error('❌ PROTECTED: Usuário não autenticado!');
     throw new TRPCError({ code: "UNAUTHORIZED", message: UNAUTHED_ERR_MSG });
   }
 
+  console.log('✅ PROTECTED: Usuário autenticado!');
   return next({
     ctx: {
       ...ctx,
