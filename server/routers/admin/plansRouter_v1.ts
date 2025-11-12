@@ -28,7 +28,18 @@ const planUpdateSchema = planCreateSchema.partial().omit({ userId: true });
 
 export const plansRouter_v1 = router({
   /**
-   * Listar planos com filtros e paginação
+   * ⚠️ SISTEMA ANTIGO - EM PROCESSO DE DEPRECAÇÃO
+   * 
+   * Este endpoint lê da tabela `metas_planos_estudo` (antiga).
+   * NÃO MODIFICAR sem consultar docs/DECISOES-ARQUITETURAIS-PLANOS.md
+   * 
+   * Sistema novo: admin.plans_v1.listNew
+   * Tabela nova: plans
+   * Data de criação do novo: 11/11/2025
+   * 
+   * @deprecated Use admin.plans_v1.listNew quando possível
+   * @see docs/DECISOES-ARQUITETURAIS-PLANOS.md
+   * @see docs/SAGA-CORRECAO-PLANOS-11-11-2025.md
    */
   list: staffProcedure
     .input(
@@ -456,8 +467,19 @@ export const plansRouter_v1 = router({
   }),
 
   /**
-   * Listar planos NOVOS (tabela plans)
-   * Endpoint paralelo para testar novo sistema sem quebrar o antigo
+   * ✅ SISTEMA NOVO - ESTRUTURA CORRETA
+   * 
+   * Este endpoint lê da tabela `plans` (nova estrutura).
+   * Schema: drizzle/schema-plans.ts
+   * 
+   * Diferenças do sistema antigo:
+   * - Campos: name (não titulo), createdAt (não criado_em)
+   * - Tabela: plans (não metas_planos_estudo)
+   * - Estrutura: normalizada e com soft delete
+   * 
+   * @created 11/11/2025
+   * @see docs/DECISOES-ARQUITETURAIS-PLANOS.md
+   * @see docs/SAGA-CORRECAO-PLANOS-11-11-2025.md
    */
   listNew: staffProcedure
     .input(z.object({
