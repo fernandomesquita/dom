@@ -75,37 +75,46 @@ export default function QuestionCreate() {
     },
   });
 
-  const handleSubmit = () => {
-    console.log('🔍 ========== INÍCIO DO SUBMIT ==========');
+  const handleSubmit = (e?: React.FormEvent) => {
+    // 🔥 Prevenir comportamento padrão do form
+    e?.preventDefault();
+    
+    console.log('🎯 [QuestionCreate] handleSubmit chamado');
+    console.log('🎯 [QuestionCreate] statementText:', statementText);
+    console.log('🎯 [QuestionCreate] questionType:', questionType);
+    console.log('🎯 [QuestionCreate] disciplinaId:', disciplinaId);
+    console.log('🎯 [QuestionCreate] assuntoId:', assuntoId);
+    console.log('🎯 [QuestionCreate] topicoId:', topicoId);
     
     // Validações
     if (!statementText.trim()) {
-      console.error('❌ Validação falhou: Enunciado vazio');
+      console.error('❌ [QuestionCreate] Enunciado vazio');
       toast.error('Enunciado é obrigatório');
       return;
     }
+    
     if (!disciplinaId || !assuntoId || !topicoId) {
-      console.error('❌ Validação falhou: Taxonomia incompleta', { disciplinaId, assuntoId, topicoId });
+      console.error('❌ [QuestionCreate] Taxonomia incompleta');
       toast.error('Disciplina, Assunto e Tópico são obrigatórios');
       return;
     }
-
+    
     if (questionType === 'multiple_choice') {
       if (!optionA.trim() || !optionB.trim()) {
-        console.error('❌ Validação falhou: Alternativas A/B vazias');
+        console.error('❌ [QuestionCreate] Alternativas obrigatórias faltando');
         toast.error('Alternativas A e B são obrigatórias');
         return;
       }
     }
-
-    const formData = {
-      // uniqueCode removido - backend gera automaticamente
+    
+    // 🔥 Montar objeto de input com logs
+    const input = {
       statementText,
       statementImage: statementImage || undefined,
       questionType,
-      disciplinaId,
-      assuntoId,
-      topicoId,
+      disciplinaId: disciplinaId || undefined,
+      assuntoId: assuntoId || undefined,
+      topicoId: topicoId || undefined,
       optionA: questionType === 'multiple_choice' ? optionA : undefined,
       optionB: questionType === 'multiple_choice' ? optionB : undefined,
       optionC: questionType === 'multiple_choice' && optionC ? optionC : undefined,
@@ -120,20 +129,11 @@ export default function QuestionCreate() {
       examInstitution: examInstitution || undefined,
       difficulty,
     };
+    
+    console.log('🚀 [QuestionCreate] Enviando mutation com input:', JSON.stringify(input, null, 2));
 
-    console.log('📊 DADOS DO FORMULÁRIO:', JSON.stringify(formData, null, 2));
-    console.log('📄 TAXONOMIA:', { disciplinaId, assuntoId, topicoId });
-    console.log('📄 ALTERNATIVAS:', {
-      A: optionA,
-      B: optionB,
-      C: optionC,
-      D: optionD,
-      E: optionE,
-      correta: correctOption
-    });
-    console.log('🚀 Chamando mutation...');
-
-    createQuestionMutation.mutate(formData);
+    // 🔥 Chamada da mutation com input explícito
+    createQuestionMutation.mutate(input);
   };
 
   return (
@@ -416,8 +416,13 @@ export default function QuestionCreate() {
             Cancelar
           </Button>
           <Button 
-            onClick={handleSubmit}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleSubmit(e);
+            }}
             disabled={createQuestionMutation.isPending}
+            type="button"
           >
             {createQuestionMutation.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
