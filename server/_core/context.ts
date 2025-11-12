@@ -43,21 +43,34 @@ export async function createContext(
     }
 
     if (token) {
+      console.log('🔑 Token encontrado');
+      
       // Verificar e decodificar o token
       const payload = verifyAccessToken(token);
       
       if (payload && payload.userId) {
+        console.log('✅ Token válido, userId:', payload.userId);
+        
         // Buscar usuário no banco de dados
         user = await getUserById(payload.userId) || null;
         
         if (user) {
+          console.log('✅ Usuário carregado:', {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+          });
           requestLogger.info({ 
             user_id: user.id, 
             user_role: user.role,
             user_email: user.email 
           }, 'User authenticated');
+        } else {
+          console.error('❌ Usuário não encontrado no banco:', payload.userId);
         }
       }
+    } else {
+      console.log('⚠️ Nenhum token encontrado');
     }
   } catch (error) {
     // Authentication is optional for public procedures.
