@@ -10,25 +10,6 @@ import "./index.css";
 import { initSentry, captureError } from "./lib/sentry";
 import { trpc } from "./lib/trpc";
 
-// ⚠️ INTERCEPTOR DE DEBUG - DETECTA REDIRECTS
-if (typeof window !== 'undefined') {
-  const originalSetLocation = window.location.assign;
-  window.location.assign = function(url) {
-    console.error('🚨 REDIRECT DETECTADO (assign):', url);
-    console.trace('Stack trace:');
-    return originalSetLocation.call(this, url);
-  };
-  
-  const originalReplace = window.location.replace;
-  window.location.replace = function(url) {
-    console.error('🚨 REDIRECT DETECTADO (replace):', url);
-    console.trace('Stack trace:');
-    return originalReplace.call(this, url);
-  };
-  
-  console.log('✅ Interceptor de redirects ativado');
-}
-
 // Inicializar Sentry para monitoramento de erros em produção
 initSentry();
 
@@ -111,29 +92,18 @@ const trpcClient = trpc.createClient({
   ],
 });
 
-console.log("🔍 [DEBUG] Iniciando renderização...");
 const rootElement = document.getElementById("root");
-console.log("🔍 [DEBUG] Root element:", rootElement);
 
 if (!rootElement) {
-  console.error("❌ [DEBUG] Root element não encontrado!");
   throw new Error("Root element not found");
 }
 
-console.log("🔍 [DEBUG] Criando root...");
 const root = createRoot(rootElement);
 
-console.log("🔍 [DEBUG] Renderizando App...");
-try {
-  root.render(
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        <App />
-      </QueryClientProvider>
-    </trpc.Provider>
-  );
-  console.log("✅ [DEBUG] App renderizado com sucesso!");
-} catch (error) {
-  console.error("❌ [DEBUG] Erro ao renderizar:", error);
-  throw error;
-}
+root.render(
+  <trpc.Provider client={trpcClient} queryClient={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+  </trpc.Provider>
+);

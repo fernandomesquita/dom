@@ -61,7 +61,6 @@ export function useAuth(options?: UseAuthOptions) {
       if (cached && cached !== "null" && cached !== "undefined") {
         try {
           userData = JSON.parse(cached);
-          console.log('📦 Usando dados do localStorage:', userData);
         } catch (e) {
           console.error('❌ Erro ao ler localStorage:', e);
         }
@@ -76,12 +75,6 @@ export function useAuth(options?: UseAuthOptions) {
       );
     }
     
-    console.log('🔍 useAuth state:', {
-      data: meQuery.data,
-      userData,
-      loading: meQuery.isLoading,
-      error: meQuery.error,
-    });
     
     return {
       user: userData ?? null,
