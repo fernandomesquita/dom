@@ -76,24 +76,29 @@ export default function QuestionCreate() {
   });
 
   const handleSubmit = () => {
+    console.log('🔍 ========== INÍCIO DO SUBMIT ==========');
+    
     // Validações
     if (!statementText.trim()) {
+      console.error('❌ Validação falhou: Enunciado vazio');
       toast.error('Enunciado é obrigatório');
       return;
     }
     if (!disciplinaId || !assuntoId || !topicoId) {
+      console.error('❌ Validação falhou: Taxonomia incompleta', { disciplinaId, assuntoId, topicoId });
       toast.error('Disciplina, Assunto e Tópico são obrigatórios');
       return;
     }
 
     if (questionType === 'multiple_choice') {
       if (!optionA.trim() || !optionB.trim()) {
+        console.error('❌ Validação falhou: Alternativas A/B vazias');
         toast.error('Alternativas A e B são obrigatórias');
         return;
       }
     }
 
-    createQuestionMutation.mutate({
+    const formData = {
       // uniqueCode removido - backend gera automaticamente
       statementText,
       statementImage: statementImage || undefined,
@@ -114,7 +119,21 @@ export default function QuestionCreate() {
       examYear: examYear || undefined,
       examInstitution: examInstitution || undefined,
       difficulty,
+    };
+
+    console.log('📊 DADOS DO FORMULÁRIO:', JSON.stringify(formData, null, 2));
+    console.log('📄 TAXONOMIA:', { disciplinaId, assuntoId, topicoId });
+    console.log('📄 ALTERNATIVAS:', {
+      A: optionA,
+      B: optionB,
+      C: optionC,
+      D: optionD,
+      E: optionE,
+      correta: correctOption
     });
+    console.log('🚀 Chamando mutation...');
+
+    createQuestionMutation.mutate(formData);
   };
 
   return (
