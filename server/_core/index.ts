@@ -2,7 +2,12 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
+import path from "path";
+import { fileURLToPath } from "url";
 import cookieParser from "cookie-parser";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 // import { registerOAuthRoutes } from "./oauth"; // OAuth desabilitado - usando autenticação simples
 import { appRouter } from "../routers";
@@ -12,6 +17,7 @@ import "../queues/worker"; // Inicializar worker de filas
 import { initializeSocket } from "./socket";
 import { iniciarScheduler } from "../scheduler/avisos";
 import { iniciarSchedulerMetasNotificacoes } from "../scheduler/metasNotificacoes";
+import { adminGuard } from "./adminGuard";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -39,8 +45,35 @@ async function startServer() {
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   app.use(cookieParser()); // Para ler cookies de autenticação
+  
+  // ═══════════════════════════════════════════════════════════
+  // SERVIR ARQUIVOS DE MATERIAIS
+  // ═══════════════════════════════════════════════════════════
+  // Serve arquivos locais (PDFs, vídeos, áudios) via HTTP
+  // URL: http://localhost:3000/materiais-files/[nome-arquivo]
+  // ═══════════════════════════════════════════════════════════
+  app.use('/materiais-files', express.static(
+    path.resolve(process.cwd(), 'uploads/materiais'),
+    {
+      dotfiles: 'deny',       // Segurança: não servir arquivos ocultos (.env, etc)
+      index: false,           // Segurança: não listar diretórios
+      maxAge: '1d',           // Cache de 1 dia para performance
+      setHeaders: (res, filePath) => {
+        // Forçar download de PDFs ao invés de exibir no browser
+        if (filePath.endsWith('.pdf')) {
+          res.setHeader('Content-Disposition', 'attachment');
+        }
+      }
+    }
+  ));
+  
   // OAuth callback under /api/oauth/callback
   // registerOAuthRoutes(app); // OAuth desabilitado - usando autenticação simples
+  
+  // Proteção de rotas admin (antes do Vite/static)
+  // Redireciona para /admin/login se não autenticado ou role inválido
+  app.use('/admin', adminGuard);
+  
   // tRPC API
   app.use(
     "/api/trpc",

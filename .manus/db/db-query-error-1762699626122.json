@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO materialItems (materialId, title, type, url, `order`, createdAt)\nSELECT \n  m.id as materialId,\n  mat.titulo as title,\n  mat.tipo as type,\n  mat.url as url,\n  0 as `order`,\n  NOW() as createdAt\nFROM materiais mat\nJOIN materials m ON m.title = mat.titulo\nWHERE mat.url IS NOT NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute INSERT INTO materialItems (materialId, title, type, url, `order`, createdAt)\nSELECT \n  m.id as materialId,\n  mat.titulo as title,\n  mat.tipo as type,\n  mat.url as url,\n  0 as `order`,\n  NOW() as createdAt\nFROM materiais mat\nJOIN materials m ON m.title = mat.titulo\nWHERE mat.url IS NOT NULL;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'mat.url' in 'where clause'"
+  ]
+}

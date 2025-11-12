@@ -1,7 +1,7 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
-import { Info, AlertTriangle, AlertCircle, Wrench, ChevronLeft, ChevronRight } from "lucide-react";
+import { Info, AlertTriangle, AlertCircle, Wrench, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,10 +26,22 @@ interface Notice {
   priority: number;
 }
 
+const DISMISSED_NOTICES_KEY = 'dom-dismissed-notices';
+
 export function NoticesCarousel() {
+  // Carregar notificações dispensadas do localStorage
+  const [dismissedNotices, setDismissedNotices] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem(DISMISSED_NOTICES_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
   // Buscar avisos ativos (mock por enquanto)
   // TODO: Integrar com trpc.notices.getActive.useQuery()
-  const notices: Notice[] = [
+  const allNotices: Notice[] = [
     {
       id: "1",
       title: "Bem-vindo ao DOM!",
@@ -52,6 +64,22 @@ export function NoticesCarousel() {
       priority: 8,
     },
   ];
+
+  // Filtrar avisos não dispensados
+  const notices = allNotices.filter(n => !dismissedNotices.includes(n.id));
+
+  const handleDismiss = (noticeId: string) => {
+    setDismissedNotices(prev => {
+      const updated = [...prev, noticeId];
+      // Salvar no localStorage
+      try {
+        localStorage.setItem(DISMISSED_NOTICES_KEY, JSON.stringify(updated));
+      } catch (error) {
+        console.error('Erro ao salvar notificações dispensadas:', error);
+      }
+      return updated;
+    });
+  };
 
   // Embla Carousel
   const [emblaRef, emblaApi] = useEmblaCarousel(
@@ -143,6 +171,16 @@ export function NoticesCarousel() {
                         </div>
                         <p className="text-sm">{notice.content}</p>
                       </div>
+
+                      {/* Botão Dispensar */}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 flex-shrink-0 hover:bg-background/50"
+                        onClick={() => handleDismiss(notice.id)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
                     </div>
                   </Card>
                 </div>

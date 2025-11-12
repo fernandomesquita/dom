@@ -1,0 +1,277 @@
+{
+  "query": "SHOW TABLES;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute SHOW TABLES;",
+  "rows": [
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "assinaturas"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "assuntos"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "audit_logs"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "avisos"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "avisos_agendamentos"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "avisos_agendamentos_logs"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "avisos_analytics"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "avisos_fila_entrega"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "avisos_segmentacao"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "avisos_templates"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "avisos_tipos"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "avisos_visualizacoes"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "commentLikes"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "cronograma"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "daily_summaries"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "dashboard_customizations"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "disciplinas"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "estatisticas_diarias"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "examAttempts"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "examQuestions"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "exams"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_categorias"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_categories"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_domain_whitelist"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_message_edits"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_message_upvotes"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_messages"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_moderation_queue"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_notifications"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_respostas"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_thread_edits"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_thread_favorites"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_thread_followers"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_threads"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_topicos"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_upvotes"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "forum_user_suspensions"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "gamification_achievements"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "gamification_xp"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "materiais"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "materiais_acessos"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "materiais_estudados"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "materialComments"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "materialDownloads"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "materialFavorites"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "materialItems"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "materialLinks"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "materialRatings"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "materialSeenMarks"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "materialUpvotes"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "materialViews"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "material_ratings"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "material_votes"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "materials"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "metas"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "metas_batch_imports"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "metas_cronograma"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "metas_materiais"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "metas_planos_estudo"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "metas_questoes"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "notice_reads"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "notices"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "pagamentos"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "plan_disciplines"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "plan_enrollments"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "planos"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "planos_estudo"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "plans"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "progresso_assuntos"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "progresso_disciplinas"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "questionAttempts"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "questionComments"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "questionFlags"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "questions"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "questoes"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "questoes_resolvidas"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "refresh_tokens"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "sidebar_items"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "streak_logs"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "streak_protections"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "streak_questoes"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "telemetry_events"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "tokens"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "topicos"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "userNotebooks"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "users"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "webhooks_pagarme"
+    },
+    {
+      "Tables_in_E9go4Z3vKfQ64CyBjNz69u": "widget_configs"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_E9go4Z3vKfQ64CyBjNz69u\n__drizzle_migrations\nassinaturas\nassuntos\naudit_logs\navisos\navisos_agendamentos\navisos_agendamentos_logs\navisos_analytics\navisos_fila_entrega\navisos_segmentacao\navisos_templates\navisos_tipos\navisos_visualizacoes\ncommentLikes\ncronograma\ndaily_summaries\ndashboard_customizations\ndisciplinas\nestatisticas_diarias\nexamAttempts\nexamQuestions\nexams\nforum_categorias\nforum_categories\nforum_domain_whitelist\nforum_message_edits\nforum_message_upvotes\nforum_messages\nforum_moderation_queue\nforum_notifications\nforum_respostas\nforum_thread_edits\nforum_thread_favorites\nforum_thread_followers\nforum_threads\nforum_topicos\nforum_upvotes\nforum_user_suspensions\ngamification_achievements\ngamification_xp\nmateriais\nmateriais_acessos\nmateriais_estudados\nmaterialComments\nmaterialDownloads\nmaterialFavorites\nmaterialItems\nmaterialLinks\nmaterialRatings\nmaterialSeenMarks\nmaterialUpvotes\nmaterialViews\nmaterial_ratings\nmaterial_votes\nmaterials\nmetas\nmetas_batch_imports\nmetas_cronograma\nmetas_materiais\nmetas_planos_estudo\nmetas_questoes\nnotice_reads\nnotices\npagamentos\nplan_disciplines\nplan_enrollments\nplanos\nplanos_estudo\nplans\nprogresso_assuntos\nprogresso_disciplinas\nquestionAttempts\nquestionComments\nquestionFlags\nquestions\nquestoes\nquestoes_resolvidas\nrefresh_tokens\nsidebar_items\nstreak_logs\nstreak_protections\nstreak_questoes\ntelemetry_events\ntokens\ntopicos\nuserNotebooks\nusers\nwebhooks_pagarme\nwidget_configs\n",
+  "stderr": "",
+  "execution_time_ms": 182
+}

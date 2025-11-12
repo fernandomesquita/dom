@@ -16,9 +16,10 @@ import { useLocation } from 'wouter';
 interface AdminHeaderProps {
   title?: string;
   breadcrumbs?: { label: string; href?: string }[];
+  actions?: React.ReactNode;
 }
 
-export function AdminHeader({ title, breadcrumbs }: AdminHeaderProps) {
+export function AdminHeader({ title, breadcrumbs, actions }: AdminHeaderProps) {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const logoutMutation = trpc.auth.logout.useMutation({
@@ -64,6 +65,8 @@ export function AdminHeader({ title, breadcrumbs }: AdminHeaderProps) {
 
       {/* Actions */}
       <div className="flex items-center gap-2">
+        {/* Custom Actions */}
+        {actions && <div className="mr-2">{actions}</div>}
         {/* Notificações (placeholder) */}
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />

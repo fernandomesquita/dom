@@ -75,7 +75,7 @@ export default function KTreeSelector({
   // Limpar seleções dependentes
   useEffect(() => {
     if (!disciplinaId) {
-      onAssuntoChange("", "");
+      // Não precisa resetar assunto - componente já não mostra quando disciplina vazia
       onTopicoChange(null, null);
     }
   }, [disciplinaId]);

@@ -1,4 +1,4 @@
-import { trpc } from "@/lib/trpc";
+import React from "react";
 import { UNAUTHED_ERR_MSG } from '@shared/const';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
@@ -8,6 +8,26 @@ import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
 import { initSentry, captureError } from "./lib/sentry";
+import { trpc } from "./lib/trpc";
+
+// ⚠️ INTERCEPTOR DE DEBUG - DETECTA REDIRECTS
+if (typeof window !== 'undefined') {
+  const originalSetLocation = window.location.assign;
+  window.location.assign = function(url) {
+    console.error('🚨 REDIRECT DETECTADO (assign):', url);
+    console.trace('Stack trace:');
+    return originalSetLocation.call(this, url);
+  };
+  
+  const originalReplace = window.location.replace;
+  window.location.replace = function(url) {
+    console.error('🚨 REDIRECT DETECTADO (replace):', url);
+    console.trace('Stack trace:');
+    return originalReplace.call(this, url);
+  };
+  
+  console.log('✅ Interceptor de redirects ativado');
+}
 
 // Inicializar Sentry para monitoramento de erros em produção
 initSentry();

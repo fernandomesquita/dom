@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { TRPCError } from '@trpc/server';
 import { protectedProcedure, router } from '../_core/trpc';
-import { getDb } from '../db';
+import { getRawDb } from '../db';
 import { createHash } from 'crypto';
 import {
   makeOrderKey,
@@ -60,7 +60,7 @@ export const metasBatchImportRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       // Verificar se plano pertence ao usuário
@@ -172,7 +172,7 @@ export const metasBatchImportRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       // Verificar se plano pertence ao usuário

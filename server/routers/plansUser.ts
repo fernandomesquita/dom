@@ -35,6 +35,7 @@ export const plansUserRouter = router({
           and(
             eq(plans.id, planId),
             eq(plans.isHidden, false),
+            eq(plans.disponivel, true), // ✅ Verificar se plano está disponível
             eq(plans.category, 'Gratuito')
           )
         )
@@ -303,6 +304,11 @@ export const plansUserRouter = router({
       const updates: any = {};
       if (dailyHours !== undefined) updates.dailyHours = dailyHours;
       if (customSettings !== undefined) updates.customSettings = customSettings;
+      
+      // Adicionar availableDays se estiver em customSettings
+      if (customSettings?.availableDays !== undefined) {
+        updates.availableDays = customSettings.availableDays;
+      }
 
       await db
         .update(planEnrollments)

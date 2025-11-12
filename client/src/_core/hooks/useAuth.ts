@@ -14,8 +14,17 @@ export function useAuth(options?: UseAuthOptions) {
   const utils = trpc.useUtils();
 
   const meQuery = trpc.auth.me.useQuery(undefined, {
-    retry: false,
+    retry: 3,  // ✅ Tenta 3 vezes antes de desistir
+    retryDelay: 1000,  // ✅ Aguarda 1s entre tentativas
     refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,  // ✅ Cache por 5 minutos
+    gcTime: 10 * 60 * 1000,  // ✅ Mantém em cache 10 minutos (gcTime é o novo nome de cacheTime)
+    onSuccess: (data) => {
+      console.log('✅ useAuth SUCCESS:', data);
+    },
+    onError: (error) => {
+      console.error('❌ useAuth ERROR:', error);
+    },
   });
 
   const logoutMutation = trpc.auth.logout.useMutation({
@@ -44,15 +53,41 @@ export function useAuth(options?: UseAuthOptions) {
   }, [logoutMutation, utils]);
 
   const state = useMemo(() => {
-    localStorage.setItem(
-      "manus-runtime-user-info",
-      JSON.stringify(meQuery.data)
-    );
+    let userData = meQuery.data;
+    
+    // ✅ SE query não tem dados E não está loading, tenta localStorage
+    if (!userData && !meQuery.isLoading) {
+      const cached = localStorage.getItem("manus-runtime-user-info");
+      if (cached && cached !== "null" && cached !== "undefined") {
+        try {
+          userData = JSON.parse(cached);
+          console.log('📦 Usando dados do localStorage:', userData);
+        } catch (e) {
+          console.error('❌ Erro ao ler localStorage:', e);
+        }
+      }
+    }
+    
+    // ✅ Salva novos dados quando disponíveis
+    if (meQuery.data) {
+      localStorage.setItem(
+        "manus-runtime-user-info",
+        JSON.stringify(meQuery.data)
+      );
+    }
+    
+    console.log('🔍 useAuth state:', {
+      data: meQuery.data,
+      userData,
+      loading: meQuery.isLoading,
+      error: meQuery.error,
+    });
+    
     return {
-      user: meQuery.data ?? null,
+      user: userData ?? null,
       loading: meQuery.isLoading || logoutMutation.isPending,
       error: meQuery.error ?? logoutMutation.error ?? null,
-      isAuthenticated: Boolean(meQuery.data),
+      isAuthenticated: Boolean(userData),
     };
   }, [
     meQuery.data,

@@ -144,3 +144,94 @@ drizzle/schema.ts             ← Schema de users customizado (modificado)
 
 **Última atualização:** 07/11/2025  
 **Próxima revisão obrigatória:** Antes de qualquer modificação em autenticação ou arquitetura core
+
+
+---
+
+## ERRO-002: NÃO Inventar Tabelas, Colunas ou Features sem Permissão
+
+**Data:** 10/11/2025  
+**Severidade:** 🔴 CRÍTICA  
+**Categoria:** Processo de Desenvolvimento / Governança
+
+### Descrição do Erro
+
+Durante o desenvolvimento, **NUNCA** crie tabelas, colunas, features, rotas ou funcionalidades novas sem **PERGUNTAR EXPLICITAMENTE AO USUÁRIO** antes. Mesmo que pareça uma adição lógica ou útil, sempre confirme primeiro.
+
+### Por que isso é crítico?
+
+- ❌ Pode criar funcionalidades que não serão usadas (código morto)
+- ❌ Pode conflitar com planos futuros do usuário
+- ❌ Pode introduzir complexidade desnecessária no banco de dados
+- ❌ Pode gerar migrações que não podem ser revertidas facilmente
+- ❌ Pode criar dependências técnicas não desejadas
+- ❌ Pode aumentar o escopo sem aprovação
+
+### Exemplos de Situações que REQUEREM Confirmação
+
+1. **Banco de Dados:**
+   - ❌ Criar nova tabela (ex: `achievements`, `badges`, `notifications`)
+   - ❌ Adicionar nova coluna em tabela existente (ex: `users.avatar_url`, `metas.streak`)
+   - ❌ Alterar tipo de coluna (ex: `VARCHAR(50)` → `VARCHAR(255)`)
+   - ❌ Adicionar índice ou constraint
+
+2. **Backend:**
+   - ❌ Criar novo router tRPC (ex: `achievementsRouter`, `gamificationRouter`)
+   - ❌ Adicionar novo procedure (ex: `getAchievements`, `calculateStreak`)
+   - ❌ Integrar API externa (ex: Pagar.me, SendGrid, AWS S3)
+
+3. **Frontend:**
+   - ❌ Criar nova página/rota (ex: `/conquistas`, `/ranking`)
+   - ❌ Adicionar novo componente complexo (ex: `AchievementCard`, `LeaderboardTable`)
+   - ❌ Implementar nova feature de UI (ex: sistema de notificações, chat ao vivo)
+
+4. **Features de Produto:**
+   - ❌ Sistema de gamificação (XP, níveis, badges)
+   - ❌ Sistema de notificações push
+   - ❌ Sistema de ranking/leaderboard
+   - ❌ Sistema de chat/mensagens
+   - ❌ Integração com redes sociais
+
+### O que fazer ANTES de implementar algo novo?
+
+1. **Perguntar ao usuário:**
+   ```
+   "Você gostaria que eu implementasse [FEATURE]? Isso incluiria:
+   - Tabela X no banco com colunas A, B, C
+   - Router Y com procedures P1, P2, P3
+   - Página Z com componentes C1, C2, C3
+   
+   Posso prosseguir?"
+   ```
+
+2. **Esperar confirmação explícita** antes de criar qualquer código
+
+3. **Documentar a decisão** no CHANGELOG ou README
+
+### Exceções (Quando NÃO precisa perguntar)
+
+✅ **Pode implementar SEM perguntar:**
+- Correções de bugs óbvios (ex: erro 404, typo, validação quebrada)
+- Ajustes de layout/CSS para melhorar UX
+- Refatoração de código existente (sem mudar comportamento)
+- Adição de comentários/documentação
+- Otimizações de performance (sem mudar API)
+- Testes unitários/integração
+
+### Como evitar este erro?
+
+1. **Sempre leia o contexto completo** antes de sugerir features
+2. **Pergunte "Isso foi solicitado pelo usuário?"** antes de implementar
+3. **Se não foi explicitamente pedido, PERGUNTE primeiro**
+4. **Documente todas as decisões** de arquitetura no README
+
+### Checklist antes de criar algo novo
+
+- [ ] O usuário pediu explicitamente esta feature?
+- [ ] Esta feature está documentada nos requisitos?
+- [ ] Já confirmei com o usuário que posso implementar?
+- [ ] Tenho certeza de que não estou inventando funcionalidades?
+
+**🚨 REGRA DE OURO: "Quando em dúvida, PERGUNTE ao usuário."**
+
+---

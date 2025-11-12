@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from "uuid";
 
 const assuntoInput = z.object({
   disciplinaId: z.string().uuid("ID da disciplina inválido"),
-  codigo: z.string().min(1, "Código é obrigatório").max(20).transform(val => val.trim().toUpperCase()),
+  codigo: z.string().max(20).optional().transform(val => val ? val.trim().toUpperCase() : undefined),
   nome: z.string().min(1, "Nome é obrigatório").max(150).transform(val => val.trim()),
   descricao: z.string().optional(),
   sortOrder: z.number().int().min(0).default(100),
@@ -28,6 +28,14 @@ export const assuntosRouter = router({
     .input(assuntoInput)
     .mutation(async ({ ctx, input }) => {
       const slug = generateSlug(input.nome);
+      
+      // Gerar código automaticamente se não fornecido
+      let codigo = input.codigo;
+      if (!codigo) {
+        const prefix = input.nome.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, 'X');
+        const timestamp = Date.now().toString().slice(-6);
+        codigo = `${prefix}${timestamp}`;
+      }
       
       // Verificar se disciplina existe
       const [disciplina] = await ctx.db
@@ -49,7 +57,7 @@ export const assuntosRouter = router({
         .from(assuntos)
         .where(and(
           eq(assuntos.disciplinaId, input.disciplinaId),
-          eq(assuntos.codigo, input.codigo)
+          eq(assuntos.codigo, codigo)
         ))
         .limit(1);
       
@@ -82,12 +90,57 @@ export const assuntosRouter = router({
       await ctx.db.insert(assuntos).values({
         id,
         ...input,
+        codigo,
         slug,
         createdBy: ctx.user.id,
         ativo: true,
       });
       
       return { id, slug };
+    }),
+  
+  // READ ALL - Listar todos os assuntos com paginação
+  getAll: protectedProcedure
+    .input(z.object({
+      limit: z.number().min(1).max(500).default(100),
+      offset: z.number().min(0).default(0),
+      includeInactive: z.boolean().default(false),
+    }))
+    .query(async ({ ctx, input }) => {
+      const where = input.includeInactive
+        ? undefined
+        : eq(assuntos.ativo, true);
+      
+      const [items, [{ count }]] = await Promise.all([
+        ctx.db
+          .select({
+            id: assuntos.id,
+            codigo: assuntos.codigo,
+            nome: assuntos.nome,
+            descricao: assuntos.descricao,
+            slug: assuntos.slug,
+            disciplinaId: assuntos.disciplinaId,
+            sortOrder: assuntos.sortOrder,
+            ativo: assuntos.ativo,
+            createdAt: assuntos.createdAt,
+          })
+          .from(assuntos)
+          .where(where)
+          .orderBy(assuntos.sortOrder, assuntos.nome)
+          .limit(input.limit)
+          .offset(input.offset),
+        
+        ctx.db
+          .select({ count: sql<number>`count(*)` })
+          .from(assuntos)
+          .where(where),
+      ]);
+      
+      return {
+        items,
+        total: count,
+        hasMore: input.offset + input.limit < count,
+      };
     }),
   
   // READ BY DISCIPLINE - Listar assuntos de uma disciplina com paginação

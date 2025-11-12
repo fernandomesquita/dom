@@ -59,7 +59,7 @@ async function buscarMetasDoDia(userId: number): Promise<MetaNotificacao[]> {
     ORDER BY m.scheduled_order ASC
   `);
 
-  return metas.rows as any[];
+  return metas as any[];
 }
 
 /**
@@ -92,7 +92,7 @@ async function buscarMetasComPrazoProximo(userId: number): Promise<MetaNotificac
     ORDER BY m.scheduled_order ASC
   `);
 
-  return metas.rows as any[];
+  return metas as any[];
 }
 
 /**
@@ -114,13 +114,13 @@ async function calcularStreak(userId: number): Promise<StreakInfo | null> {
     LIMIT 30
   `);
 
-  if (!result.rows.length) return null;
+  if (!result.length) return null;
 
   let diasConsecutivos = 0;
   let dataEsperada = new Date();
   dataEsperada.setHours(0, 0, 0, 0);
 
-  for (const row of result.rows as any[]) {
+  for (const row of result as any[]) {
     const dataConclusao = new Date(row.data_conclusao);
     dataConclusao.setHours(0, 0, 0, 0);
 
@@ -135,7 +135,7 @@ async function calcularStreak(userId: number): Promise<StreakInfo | null> {
   return {
     userId,
     diasConsecutivos,
-    ultimaConclusao: new Date((result.rows[0] as any).data_conclusao),
+    ultimaConclusao: new Date((result[0] as any).data_conclusao),
   };
 }
 
@@ -159,7 +159,7 @@ async function enviarLembreteMetasDoDia() {
       AND m.status = 'PENDENTE'
   `);
 
-  for (const usuario of usuarios.rows as any[]) {
+  for (const usuario of usuarios as any[]) {
     const metas = await buscarMetasDoDia(usuario.user_id);
     
     if (metas.length === 0) continue;
@@ -187,7 +187,7 @@ Acesse /metas/hoje para começar!
     });
   }
 
-  console.log(`[MetasNotificações] Lembretes enviados para ${usuarios.rows.length} usuário(s)`);
+  console.log(`[MetasNotificações] Lembretes enviados para ${usuarios.length} usuário(s)`);
 }
 
 /**
@@ -209,7 +209,7 @@ async function enviarAlertaPrazoProximo() {
       AND m.tipo != 'REVISAO'
   `);
 
-  for (const usuario of usuarios.rows as any[]) {
+  for (const usuario of usuarios as any[]) {
     const metas = await buscarMetasComPrazoProximo(usuario.user_id);
     
     if (metas.length === 0) continue;
@@ -230,7 +230,7 @@ Prepare-se para não perder o ritmo!
     });
   }
 
-  console.log(`[MetasNotificações] Alertas enviados para ${usuarios.rows.length} usuário(s)`);
+  console.log(`[MetasNotificações] Alertas enviados para ${usuarios.length} usuário(s)`);
 }
 
 /**
@@ -249,7 +249,7 @@ async function enviarParabensStreak() {
     WHERE status = 'ATIVO'
   `);
 
-  for (const usuario of usuarios.rows as any[]) {
+  for (const usuario of usuarios as any[]) {
     const streak = await calcularStreak(usuario.user_id);
     
     if (!streak || streak.diasConsecutivos === 0) continue;

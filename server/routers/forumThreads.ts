@@ -10,6 +10,7 @@ import {
   forumThreadFavorites,
   forumThreadEdits,
   forumModerationQueue,
+  forumUserSuspensions,
 } from '../../drizzle/schema-forum';
 import { users } from '../../drizzle/schema';
 import { randomUUID } from 'crypto';
@@ -194,7 +195,7 @@ export const forumThreadsRouter = router({
         conteudo: conteudoSanitizado,
         autorId: ctx.user.id,
         categoriaId: input.categoriaId,
-        tags: input.tags ? JSON.stringify(input.tags) : null,
+        tags: input.tags || null,
         status,
       });
 
@@ -491,5 +492,4 @@ export const forumThreadsRouter = router({
     }),
 });
 
-// Importar forumUserSuspensions que faltou
-import { forumUserSuspensions } from '../../drizzle/schema-forum';
+

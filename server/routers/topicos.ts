@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from "uuid";
 
 const topicoInput = z.object({
   assuntoId: z.string().uuid("ID do assunto inválido"),
-  codigo: z.string().min(1, "Código é obrigatório").max(20).transform(val => val.trim().toUpperCase()),
+  codigo: z.string().max(20).optional().transform(val => val ? val.trim().toUpperCase() : undefined),
   nome: z.string().min(1, "Nome é obrigatório").max(200).transform(val => val.trim()),
   descricao: z.string().optional(),
   sortOrder: z.number().int().min(0).default(100),
@@ -28,6 +28,14 @@ export const topicosRouter = router({
     .input(topicoInput)
     .mutation(async ({ ctx, input }) => {
       const slug = generateSlug(input.nome);
+      
+      // Gerar código automaticamente se não fornecido
+      let codigo = input.codigo;
+      if (!codigo) {
+        const prefix = input.nome.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, 'X');
+        const timestamp = Date.now().toString().slice(-6);
+        codigo = `${prefix}${timestamp}`;
+      }
       
       // Verificar se assunto existe e buscar disciplinaId
       const [assunto] = await ctx.db
@@ -52,7 +60,7 @@ export const topicosRouter = router({
         .from(topicos)
         .where(and(
           eq(topicos.assuntoId, input.assuntoId),
-          eq(topicos.codigo, input.codigo)
+          eq(topicos.codigo, codigo)
         ))
         .limit(1);
       
@@ -86,6 +94,7 @@ export const topicosRouter = router({
       await ctx.db.insert(topicos).values({
         id,
         ...input,
+        codigo,
         slug,
         disciplinaId: assunto.disciplinaId, // Denormalização estratégica
         createdBy: ctx.user.id,
@@ -93,6 +102,17 @@ export const topicosRouter = router({
       });
       
       return { id, slug };
+    }),
+  
+  // READ ALL - Listar todos os tópicos (ADMIN)
+  getAll: adminProcedure
+    .query(async ({ ctx }) => {
+      const items = await ctx.db
+        .select()
+        .from(topicos)
+        .orderBy(topicos.sortOrder, topicos.nome);
+      
+      return items;
     }),
   
   // READ BY ASSUNTO - Listar tópicos de um assunto com paginação

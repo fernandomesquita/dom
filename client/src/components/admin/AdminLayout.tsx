@@ -10,6 +10,7 @@ interface AdminLayoutProps {
   children: ReactNode;
   title?: string;
   breadcrumbs?: { label: string; href?: string }[];
+  actions?: ReactNode;
 }
 
 /**
@@ -22,22 +23,36 @@ interface AdminLayoutProps {
  * - Proteção de rota (apenas staff)
  * - Loading state durante autenticação
  */
-export function AdminLayout({ children, title, breadcrumbs }: AdminLayoutProps) {
+export function AdminLayout({ children, title, breadcrumbs, actions }: AdminLayoutProps) {
   const { user, loading } = useAuth();
   const [, setLocation] = useLocation();
 
+  // ✅ LOG CRÍTICO:
+  console.log('🏛️ AdminLayout:', {
+    user,
+    loading,
+    hasUser: !!user,
+    userRole: user?.role,
+  });
+
   useEffect(() => {
+    console.log('🔄 AdminLayout useEffect:', { user, loading });
+    
     // Redirecionar se não autenticado
     if (!loading && !user) {
+      console.log('❌ Redirecionando para /login - user é null');
       setLocation('/login');
       return;
     }
 
     // Redirecionar se for ALUNO (não tem acesso ao admin)
     if (!loading && user && user.role === 'ALUNO') {
+      console.log('❌ Redirecionando para /dashboard - user é ALUNO');
       setLocation('/dashboard');
       return;
     }
+    
+    console.log('✅ AdminLayout OK - user autenticado');
   }, [user, loading, setLocation]);
 
   // Loading state
@@ -65,7 +80,7 @@ export function AdminLayout({ children, title, breadcrumbs }: AdminLayoutProps) 
       {/* Main Content */}
       <div className="flex flex-1 flex-col overflow-hidden ml-64">
         {/* Header */}
-        <AdminHeader title={title} breadcrumbs={breadcrumbs} />
+        <AdminHeader title={title} breadcrumbs={breadcrumbs} actions={actions} />
 
         {/* Content */}
         <main className="flex-1 overflow-y-auto bg-muted/10">

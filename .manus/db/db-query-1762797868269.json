@@ -1,0 +1,106 @@
+{
+  "query": "SELECT * FROM sidebar_items LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3FZ1nxfVKsSpRCQ.c519e6f3483f --database E9go4Z3vKfQ64CyBjNz69u --execute SELECT * FROM sidebar_items LIMIT 10",
+  "rows": [
+    {
+      "id": "1",
+      "label": "Dashboard",
+      "icon": "LayoutDashboard",
+      "path": "/dashboard",
+      "ordem": "1",
+      "visivel": "1",
+      "cor": "blue",
+      "descricao": "Página inicial com resumo e widgets",
+      "criado_em": "2025-11-10 15:23:35",
+      "atualizado_em": "2025-11-10 15:23:35"
+    },
+    {
+      "id": "2",
+      "label": "Metas",
+      "icon": "Target",
+      "path": "/metas/cronograma",
+      "ordem": "2",
+      "visivel": "1",
+      "cor": "green",
+      "descricao": "Cronograma de estudos e metas diárias",
+      "criado_em": "2025-11-10 15:23:35",
+      "atualizado_em": "2025-11-10 15:23:35"
+    },
+    {
+      "id": "3",
+      "label": "Questões",
+      "icon": "FileQuestion",
+      "path": "/questoes",
+      "ordem": "3",
+      "visivel": "1",
+      "cor": "blue",
+      "descricao": "Banco de questões de concursos anteriores",
+      "criado_em": "2025-11-10 15:23:35",
+      "atualizado_em": "2025-11-10 15:23:35"
+    },
+    {
+      "id": "4",
+      "label": "Simulados",
+      "icon": "GraduationCap",
+      "path": "/simulados",
+      "ordem": "4",
+      "visivel": "1",
+      "cor": "purple",
+      "descricao": "Simulados e provas práticas",
+      "criado_em": "2025-11-10 15:23:35",
+      "atualizado_em": "2025-11-10 15:23:35"
+    },
+    {
+      "id": "5",
+      "label": "Materiais",
+      "icon": "BookOpen",
+      "path": "/materiais",
+      "ordem": "5",
+      "visivel": "1",
+      "cor": "orange",
+      "descricao": "Materiais de estudo e PDFs",
+      "criado_em": "2025-11-10 15:23:35",
+      "atualizado_em": "2025-11-10 15:23:35"
+    },
+    {
+      "id": "6",
+      "label": "Favoritos",
+      "icon": "Heart",
+      "path": "/materiais/favoritos",
+      "ordem": "6",
+      "visivel": "1",
+      "cor": "red",
+      "descricao": "Materiais marcados como favoritos",
+      "criado_em": "2025-11-10 15:23:35",
+      "atualizado_em": "2025-11-10 15:23:35"
+    },
+    {
+      "id": "7",
+      "label": "Fórum",
+      "icon": "MessageSquare",
+      "path": "/forum",
+      "ordem": "7",
+      "visivel": "1",
+      "cor": "indigo",
+      "descricao": "Fórum colaborativo com outros alunos",
+      "criado_em": "2025-11-10 15:23:35",
+      "atualizado_em": "2025-11-10 15:23:35"
+    },
+    {
+      "id": "8",
+      "label": "Conquistas",
+      "icon": "Trophy",
+      "path": "/conquistas",
+      "ordem": "8",
+      "visivel": "1",
+      "cor": "yellow",
+      "descricao": "Suas conquistas e badges",
+      "criado_em": "2025-11-10 15:23:35",
+      "atualizado_em": "2025-11-10 15:23:35"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tlabel\ticon\tpath\tordem\tvisivel\tcor\tdescricao\tcriado_em\tatualizado_em\n1\tDashboard\tLayoutDashboard\t/dashboard\t1\t1\tblue\tPágina inicial com resumo e widgets\t2025-11-10 15:23:35\t2025-11-10 15:23:35\n2\tMetas\tTarget\t/metas/cronograma\t2\t1\tgreen\tCronograma de estudos e metas diárias\t2025-11-10 15:23:35\t2025-11-10 15:23:35\n3\tQuestões\tFileQuestion\t/questoes\t3\t1\tblue\tBanco de questões de concursos anteriores\t2025-11-10 15:23:35\t2025-11-10 15:23:35\n4\tSimulados\tGraduationCap\t/simulados\t4\t1\tpurple\tSimulados e provas práticas\t2025-11-10 15:23:35\t2025-11-10 15:23:35\n5\tMateriais\tBookOpen\t/materiais\t5\t1\torange\tMateriais de estudo e PDFs\t2025-11-10 15:23:35\t2025-11-10 15:23:35\n6\tFavoritos\tHeart\t/materiais/favoritos\t6\t1\tred\tMateriais marcados como favoritos\t2025-11-10 15:23:35\t2025-11-10 15:23:35\n7\tFórum\tMessageSquare\t/forum\t7\t1\tindigo\tFórum colaborativo com outros alunos\t2025-11-10 15:23:35\t2025-11-10 15:23:35\n8\tConquistas\tTrophy\t/conquistas\t8\t1\tyellow\tSuas conquistas e badges\t2025-11-10 15:23:35\t2025-11-10 15:23:35\n",
+  "stderr": "",
+  "execution_time_ms": 62
+}

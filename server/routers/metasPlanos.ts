@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { TRPCError } from '@trpc/server';
 import { publicProcedure, protectedProcedure, router } from '../_core/trpc';
-import { getDb } from '../db';
+import { getRawDb } from '../db';
 import { redistributePlan } from '../helpers/metasDistribuicao';
 
 export const metasPlanosRouter = router({
@@ -25,7 +25,7 @@ export const metasPlanosRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       const planoId = uuidv4();
@@ -33,8 +33,8 @@ export const metasPlanosRouter = router({
       await db.query(
         `INSERT INTO metas_planos_estudo (
           id, usuario_id, titulo, horas_por_dia, dias_disponiveis_bitmask,
-          data_inicio, data_fim, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          data_inicio, data_fim, status, criado_por_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           planoId,
           ctx.user.id,
@@ -44,6 +44,7 @@ export const metasPlanosRouter = router({
           input.dataInicio,
           input.dataFim || null,
           'ATIVO',
+          ctx.user.id,
         ]
       );
 
@@ -61,7 +62,7 @@ export const metasPlanosRouter = router({
   getById: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       const result = await db.query(
@@ -86,7 +87,7 @@ export const metasPlanosRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       let query = `SELECT * FROM metas_planos_estudo WHERE usuario_id = ?`;
@@ -118,7 +119,7 @@ export const metasPlanosRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       // Verificar se plano pertence ao usuário
@@ -187,7 +188,7 @@ export const metasPlanosRouter = router({
   delete: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       // Verificar se plano pertence ao usuário
@@ -214,7 +215,7 @@ export const metasPlanosRouter = router({
   redistribute: protectedProcedure
     .input(z.object({ planoId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       // Verificar se plano pertence ao usuário
@@ -249,7 +250,7 @@ export const metasPlanosRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await getRawDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       // Verificar se plano pertence ao usuário

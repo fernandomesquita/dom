@@ -13,7 +13,7 @@ import { TRPCError } from '@trpc/server';
 
 // Helper para verificar se usuário é admin
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (ctx.user.role !== 'admin') {
+  if (ctx.user.role !== 'MASTER' && ctx.user.role !== 'ADMINISTRATIVO') {
     throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado' });
   }
   return next({ ctx });
@@ -26,20 +26,24 @@ export const plansAdminRouter = router({
   create: adminProcedure
     .input(z.object({
       name: z.string().min(3).max(255),
+      slug: z.string().optional(), // Frontend envia mas não é usado
       description: z.string().optional(),
       logoUrl: z.string().url().optional(),
-      featuredImageUrl: z.string().url(),
+      featuredImageUrl: z.string().url().optional(),
       landingPageUrl: z.string().url().optional(),
       category: z.enum(['Pago', 'Gratuito']),
       editalStatus: z.enum(['Pré-edital', 'Pós-edital', 'N/A']).optional(),
       entity: z.string().optional(),
       role: z.string().optional(),
-      knowledgeRootId: z.string().uuid(),
-      price: z.number().positive().optional(),
+      knowledgeRootId: z.string().uuid().optional(),
+      price: z.string().optional(), // Frontend envia como string
       validityDate: z.string().optional(),  // ISO date
       durationDays: z.number().int().positive().optional(),
       mentorId: z.number().int().optional(),
       tags: z.array(z.string()).optional(),
+      isHidden: z.boolean().optional(),
+      isFeatured: z.boolean().optional(),
+      disponivel: z.boolean().optional(),
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
@@ -57,25 +61,37 @@ export const plansAdminRouter = router({
 
       const planId = crypto.randomUUID();
 
+      // Gerar slug automaticamente se não fornecido
+      const slug = input.slug || 
+        input.name.toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '');
+
       await db.insert(plans).values({
         id: planId,
         name: input.name,
-        description: input.description,
-        logoUrl: input.logoUrl,
-        featuredImageUrl: input.featuredImageUrl,
-        landingPageUrl: input.landingPageUrl,
+        slug: slug,
+        description: input.description || null,
+        logoUrl: input.logoUrl || null,
+        featuredImageUrl: input.featuredImageUrl || null,
+        landingPageUrl: input.landingPageUrl || null,
         category: input.category,
         editalStatus: input.editalStatus || 'N/A',
-        entity: input.entity,
-        role: input.role,
-        knowledgeRootId: input.knowledgeRootId,
+        entity: input.entity || null,
+        role: input.role || null,
+        knowledgeRootId: input.knowledgeRootId || null,
         paywallRequired: input.category === 'Pago',
-        price: input.price ? input.price.toString() : null,
-        validityDate: input.validityDate,
-        durationDays: input.durationDays,
-        mentorId: input.mentorId,
+        price: input.price || null,
+        validityDate: input.validityDate || null,
+        durationDays: input.durationDays || null,
+        mentorId: input.mentorId || null,
         tags: input.tags || [],
         status: 'Em edição',
+        isHidden: input.isHidden ?? false,
+        isFeatured: input.isFeatured ?? false,
+        disponivel: input.disponivel ?? true,
         createdBy: ctx.user.id,
         updatedBy: ctx.user.id,
       });
@@ -238,13 +254,63 @@ export const plansAdminRouter = router({
       pageSize: z.number().int().positive().max(100).default(20),
     }))
     .query(async ({ input }) => {
+      // ✅ LOGO NO INÍCIO, ANTES DE TUDO:
+      console.log('========== LISTALL INICIOU ==========');
+      console.log('Input recebido:', JSON.stringify(input));
+      
       const db = await getDb();
+      console.log('========== DB OBTIDO ==========');
+      console.log('DB é null?', db === null);
+      
       if (!db) throw new Error('Database not available');
+
+      // ✅ LOGS DE DEBUG:
+      console.log('🔍 ============ DATABASE DEBUG ============');
+      console.log('🔍 [DB] Connection URL:', process.env.DATABASE_URL?.replace(/:[^:@]+@/, ':***@'));
+      
+      // Query para ver QUAL banco está conectado:
+      const [dbInfo] = await db.execute(sql`
+        SELECT 
+          DATABASE() as current_database,
+          USER() as current_user,
+          @@hostname as hostname,
+          @@port as port
+      `);
+      console.log('🔍 [DB] Banco conectado:', dbInfo);
+      
+      // Query para contar registros em CADA tabela:
+      try {
+        const [plansCount] = await db.execute(sql`SELECT COUNT(*) as total FROM plans`);
+        console.log('🔍 [DB] Registros em "plans":', plansCount);
+      } catch (e) {
+        console.log('🔍 [DB] Erro ao contar "plans":', e.message);
+      }
+      
+      try {
+        const [metasCount] = await db.execute(sql`SELECT COUNT(*) as total FROM metas_planos_estudo`);
+        console.log('🔍 [DB] Registros em "metas_planos_estudo":', metasCount);
+      } catch (e) {
+        console.log('🔍 [DB] Erro ao contar "metas_planos_estudo":', e.message);
+      }
+      
+      console.log('========== DEBUG PLANS START ==========');
+      
+      // Query de teste simples:
+      const testResult = await db.select().from(plans).limit(1);
+      
+      console.log('TOTAL ITEMS:', testResult.length);
+      console.log('FIRST ITEM:', JSON.stringify(testResult[0], null, 2));
+      console.log('KEYS:', Object.keys(testResult[0] || {}));
+      console.log('========== DEBUG PLANS END ==========');
+      
+      console.log('🔍 [listAll] Iniciando query de planos');
+      console.log('🔍 [listAll] Input:', input);
 
       const { search, status, category, mentorId, page, pageSize } = input;
       const offset = (page - 1) * pageSize;
 
       const conditions = [isNull(plans.deletedAt)];
+      console.log('🔍 [listAll] Conditions iniciais:', conditions);
 
       if (search) {
         conditions.push(
@@ -255,7 +321,10 @@ export const plansAdminRouter = router({
         );
       }
 
-      if (status) conditions.push(eq(plans.status, status));
+      if (status) {
+        conditions.push(eq(plans.editalStatus, status));
+        console.log('🔍 [listAll] Adicionou filtro status:', status);
+      }
       if (category) conditions.push(eq(plans.category, category));
       if (mentorId) conditions.push(eq(plans.mentorId, mentorId));
 
@@ -267,10 +336,15 @@ export const plansAdminRouter = router({
         .limit(pageSize)
         .offset(offset);
 
+      console.log('🔍 [listAll] Resultados encontrados:', items.length);
+      console.log('🔍 [listAll] Primeiro item:', items[0]);
+
       const [{ count }] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(plans)
         .where(and(...conditions));
+
+      console.log('🔍 [listAll] Total de registros:', count);
 
       return {
         items: items.map(item => ({

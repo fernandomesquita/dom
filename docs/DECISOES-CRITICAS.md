@@ -162,3 +162,58 @@ pnpm dlx shadcn@latest add dialog
 - [Drizzle ORM - Schema Declaration](https://orm.drizzle.team/docs/sql-schema-declaration)
 - [MySQL - Naming Conventions](https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html)
 - [Database Design Best Practices](https://www.sqlshack.com/learn-sql-naming-conventions/)
+
+
+---
+
+### 2. Desabilitação Temporária do Módulo de Auditoria (Novembro 2025)
+
+**Problema Identificado:**
+- Endpoints de auditoria (`admin.audit_v1.*`) causando erros e/ou lentidão no sistema
+- Possível sobrecarga de queries ou problemas de indexação na tabela `auditLogs`
+- Impacto na experiência do usuário durante criação de questões e outras operações
+
+**Impacto:**
+- Logs de auditoria não sendo gerados temporariamente
+- Perda de rastreabilidade de ações administrativas
+- Impossibilidade de visualizar histórico de mudanças
+
+**Decisão Tomada:**
+Desabilitar temporariamente todos os endpoints de auditoria retornando dados vazios:
+
+| Endpoint | Retorno Anterior | Retorno Atual (Temporário) |
+|----------|------------------|----------------------------|
+| `admin.audit_v1.list` | Logs paginados do banco | `{ logs: [], pagination: { total: 0 } }` |
+| `admin.audit_v1.getByUser` | Logs do usuário | `[]` |
+| `admin.audit_v1.getByAction` | Logs da ação | `[]` |
+| `admin.audit_v1.stats` | Estatísticas calculadas | `{ total: 0, last24h: 0, byAction: [], byUser: [] }` |
+
+**Código Original Preservado:**
+- `_list_original` - Implementação original do `list`
+- `_getByUser_original` - Implementação original do `getByUser`
+- `_getByAction_original` - Implementação original do `getByAction`
+- `_stats_original` - Implementação original do `stats`
+
+**Arquivo Afetado:**
+- `server/routers/admin/auditRouter_v1.ts`
+
+**Commit:**
+- `0359119` - fix: desabilita temporariamente endpoints de auditoria
+
+**Ações Necessárias (Futuro):**
+- [ ] Investigar causa raiz dos problemas de performance
+- [ ] Adicionar índices apropriados na tabela `auditLogs`
+- [ ] Implementar paginação mais eficiente
+- [ ] Considerar arquivamento de logs antigos
+- [ ] Reabilitar endpoints após otimizações
+- [ ] Testar performance com carga real
+
+**Para Reabilitar:**
+1. Renomear procedures: `_list_original` → `list` (e assim por diante)
+2. Ou reverter commit `0359119`
+3. Testar performance antes de fazer deploy
+
+**Workaround Atual:**
+- Sistema funciona normalmente sem auditoria
+- Logs de aplicação (via logger) continuam funcionando
+- Apenas interface de auditoria administrativa está desabilitada

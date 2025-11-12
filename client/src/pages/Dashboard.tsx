@@ -113,7 +113,7 @@ export default function Dashboard() {
       {/* Footer */}
       <footer className="border-t py-6">
         <div className="container text-center text-sm text-muted-foreground">
-          <p>© 2025 DOM - Domínio Operacional Modular. Todos os direitos reservados.</p>
+          <p>© {new Date().getFullYear()} DOM-EARA. Feito com ❤️ para concurseiros.</p>
         </div>
       </footer>
     </div>
