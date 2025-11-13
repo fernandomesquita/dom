@@ -16,8 +16,8 @@ export default function AllPlans() {
   });
 
   // Separar planos pagos e gratuitos
-  const planosPagos = data?.items?.filter(p => p.isPaid) || [];
-  const planosGratuitos = data?.items?.filter(p => !p.isPaid) || [];
+  const planosPagos = data?.items?.filter(p => p.category === 'Pago') || [];
+  const planosGratuitos = data?.items?.filter(p => p.category === 'Gratuito') || [];
 
   return (
     <StudentLayout>
