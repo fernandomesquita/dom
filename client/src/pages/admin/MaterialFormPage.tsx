@@ -153,6 +153,11 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
       return;
     }
 
+    // 🔍 DEBUG: Ver valor de tipo antes de enviar
+    console.log('🔍 [DEBUG] Valor de tipo:', tipo);
+    console.log('🔍 [DEBUG] Tipo de tipo:', typeof tipo);
+    console.log('🔍 [DEBUG] Valores esperados: "video" | "pdf" | "audio"');
+
     const data = {
       title,
       description: description || undefined,
