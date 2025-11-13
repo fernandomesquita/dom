@@ -177,10 +177,10 @@ export default function PlanFormPage() {
 
   const utils = trpc.useUtils();
 
-  const createMutation = trpc.admin.plans_v1.create.useMutation({
+  const createMutation = trpc.plansAdmin.create.useMutation({
     onSuccess: () => {
       toast.success("Plano criado com sucesso!");
-      utils.admin.plans_v1.list.invalidate();
+      utils.plansAdmin.listAll.invalidate();
       setLocation("/admin/planos");
     },
     onError: (error) => {
@@ -188,10 +188,10 @@ export default function PlanFormPage() {
     },
   });
 
-  const updateMutation = trpc.admin.plans_v1.update.useMutation({
+  const updateMutation = trpc.plansAdmin.update.useMutation({
     onSuccess: () => {
       toast.success("Plano atualizado com sucesso!");
-      utils.admin.plans_v1.list.invalidate();
+      utils.plansAdmin.listAll.invalidate();
       utils.admin.plans_v1.getById.invalidate({ id: planId! });
       setLocation("/admin/planos");
     },
@@ -229,7 +229,7 @@ export default function PlanFormPage() {
         toast.success('Plano atualizado com sucesso!');
       } else {
         // MODO CRIAR
-        console.log('📤 Enviando para admin.plans_v1.create:', cleanData);
+        console.log('📤 Enviando para plansAdmin.create:', cleanData);
         
         const result = await createMutation.mutateAsync(cleanData);
         
