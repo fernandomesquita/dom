@@ -290,7 +290,7 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
                   <SelectValue placeholder="Selecione o tópico" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  <SelectItem value="none">Nenhum</SelectItem>
                   {topicos
                     ?.filter((t) => t.assuntoId === assuntoId)
                     .map((t) => (
