@@ -162,14 +162,8 @@ export const plansRouter_v1 = router({
         if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
         const result = await db.query(
-          `SELECT 
-            p.*,
-            u.nome_completo as usuario_nome,
-            u.email as usuario_email,
-            (SELECT COUNT(*) FROM metas_cronograma WHERE plano_id = p.id) as total_metas,
-            (SELECT COUNT(*) FROM metas_cronograma WHERE plano_id = p.id AND concluded_at_utc IS NOT NULL) as metas_concluidas
-          FROM metas_planos_estudo p
-          LEFT JOIN users u ON p.usuario_id = u.id
+          `SELECT p.*
+          FROM plans p
           WHERE p.id = ?`,
           [input.id]
         );
