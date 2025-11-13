@@ -226,8 +226,15 @@ export default function MateriaisListPage() {
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          {getTipoBadge(material.tipo)}
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                          {/* Tipo de Material */}
+                          <Badge variant="outline">
+                            {material.type === 'pdf' && '📄 PDF'}
+                            {material.type === 'video' && '🎥 Vídeo'}
+                            {material.type === 'audio' && '🎵 Áudio'}
+                          </Badge>
+
+                          {/* Status Ativo/Inativo */}
                           {material.isAvailable ? (
                             <Badge variant="outline" className="text-green-600 border-green-600">
                               Ativo
@@ -235,6 +242,24 @@ export default function MateriaisListPage() {
                           ) : (
                             <Badge variant="outline" className="text-gray-400 border-gray-400">
                               Inativo
+                            </Badge>
+                          )}
+
+                          {/* Categoria */}
+                          <Badge variant="outline">
+                            {material.category === 'base' && '📚 Base'}
+                            {material.category === 'revisao' && '🔄 Revisão'}
+                            {material.category === 'promo' && '🎁 Promo'}
+                          </Badge>
+
+                          {/* Pago/Gratuito */}
+                          {material.isPaid ? (
+                            <Badge variant="default" className="bg-yellow-600 hover:bg-yellow-700">
+                              💰 Pago
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary">
+                              🆓 Gratuito
                             </Badge>
                           )}
                         </div>
