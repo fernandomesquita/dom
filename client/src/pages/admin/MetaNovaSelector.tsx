@@ -22,7 +22,7 @@ export default function MetaNovaSelector() {
   const [selectedPlanId, setSelectedPlanId] = useState<string>('');
 
   // Buscar planos disponíveis
-  const { data: plans, isLoading } = trpc.plansAdmin.listAll.useQuery();
+  const { data: plans, isLoading } = trpc.plansAdmin.listAll.useQuery({});
 
   const handleContinue = () => {
     if (!selectedPlanId) {
