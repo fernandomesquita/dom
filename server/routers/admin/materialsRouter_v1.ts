@@ -227,28 +227,84 @@ export const materialsRouter_v1 = router({
       description: z.string().optional(),
       thumbnailUrl: z.string().url().optional(),
       category: z.enum(["base", "revisao", "promo"]).optional(),
-      type: z.enum(["video", "pdf", "audio"]).optional(), // ❗ SEM "link"!
+      type: z.enum(["video", "pdf", "audio"]).optional(),
       isPaid: z.boolean().optional(),
       isAvailable: z.boolean().optional(),
       isFeatured: z.boolean().optional(),
       commentsEnabled: z.boolean().optional(),
+      
+      // ✅ ADICIONAR LINKS
+      links: z.array(z.object({
+        disciplinaId: z.string(),
+        assuntoId: z.string().optional(),
+        topicoId: z.string().optional(),
+      })).optional(),
+      
+      // ✅ ADICIONAR ITEMS
+      items: z.array(z.object({
+        title: z.string(),
+        type: z.enum(["video", "pdf", "audio"]),
+        url: z.string(),
+        order: z.number(),
+      })).optional(),
     }))
     .mutation(async ({ input }) => {
-      // 🔍 DEBUG: Ver input recebido
       console.log('🔍 [Backend Update] Input completo:', JSON.stringify(input, null, 2));
       console.log('🔍 [Backend Update] Type recebido:', input.type);
-      console.log('🔍 [Backend Update] Type typeof:', typeof input.type);
-      console.log('🔍 [Backend Update] Valores esperados: "video" | "pdf" | "audio"');
+      console.log('🔍 [Backend Update] Links recebidos:', input.links);
+      console.log('🔍 [Backend Update] Items recebidos:', input.items);
 
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-      const { id, ...data } = input;
+      const { id, links, items, ...data } = input;
       
+      // ✅ 1. Atualizar campos básicos do material
       await db.update(materials)
         .set(data)
         .where(eq(materials.id, id));
       
+      // ✅ 2. Atualizar LINKS (deletar e recriar)
+      if (links !== undefined) {
+        // Deletar links antigos
+        await db.delete(materialLinks)
+          .where(eq(materialLinks.materialId, id));
+        
+        // Inserir novos links (se houver)
+        if (links.length > 0) {
+          await db.insert(materialLinks)
+            .values(links.map(link => ({
+              materialId: id,
+              disciplinaId: link.disciplinaId,
+              assuntoId: link.assuntoId || '',
+              topicoId: link.topicoId || '',
+            })));
+        }
+      }
+      
+      // ✅ 3. Atualizar ITEMS (deletar e recriar)
+      if (items !== undefined) {
+        // Deletar items antigos
+        await db.delete(materialItems)
+          .where(eq(materialItems.materialId, id));
+        
+        // Inserir novos items (se houver)
+        if (items.length > 0) {
+          await db.insert(materialItems)
+            .values(items.map(item => ({
+              materialId: id,
+              title: item.title,
+              type: item.type,
+              url: item.url,
+              filePath: undefined,
+              duration: undefined,
+              fileSize: undefined,
+              order: item.order,
+            })));
+        }
+      }
+      
+      console.log('✅ [Backend Update] Material atualizado com sucesso!');
       return { success: true };
     }),
   
