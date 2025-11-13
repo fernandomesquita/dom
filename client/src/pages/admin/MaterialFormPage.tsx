@@ -148,8 +148,8 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
       return;
     }
 
-    if (tipo !== 'texto' && !url.trim()) {
-      toast.error('URL é obrigatória para este tipo de material');
+    if (!url.trim()) {
+      toast.error('URL é obrigatória');
       return;
     }
 
@@ -166,8 +166,8 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
       items: [{
         title,
         type: tipo,
-        url: (tipo === 'video' || tipo === 'link') ? url : undefined,
-        filePath: tipo === 'texto' ? content : undefined,
+        url: url,
+        filePath: undefined,
         duration: undefined,
         fileSize: undefined,
         order: 0
@@ -252,38 +252,22 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
                 <SelectContent>
                   <SelectItem value="pdf">📄 PDF</SelectItem>
                   <SelectItem value="video">🎥 Vídeo</SelectItem>
-                  <SelectItem value="link">🔗 Link Externo</SelectItem>
-                  <SelectItem value="texto">📝 Texto</SelectItem>
+                  <SelectItem value="audio">🎵 Áudio</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {tipo !== 'texto' && (
-              <div>
-                <Label htmlFor="url">URL *</Label>
-                <Input
-                  id="url"
-                  type="url"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://..."
-                  required={tipo !== 'texto'}
-                />
-              </div>
-            )}
-
-            {tipo === 'texto' && (
-              <div>
-                <Label htmlFor="content">Conteúdo</Label>
-                <Textarea
-                  id="content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Conteúdo do material..."
-                  rows={10}
-                />
-              </div>
-            )}
+            <div>
+              <Label htmlFor="url">URL *</Label>
+              <Input
+                id="url"
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://..."
+                required
+              />
+            </div>
 
             {/* Thumbnail */}
             <div>
