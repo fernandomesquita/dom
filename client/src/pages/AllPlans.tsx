@@ -15,6 +15,10 @@ export default function AllPlans() {
     pageSize,
   });
 
+  // Separar planos pagos e gratuitos
+  const planosPagos = data?.items?.filter(p => p.isPaid) || [];
+  const planosGratuitos = data?.items?.filter(p => !p.isPaid) || [];
+
   return (
     <StudentLayout>
       <div className="bg-gray-50 py-8">
@@ -37,7 +41,7 @@ export default function AllPlans() {
           
           {data && (
             <div>
-              <p className="mb-4 text-gray-600">
+              <p className="mb-8 text-gray-600">
                 {data.pagination.totalItems} {data.pagination.totalItems === 1 ? "plano encontrado" : "planos encontrados"}
               </p>
               
@@ -46,38 +50,97 @@ export default function AllPlans() {
                   <p className="text-gray-500">Nenhum plano disponível no momento.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {data.items.map((plan) => (
-                    <div key={plan.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                      {plan.featuredImageUrl && (
-                        <img
-                          src={plan.featuredImageUrl}
-                          alt={plan.name}
-                          className="w-full h-48 object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = 'https://via.placeholder.com/400x300?text=Sem+Imagem';
-                          }}
-                        />
-                      )}
-                      <div className="p-4">
-                        <h3 className="font-bold text-lg mb-2">{plan.name}</h3>
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">{plan.description || 'Sem descrição'}</p>
-                        
-                        <div className="flex items-center justify-between">
-                          <span className="text-lg font-semibold text-primary">
-                            {plan.price || 'Gratuito'}
-                          </span>
-                          <Button
-                            size="sm"
-                            onClick={() => setLocation(`/planos/${plan.id}`)}
-                          >
-                            Ver Detalhes
-                          </Button>
-                        </div>
+                <>
+                  {/* Seção: Planos Pagos */}
+                  <section className="mb-12">
+                    <h2 className="text-3xl font-semibold mb-6 text-primary">
+                      📚 Planos Pagos
+                    </h2>
+                    {planosPagos.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {planosPagos.map((plan) => (
+                          <div key={plan.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                            {plan.featuredImageUrl && (
+                              <img
+                                src={plan.featuredImageUrl}
+                                alt={plan.name}
+                                className="w-full h-48 object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.src = 'https://via.placeholder.com/400x300?text=Sem+Imagem';
+                                }}
+                              />
+                            )}
+                            <div className="p-4">
+                              <h3 className="font-bold text-lg mb-2">{plan.name}</h3>
+                              <p className="text-sm text-gray-600 mb-3 line-clamp-2">{plan.description || 'Sem descrição'}</p>
+                              
+                              <div className="flex items-center justify-between">
+                                <span className="text-lg font-semibold text-primary">
+                                  {plan.price || 'Gratuito'}
+                                </span>
+                                <Button
+                                  size="sm"
+                                  onClick={() => setLocation(`/planos/${plan.id}`)}
+                                >
+                                  Ver Detalhes
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ) : (
+                      <p className="text-muted-foreground">
+                        Nenhum plano pago disponível no momento.
+                      </p>
+                    )}
+                  </section>
+
+                  {/* Seção: Planos Gratuitos */}
+                  <section>
+                    <h2 className="text-3xl font-semibold mb-6 text-green-600">
+                      🎁 Planos Gratuitos
+                    </h2>
+                    {planosGratuitos.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {planosGratuitos.map((plan) => (
+                          <div key={plan.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                            {plan.featuredImageUrl && (
+                              <img
+                                src={plan.featuredImageUrl}
+                                alt={plan.name}
+                                className="w-full h-48 object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.src = 'https://via.placeholder.com/400x300?text=Sem+Imagem';
+                                }}
+                              />
+                            )}
+                            <div className="p-4">
+                              <h3 className="font-bold text-lg mb-2">{plan.name}</h3>
+                              <p className="text-sm text-gray-600 mb-3 line-clamp-2">{plan.description || 'Sem descrição'}</p>
+                              
+                              <div className="flex items-center justify-between">
+                                <span className="text-lg font-semibold text-green-600">
+                                  {plan.price || 'Gratuito'}
+                                </span>
+                                <Button
+                                  size="sm"
+                                  onClick={() => setLocation(`/planos/${plan.id}`)}
+                                >
+                                  Ver Detalhes
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground">
+                        Nenhum plano gratuito disponível no momento.
+                      </p>
+                    )}
+                  </section>
+                </>
               )}
               
               {data.pagination.totalPages > 1 && (
