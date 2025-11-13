@@ -21,9 +21,9 @@ export default function MetaNovaSelector() {
   const [, setLocation] = useLocation();
   const [selectedPlanId, setSelectedPlanId] = useState<string>('');
 
-  // Buscar planos disponíveis
-  const { data: plans, isLoading } = trpc.plansAdmin.listAll.useQuery({});
-
+  // Buscar planos de estudo (metas_planos_estudo)
+  const { data: plansData, isLoading } = trpc.admin.plans_v1.list.useQuery({});
+  const plans = plansData?.plans || [];
   const handleContinue = () => {
     if (!selectedPlanId) {
       toast.error('Selecione um plano primeiro');
@@ -65,7 +65,7 @@ export default function MetaNovaSelector() {
                   <SelectContent>
                     {plans?.map((plan) => (
                       <SelectItem key={plan.id} value={plan.id}>
-                        {plan.name}
+                        {plan.titulo}
                       </SelectItem>
                     ))}
                   </SelectContent>
