@@ -121,7 +121,7 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
       content: content || undefined,
       disciplinaId,
       assuntoId,
-      topicoId: topicoId || undefined,
+      topicoId: topicoId && topicoId !== 'none' ? topicoId : undefined,
       ativo,
     };
 
