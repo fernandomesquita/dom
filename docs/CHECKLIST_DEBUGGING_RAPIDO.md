@@ -27,12 +27,14 @@ Identifique rapidamente qual sintoma:
 - [ ] **A3.** Botão/form não funciona (não envia)?
 - [ ] **A4.** Erro 400 Bad Request?
 - [ ] **A5.** Erro "Invalid input: expected X, received undefined"?
-- [ ] **A6.** Console mostra "X.map is not a function"?
-- [ ] **A7.** Console mostra "Select.Item must have value prop"?
+- [ ] **A6.** Erro "expected number, received string" (ou outro tipo)?
+- [ ] **A7.** Console mostra "X.map is not a function"?
+- [ ] **A8.** Console mostra "Select.Item must have value prop"?
 
-**→ Se A1 ou A7:** Vá direto para **FASE 2 (Selects)**  
+**→ Se A1 ou A8:** Vá direto para **FASE 2 (Selects)**  
 **→ Se A4 ou A5:** Vá direto para **FASE 3 (Queries)**  
-**→ Se A2 ou A6:** Vá direto para **FASE 4 (Estrutura)**  
+**→ Se A6:** Vá direto para **FASE 7 (URL Params)**  
+**→ Se A2 ou A7:** Vá direto para **FASE 4 (Estrutura)**  
 **→ Se A3:** Vá direto para **FASE 5 (Submit)**
 
 ---
@@ -225,12 +227,58 @@ grep -A 30 "create.*input\|mutation.*input" server/routers/<router>.ts
 
 ---
 
+### ✅ FASE 7: URL PARAMS SÃO STRINGS (2 min)
+
+**Sintoma:** Erro 400 + "expected number, received string" + query com ID da URL
+
+**Checklist:**
+
+```bash
+# 1. Ver erro no console
+# Exemplo: "expected number, received string" no campo "id"
+
+# 2. Verificar se vem da URL
+grep -n "params.id\|params." client/src/pages/<arquivo>
+
+# 3. Verificar query
+grep -n "useQuery" client/src/pages/<arquivo>
+
+# 4. Corrigir conversão
+# ANTES:
+const { id } = params;
+useQuery({ id }, { enabled: isEditing });
+
+# DEPOIS:
+const numericId = Number(params.id);
+useQuery(
+  { id: numericId },
+  { enabled: isEditing && !!params.id && !isNaN(numericId) }
+);
+
+# 5. Commit e push
+git add . && git commit -m "fix: converte URL param para tipo correto" && git push
+```
+
+**Padrão:**
+- ✅ `Number(params.id)` para IDs
+- ✅ `params.active === 'true'` para booleanos
+- ✅ `params.ids?.split(',').map(Number)` para arrays
+- ✅ SEMPRE validar: `!isNaN(Number(params.id))`
+- ❌ NUNCA usar URL param direto sem conversão
+
+**Tempo esperado:** 2 minutos
+
+**Referência:** `docs/CASO_SUCESSO_CHECKLIST_URL_PARAMS.md`
+
+---
+
 ## 🎯 RESUMO RÁPIDO (COLINHA)
 
 | Sintoma | Causa Provável | Fix Rápido | Tempo |
 |---------|----------------|------------|-------|
 | **Página em branco** | Select `value=""` | `sed -i 's/value=""/value="all"/g'` | 3 min |
-| **Erro 400** | Query sem input | `sed -i 's/useQuery()/useQuery({})/g'` | 3 min |
+| **Erro 400 (input)** | Query sem input | `sed -i 's/useQuery()/useQuery({})/g'` | 3 min |
+| **Erro 400 (type)** | URL param como string | `Number(params.id)` + validação | 2 min |
 | **Lista vazia** | Estrutura aninhada | `sed -i 's/Data?.map/Data?.items?.map/g'` | 3 min |
 | **Form não envia** | Falta preventDefault | Adicionar `e?.preventDefault()` | 2 min |
 | **Múltiplos undefined** | Schema incompatível | Comparar frontend vs backend | 2 min + fix |
@@ -411,6 +459,7 @@ alias fix-structure="echo 'CUIDADO: Precisa verificar manualmente cada caso'"
 - `POST_MORTEM_PLANOS_BUG.md` - Bug #1
 - `POST_MORTEM_QUESTIONS_BUG.md` - Bug #2  
 - `POST_MORTEM_MATERIAIS_BUG.md` - Bug #3
+- `CASO_SUCESSO_CHECKLIST_URL_PARAMS.md` - Caso de sucesso #1 (URL Params)
 - `RESUMO_MATERIAIS_BUG_FERNANDO.md` - Resumo executivo
 
 ---
@@ -418,6 +467,7 @@ alias fix-structure="echo 'CUIDADO: Precisa verificar manualmente cada caso'"
 ## 🔄 VERSIONAMENTO
 
 **v1.0** - 13 Nov 2025 - Versão inicial baseada em 3 bugs  
+**v1.1** - 13 Nov 2025 - Adicionada FASE 7 (URL Params) após caso de sucesso  
 **Próxima:** Adicionar novos padrões conforme aparecem
 
 ---
