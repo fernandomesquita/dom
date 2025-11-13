@@ -104,8 +104,8 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
       setCommentsEnabled(materialData.commentsEnabled || true);
       setAtivo(materialData.isAvailable ?? true);  // ✅ isAvailable, não ativo
       
-      // Tipo (renomeado)
-      setTipo(materialData.type || 'pdf');  // ✅ type, não tipo
+      // Tipo (renomeado) - garantir que não seja string vazia
+      setTipo(materialData.type && materialData.type !== '' ? materialData.type : 'pdf');
       
       // Pegar do primeiro item (se existe)
       if (materialData.items && materialData.items.length > 0) {

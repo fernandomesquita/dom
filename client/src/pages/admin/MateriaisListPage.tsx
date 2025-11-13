@@ -228,7 +228,7 @@ export default function MateriaisListPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           {getTipoBadge(material.tipo)}
-                          {material.ativo ? (
+                          {material.isAvailable ? (
                             <Badge variant="outline" className="text-green-600 border-green-600">
                               Ativo
                             </Badge>
