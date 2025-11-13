@@ -53,9 +53,9 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
   const [ativo, setAtivo] = useState(true);
 
   // Queries
-  const { data: disciplinas } = trpc.disciplinas.getAll.useQuery();
-  const { data: assuntos } = trpc.assuntos.getAll.useQuery();
-  const { data: topicos } = trpc.topicos.getAll.useQuery();
+  const { data: disciplinas } = trpc.disciplinas.getAll.useQuery({});
+  const { data: assuntos } = trpc.assuntos.getAll.useQuery({});
+  const { data: topicos } = trpc.topicos.getAll.useQuery({});
   
   const { data: materialData, isLoading: loadingMaterial } = trpc.materiais.getById.useQuery(
     { id: materialId! },
