@@ -264,44 +264,9 @@ export const plansAdminRouter = router({
       
       if (!db) throw new Error('Database not available');
 
-      // ✅ LOGS DE DEBUG:
-      console.log('🔍 ============ DATABASE DEBUG ============');
-      console.log('🔍 [DB] Connection URL:', process.env.DATABASE_URL?.replace(/:[^:@]+@/, ':***@'));
-      
-      // Query para ver QUAL banco está conectado:
-      const [dbInfo] = await db.execute(sql`
-        SELECT 
-          DATABASE() as current_database,
-          USER() as current_user,
-          @@hostname as hostname,
-          @@port as port
-      `);
-      console.log('🔍 [DB] Banco conectado:', dbInfo);
-      
-      // Query para contar registros em CADA tabela:
-      try {
-        const [plansCount] = await db.execute(sql`SELECT COUNT(*) as total FROM plans`);
-        console.log('🔍 [DB] Registros em "plans":', plansCount);
-      } catch (e) {
-        console.log('🔍 [DB] Erro ao contar "plans":', e.message);
-      }
-      
-      try {
-        const [metasCount] = await db.execute(sql`SELECT COUNT(*) as total FROM metas_planos_estudo`);
-        console.log('🔍 [DB] Registros em "metas_planos_estudo":', metasCount);
-      } catch (e) {
-        console.log('🔍 [DB] Erro ao contar "metas_planos_estudo":', e.message);
-      }
-      
-      console.log('========== DEBUG PLANS START ==========');
-      
-      // Query de teste simples:
-      const testResult = await db.select().from(plans).limit(1);
-      
-      console.log('TOTAL ITEMS:', testResult.length);
-      console.log('FIRST ITEM:', JSON.stringify(testResult[0], null, 2));
-      console.log('KEYS:', Object.keys(testResult[0] || {}));
-      console.log('========== DEBUG PLANS END ==========');
+      // ✅ DEBUG LOGS (comentados - causavam erro SQL)
+      // console.log('🔍 ============ DATABASE DEBUG ============');
+      // console.log('🔍 [DB] Connection URL:', process.env.DATABASE_URL?.replace(/:[^:@]+@/, ':***@'));
       
       console.log('🔍 [listAll] Iniciando query de planos');
       console.log('🔍 [listAll] Input:', input);
