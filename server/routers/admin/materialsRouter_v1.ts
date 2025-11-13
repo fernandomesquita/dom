@@ -4,6 +4,7 @@ import { getDb } from "../../db";
 import { 
   materials, 
   materialItems,
+  materialLinks,
   materialUpvotes,  // ❗ NÃO é "materialVotes"!
   materialRatings,
   materialFavorites,
