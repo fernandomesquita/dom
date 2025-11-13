@@ -768,6 +768,8 @@ export const materialsRouter_v1 = router({
       const maisAcessados = await db.select({
         id: materials.id,
         title: materials.title,
+        type: materials.type,
+        category: materials.category,
         visualizacoes: materials.viewCount,
         disciplinaNome: sql<string>`'N/A'`, // Placeholder, pode fazer LEFT JOIN com materialLinks se necessário
         assuntoNome: sql<string>`'N/A'`,
