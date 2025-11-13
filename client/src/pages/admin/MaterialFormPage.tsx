@@ -182,7 +182,7 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
     console.log('🚀 [MaterialFormPage] Enviando estrutura completa:', JSON.stringify(data, null, 2));
 
     if (isEditing) {
-      updateMutation.mutate({ id: materialId, ...data });
+      updateMutation.mutate({ id: Number(materialId), ...data });
     } else {
       createMutation.mutate(data);
     }
