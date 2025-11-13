@@ -121,7 +121,7 @@ export const plansRouter_v1 = router({
         query += ` LIMIT ? OFFSET ?`;
         params.push(limit, offset);
 
-        const plans = await db.query(query, params);
+        const [plans] = await db.query(query, params);  // ✅ Destructuring para extrair apenas os dados
 
         const duration = Date.now() - startTime;
 
