@@ -29,9 +29,17 @@ interface MaterialFormPageProps {
  * - Suporte a múltiplos tipos (PDF, vídeo, link, texto)
  */
 export default function MaterialFormPage({ params }: MaterialFormPageProps) {
+  console.log('🔵 [MaterialFormPage] ===== COMPONENTE INICIANDO =====');
+  console.log('🔵 [MaterialFormPage] URL:', window.location.href);
+  console.log('🔵 [MaterialFormPage] params recebidos:', params);
+  console.log('🔵 [MaterialFormPage] Timestamp:', new Date().toISOString());
+  
   const [, setLocation] = useLocation();
   const materialId = params?.id;
   const isEditing = !!materialId;
+  
+  console.log('🟢 [MaterialFormPage] materialId:', materialId);
+  console.log('🟢 [MaterialFormPage] isEditing:', isEditing);
 
   // Form state
   const [title, setTitle] = useState('');
@@ -92,6 +100,12 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log('🟡 [MaterialFormPage] ===== HANDLESUBMIT CHAMADO =====');
+    console.log('🟡 [MaterialFormPage] title:', title);
+    console.log('🟡 [MaterialFormPage] tipo:', tipo);
+    console.log('🟡 [MaterialFormPage] disciplinaId:', disciplinaId);
+    console.log('🟡 [MaterialFormPage] topicoId:', topicoId);
 
     if (!title.trim()) {
       toast.error('Título é obrigatório');
