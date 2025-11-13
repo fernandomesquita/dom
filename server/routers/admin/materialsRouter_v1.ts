@@ -226,6 +226,12 @@ export const materialsRouter_v1 = router({
       commentsEnabled: z.boolean().optional(),
     }))
     .mutation(async ({ input }) => {
+      // 🔍 DEBUG: Ver input recebido
+      console.log('🔍 [Backend Update] Input completo:', JSON.stringify(input, null, 2));
+      console.log('🔍 [Backend Update] Type recebido:', input.type);
+      console.log('🔍 [Backend Update] Type typeof:', typeof input.type);
+      console.log('🔍 [Backend Update] Valores esperados: "video" | "pdf" | "audio"');
+
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
