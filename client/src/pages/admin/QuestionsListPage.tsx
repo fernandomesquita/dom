@@ -27,10 +27,10 @@ export default function QuestionsListPage() {
   const [, setLocation] = useLocation();
   
   // Filtros
-  const [disciplinaId, setDisciplinaId] = useState<string>('');
-  const [assuntoId, setAssuntoId] = useState<string>('');
-  const [topicoId, setTopicoId] = useState<string>('');
-  const [difficulty, setDifficulty] = useState<string>('');
+  const [disciplinaId, setDisciplinaId] = useState<string>('all');
+  const [assuntoId, setAssuntoId] = useState<string>('all');
+  const [topicoId, setTopicoId] = useState<string>('all');
+  const [difficulty, setDifficulty] = useState<string>('all');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
 
@@ -43,10 +43,10 @@ export default function QuestionsListPage() {
   const { data: questionsData, isLoading } = trpc.questions.list.useQuery({
     page,
     limit: 20,
-    disciplinaId: disciplinaId || undefined,
-    assuntoId: assuntoId || undefined,
-    topicoId: topicoId || undefined,
-    difficulty: difficulty as any || undefined,
+    disciplinaId: disciplinaId === 'all' ? undefined : disciplinaId,
+    assuntoId: assuntoId === 'all' ? undefined : assuntoId,
+    topicoId: topicoId === 'all' ? undefined : topicoId,
+    difficulty: difficulty === 'all' ? undefined : (difficulty as any),
     search: search || undefined,
   });
 
@@ -126,7 +126,7 @@ export default function QuestionsListPage() {
                   <SelectValue placeholder="Todas" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas</SelectItem>
+                  <SelectItem value="all">Todas</SelectItem>
                   {disciplinas?.map((d) => (
                     <SelectItem key={d.id} value={d.id}>
                       {d.nome}
@@ -144,7 +144,7 @@ export default function QuestionsListPage() {
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   {assuntos
                     ?.filter((a) => !disciplinaId || a.disciplinaId === disciplinaId)
                     .map((a) => (
@@ -164,7 +164,7 @@ export default function QuestionsListPage() {
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   {topicos
                     ?.filter((t) => !assuntoId || t.assuntoId === assuntoId)
                     .map((t) => (
@@ -184,7 +184,7 @@ export default function QuestionsListPage() {
                   <SelectValue placeholder="Todas" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas</SelectItem>
+                  <SelectItem value="all">Todas</SelectItem>
                   <SelectItem value="easy">Fácil</SelectItem>
                   <SelectItem value="medium">Média</SelectItem>
                   <SelectItem value="hard">Difícil</SelectItem>
