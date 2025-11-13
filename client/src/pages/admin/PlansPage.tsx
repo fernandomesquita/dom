@@ -255,7 +255,7 @@ export default function PlansPage() {
                             </div>
                           </CardDescription>
                         </div>
-                        <Link href={`/admin/planos/${plan.id}`}>
+                        <Link href={`/admin/planos/${plan.id}/editar`}>
                           <Button variant="outline" size="sm">
                             Editar
                           </Button>
