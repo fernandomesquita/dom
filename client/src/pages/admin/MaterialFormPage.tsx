@@ -91,42 +91,34 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
 
   // Load material data for editing
   useEffect(() => {
-    if (materialData) {
-      console.log('🟪 [MaterialFormPage] Carregando dados para edição:', materialData);
+    if (materialData && isEditing) {
+      console.log('🟪 [MaterialFormPage] Carregando dados para edição');
       console.log('🔍 [DEBUG] materialData COMPLETO:', JSON.stringify(materialData, null, 2));
       console.log('🔍 [DEBUG] materialData.type:', materialData.type);
       console.log('🔍 [DEBUG] materialData.links:', materialData.links);
       console.log('🔍 [DEBUG] materialData.items:', materialData.items);
       
-      // Dados básicos
       setTitle(materialData.title || '');
       setDescription(materialData.description || '');
+      setUrl(materialData.items?.[0]?.url || '');
       setThumbnailUrl(materialData.thumbnailUrl || '');
+      
+      // ✅ ADICIONAR ESTAS LINHAS:
+      setTipo(materialData.type || 'pdf');
       setCategory(materialData.category || 'base');
-      setIsPaid(materialData.isPaid || false);
-      setIsFeatured(materialData.isFeatured || false);
-      setCommentsEnabled(materialData.commentsEnabled || true);
-      setAtivo(materialData.isAvailable ?? true);  // ✅ isAvailable, não ativo
+      setAtivo(materialData.isAvailable ?? true);
+      setIsPaid(materialData.isPaid ?? false);
+      setIsFeatured(materialData.isFeatured ?? false);
+      setCommentsEnabled(materialData.commentsEnabled ?? true);
       
-      // Tipo (renomeado) - garantir que não seja string vazia
-      setTipo(materialData.type && materialData.type !== '' ? materialData.type : 'pdf');
-      
-      // Pegar do primeiro item (se existe)
-      if (materialData.items && materialData.items.length > 0) {
-        const firstItem = materialData.items[0];
-        setUrl(firstItem.url || '');
-        setContent(firstItem.filePath || '');
-      }
-      
-      // Pegar do primeiro link (se existe)
+      // ✅ ADICIONAR LINKS:
       if (materialData.links && materialData.links.length > 0) {
-        const firstLink = materialData.links[0];
-        setDisciplinaId(firstLink.disciplinaId || '');
-        setAssuntoId(firstLink.assuntoId || '');
-        setTopicoId(firstLink.topicoId || '');
+        setDisciplinaId(materialData.links[0].disciplinaId || '');
+        setAssuntoId(materialData.links[0].assuntoId || '');
+        setTopicoId(materialData.links[0].topicoId || '');
       }
     }
-  }, [materialData]);
+  }, [materialData, isEditing]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
