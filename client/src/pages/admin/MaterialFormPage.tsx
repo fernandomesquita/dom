@@ -51,6 +51,11 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
   const [assuntoId, setAssuntoId] = useState('');
   const [topicoId, setTopicoId] = useState('');
   const [ativo, setAtivo] = useState(true);
+  const [thumbnailUrl, setThumbnailUrl] = useState('');
+  const [category, setCategory] = useState<'base' | 'revisao' | 'promo'>('base');
+  const [isPaid, setIsPaid] = useState(false);
+  const [isFeatured, setIsFeatured] = useState(false);
+  const [commentsEnabled, setCommentsEnabled] = useState(true);
 
   // Queries
   const { data: disciplinas } = trpc.disciplinas.getAll.useQuery({});
@@ -130,14 +135,30 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
     const data = {
       title,
       description: description || undefined,
-      tipo,
-      url: url || undefined,
-      content: content || undefined,
-      disciplinaId,
-      assuntoId,
-      topicoId: topicoId && topicoId !== 'none' ? topicoId : undefined,
-      ativo,
+      thumbnailUrl: thumbnailUrl || "https://via.placeholder.com/400x300?text=Material",
+      category,
+      type: tipo,
+      isPaid,
+      isAvailable: ativo,
+      isFeatured,
+      commentsEnabled,
+      items: [{
+        title,
+        type: tipo,
+        url: (tipo === 'video' || tipo === 'link') ? url : undefined,
+        filePath: tipo === 'texto' ? content : undefined,
+        duration: undefined,
+        fileSize: undefined,
+        order: 0
+      }],
+      links: [{
+        disciplinaId,
+        assuntoId,
+        topicoId: topicoId && topicoId !== 'none' ? topicoId : undefined
+      }]
     };
+
+    console.log('🚀 [MaterialFormPage] Enviando estrutura completa:', JSON.stringify(data, null, 2));
 
     if (isEditing) {
       updateMutation.mutate({ id: materialId, ...data });
@@ -242,6 +263,42 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
                 />
               </div>
             )}
+
+            {/* Thumbnail */}
+            <div>
+              <Label htmlFor="thumbnail">Imagem de Capa (URL)</Label>
+              <Input
+                id="thumbnail"
+                value={thumbnailUrl}
+                onChange={(e) => setThumbnailUrl(e.target.value)}
+                placeholder="https://exemplo.com/imagem.jpg (opcional)"
+              />
+            </div>
+
+            {/* Category */}
+            <div>
+              <Label>Categoria *</Label>
+              <Select value={category} onValueChange={(value: any) => setCategory(value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="base">📚 Material Base</SelectItem>
+                  <SelectItem value="revisao">🔄 Revisão</SelectItem>
+                  <SelectItem value="promo">🎁 Promocional</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* isPaid */}
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="isPaid"
+                checked={isPaid} 
+                onCheckedChange={setIsPaid}
+              />
+              <Label htmlFor="isPaid">Material Pago</Label>
+            </div>
 
             <div className="flex items-center gap-2">
               <Switch
