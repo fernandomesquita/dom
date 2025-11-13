@@ -717,33 +717,124 @@ export const materialsRouter_v1 = router({
 
   /**
    * GET STATS
-   * Retorna estatísticas gerais dos materiais (para dashboard admin)
+   * Retorna estatísticas completas dos materiais (para dashboard admin)
+   * Inclui: totais, visualizações, downloads, engajamento, agregações por tipo/disciplina, top materiais
    */
   getStats: protectedProcedure
     .query(async ({ ctx }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-      console.log('📊 [Materiais] Buscando estatísticas...');
+      console.log('📊 [Materiais] Buscando estatísticas completas...');
 
-      // Estatísticas gerais
+      // 1. Estatísticas gerais (totais, visualizações, downloads, engajamento)
       const [stats] = await db.select({
         total: sql<number>`COUNT(*)`,
         ativos: sql<number>`SUM(CASE WHEN ${materials.isAvailable} = 1 THEN 1 ELSE 0 END)`,
         inativos: sql<number>`SUM(CASE WHEN ${materials.isAvailable} = 0 THEN 1 ELSE 0 END)`,
         pagos: sql<number>`SUM(CASE WHEN ${materials.isPaid} = 1 THEN 1 ELSE 0 END)`,
         gratuitos: sql<number>`SUM(CASE WHEN ${materials.isPaid} = 0 THEN 1 ELSE 0 END)`,
+        totalVisualizacoes: sql<number>`SUM(${materials.viewCount})`,
+        totalDownloads: sql<number>`SUM(${materials.downloadCount})`,
+        totalUpvotes: sql<number>`SUM(${materials.upvotes})`,
+        totalFavoritos: sql<number>`SUM(${materials.favoriteCount})`,
       })
         .from(materials);
 
-      console.log('✅ [Materiais] Stats:', stats);
+      const total = Number(stats?.total || 0);
+      const totalVisualizacoes = Number(stats?.totalVisualizacoes || 0);
+      const totalDownloads = Number(stats?.totalDownloads || 0);
+      const totalUpvotes = Number(stats?.totalUpvotes || 0);
+      const totalFavoritos = Number(stats?.totalFavoritos || 0);
+
+      // Calcular médias
+      const mediaVisualizacoes = total > 0 ? Math.round(totalVisualizacoes / total) : 0;
+      const mediaDownloads = total > 0 ? Math.round(totalDownloads / total) : 0;
+
+      // Taxa de engajamento = (upvotes + favoritos) / visualizações * 100
+      const taxaEngajamento = totalVisualizacoes > 0 
+        ? Number(((totalUpvotes + totalFavoritos) / totalVisualizacoes * 100).toFixed(2))
+        : 0;
+
+      // 2. Materiais por tipo (video, pdf, audio)
+      const porTipo = await db.select({
+        tipo: materials.type,
+        count: sql<number>`COUNT(*)`,
+      })
+        .from(materials)
+        .groupBy(materials.type);
+
+      // 3. Top 10 materiais mais acessados
+      const maisAcessados = await db.select({
+        id: materials.id,
+        title: materials.title,
+        visualizacoes: materials.viewCount,
+        disciplinaNome: sql<string>`'N/A'`, // Placeholder, pode fazer LEFT JOIN com materialLinks se necessário
+        assuntoNome: sql<string>`'N/A'`,
+      })
+        .from(materials)
+        .where(eq(materials.isAvailable, true))
+        .orderBy(desc(materials.viewCount))
+        .limit(10);
+
+      // 4. Materiais por disciplina (agregação via materialLinks)
+      const porDisciplinaRaw = await db.execute(sql`
+        SELECT 
+          ml.disciplinaId,
+          'Disciplina' as disciplinaNome,
+          COUNT(DISTINCT ml.materialId) as count
+        FROM materialLinks ml
+        INNER JOIN materials m ON ml.materialId = m.id
+        WHERE m.isAvailable = 1
+        GROUP BY ml.disciplinaId
+        ORDER BY count DESC
+        LIMIT 10
+      `);
+
+      // Destructure [rows, fields] do mysql2
+      const [porDisciplinaRows] = porDisciplinaRaw as any;
+      const porDisciplina = (porDisciplinaRows || []).map((row: any) => ({
+        disciplinaId: row.disciplinaId,
+        disciplinaNome: row.disciplinaNome,
+        count: Number(row.count || 0),
+      }));
+
+      console.log('✅ [Materiais] Stats completas:', {
+        total,
+        totalVisualizacoes,
+        totalDownloads,
+        taxaEngajamento,
+        porTipo: porTipo.length,
+        maisAcessados: maisAcessados.length,
+        porDisciplina: porDisciplina.length,
+      });
 
       return {
-        total: Number(stats?.total || 0),
-        ativos: Number(stats?.ativos || 0),
-        inativos: Number(stats?.inativos || 0),
-        pagos: Number(stats?.pagos || 0),
-        gratuitos: Number(stats?.gratuitos || 0),
+        // Totais
+        totalMateriais: total,
+        materiaisAtivos: Number(stats?.ativos || 0),
+        materiaisInativos: Number(stats?.inativos || 0),
+        materiaisPagos: Number(stats?.pagos || 0),
+        materiaisGratuitos: Number(stats?.gratuitos || 0),
+        
+        // Visualizações e Downloads
+        totalVisualizacoes,
+        mediaVisualizacoes,
+        totalDownloads,
+        mediaDownloads,
+        
+        // Engajamento
+        taxaEngajamento,
+        totalUpvotes,
+        totalFavoritos,
+        
+        // Agregações
+        porTipo: porTipo.map(item => ({
+          tipo: item.tipo,
+          count: Number(item.count || 0),
+        })),
+        maisAcessados,
+        porDisciplina,
       };
     }),
 });
