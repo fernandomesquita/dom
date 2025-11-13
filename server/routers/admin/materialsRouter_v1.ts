@@ -122,6 +122,12 @@ export const materialsRouter_v1 = router({
         .where(eq(materialItems.materialId, input.id))
         .orderBy(materialItems.order);
       
+      // Buscar links do material (disciplina/assunto/tópico)
+      const links = await db
+        .select()
+        .from(materialLinks)
+        .where(eq(materialLinks.materialId, input.id));
+      
       // Buscar estado do usuário
       const [upvote] = await db.select()
         .from(materialUpvotes)  // ❗ NÃO é "materialVotes"!
@@ -150,6 +156,7 @@ export const materialsRouter_v1 = router({
       return {
         ...material,
         items,
+        links,
         userState: {
           hasUpvoted: !!upvote,
           userRating: rating?.rating || null,
