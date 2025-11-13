@@ -125,8 +125,31 @@ export default function PlanFormPage() {
     { enabled: isEditing }
   );
 
+  // 🔍 DEBUG: Log dos params da query
+  console.log('🔵 [PlanFormPage] Query params:', {
+    isEditing,
+    planId,
+    hasParams: !!params,
+    params,
+    enabled: isEditing && !!planId
+  });
+
+  console.log('🔵 [PlanFormPage] Query result:', {
+    planData,
+    isLoadingPlan,
+    hasData: !!planData
+  });
+
   useEffect(() => {
+    // 🔍 DEBUG: Log no início do useEffect
+    console.log('🟣 [PlanFormPage] useEffect executando:', {
+      planData,
+      temDados: !!planData,
+      campos: planData ? Object.keys(planData) : []
+    });
+
     if (planData) {
+      console.log('🟢 [PlanFormPage] Dados recebidos:', planData);
       form.reset({
         name: planData.name || '',
         slug: planData.slug || '',
@@ -146,6 +169,9 @@ export default function PlanFormPage() {
         isHidden: planData.isHidden || false,
         mentorId: planData.mentorId || undefined,
       });
+      console.log('✅ [PlanFormPage] Form resetado com dados');
+    } else {
+      console.log('🔴 [PlanFormPage] Sem dados para carregar');
     }
   }, [planData, form]);
 
