@@ -293,37 +293,49 @@ export const plansAdminRouter = router({
       if (category) conditions.push(eq(plans.category, category));
       if (mentorId) conditions.push(eq(plans.mentorId, mentorId));
 
-      const items = await db
-        .select()
-        .from(plans)
-        .where(and(...conditions))
-        .orderBy(desc(plans.createdAt))
-        .limit(pageSize)
-        .offset(offset);
+      try {
+        console.log('🔍 [listAll] Executando query SELECT...');
+        const items = await db
+          .select()
+          .from(plans)
+          .where(and(...conditions))
+          .orderBy(desc(plans.createdAt))
+          .limit(pageSize)
+          .offset(offset);
 
-      console.log('🔍 [listAll] Resultados encontrados:', items.length);
-      console.log('🔍 [listAll] Primeiro item:', items[0]);
+        console.log('✅ [listAll] Items retornados:', items.length);
+        console.log('✅ [listAll] Primeiro item:', JSON.stringify(items[0], null, 2));
 
-      const [{ count }] = await db
-        .select({ count: sql<number>`COUNT(*)` })
-        .from(plans)
-        .where(and(...conditions));
+        console.log('🔍 [listAll] Executando query COUNT...');
+        const [{ count }] = await db
+          .select({ count: sql<number>`COUNT(*)` })
+          .from(plans)
+          .where(and(...conditions));
 
-      console.log('🔍 [listAll] Total de registros:', count);
+        console.log('✅ [listAll] Total de registros:', count);
 
-      return {
-        items: items.map(item => ({
-          ...item,
-          price: item.price ? `R$ ${parseFloat(item.price.toString()).toFixed(2)}` : null,
-          tags: item.tags as string[] || [],
-        })),
-        pagination: {
-          page,
-          pageSize,
-          totalItems: count,
-          totalPages: Math.ceil(count / pageSize),
-        },
-      };
+        const result = {
+          items: items.map(item => ({
+            ...item,
+            price: item.price ? `R$ ${parseFloat(item.price.toString()).toFixed(2)}` : null,
+            tags: item.tags as string[] || [],
+          })),
+          pagination: {
+            page,
+            pageSize,
+            totalItems: count,
+            totalPages: Math.ceil(count / pageSize),
+          },
+        };
+
+        console.log('✅ [listAll] Retornando resultado final');
+        return result;
+      } catch (error) {
+        console.error('❌ [listAll] ERRO SQL:', error);
+        console.error('❌ [listAll] Error message:', error instanceof Error ? error.message : String(error));
+        console.error('❌ [listAll] Error stack:', error instanceof Error ? error.stack : 'No stack');
+        throw error;
+      }
     }),
 
   /**
