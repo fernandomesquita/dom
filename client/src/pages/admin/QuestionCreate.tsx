@@ -24,6 +24,7 @@ import KTreeSelector from '@/components/KTreeSelector';
  */
 export default function QuestionCreate() {
   const [, setLocation] = useLocation();
+  const utils = trpc.useUtils();
 
   // Form state
   const [uniqueCode, setUniqueCode] = useState('');
@@ -63,6 +64,9 @@ export default function QuestionCreate() {
   // Mutation
   const createQuestionMutation = trpc.questions.create.useMutation({
     onSuccess: () => {
+      console.log('🎉 QUESTÃO CRIADA! Invalidando cache...');
+      utils.questions.list.invalidate();
+      console.log('✅ Cache invalidado!');
       toast.success('Questão criada com sucesso!');
       setLocation('/admin/questoes');
     },
@@ -71,32 +75,46 @@ export default function QuestionCreate() {
     },
   });
 
-  const handleSubmit = () => {
+  const handleSubmit = (e?: React.FormEvent) => {
+    // 🔥 Prevenir comportamento padrão do form
+    e?.preventDefault();
+    
+    console.log('🎯 [QuestionCreate] handleSubmit chamado');
+    console.log('🎯 [QuestionCreate] statementText:', statementText);
+    console.log('🎯 [QuestionCreate] questionType:', questionType);
+    console.log('🎯 [QuestionCreate] disciplinaId:', disciplinaId);
+    console.log('🎯 [QuestionCreate] assuntoId:', assuntoId);
+    console.log('🎯 [QuestionCreate] topicoId:', topicoId);
+    
     // Validações
     if (!statementText.trim()) {
+      console.error('❌ [QuestionCreate] Enunciado vazio');
       toast.error('Enunciado é obrigatório');
       return;
     }
+    
     if (!disciplinaId || !assuntoId || !topicoId) {
+      console.error('❌ [QuestionCreate] Taxonomia incompleta');
       toast.error('Disciplina, Assunto e Tópico são obrigatórios');
       return;
     }
-
+    
     if (questionType === 'multiple_choice') {
       if (!optionA.trim() || !optionB.trim()) {
+        console.error('❌ [QuestionCreate] Alternativas obrigatórias faltando');
         toast.error('Alternativas A e B são obrigatórias');
         return;
       }
     }
-
-    createQuestionMutation.mutate({
-      // uniqueCode removido - backend gera automaticamente
+    
+    // 🔥 Montar objeto de input com logs
+    const input = {
       statementText,
       statementImage: statementImage || undefined,
       questionType,
-      disciplinaId,
-      assuntoId,
-      topicoId,
+      disciplinaId: disciplinaId || undefined,
+      assuntoId: assuntoId || undefined,
+      topicoId: topicoId || undefined,
       optionA: questionType === 'multiple_choice' ? optionA : undefined,
       optionB: questionType === 'multiple_choice' ? optionB : undefined,
       optionC: questionType === 'multiple_choice' && optionC ? optionC : undefined,
@@ -110,7 +128,12 @@ export default function QuestionCreate() {
       examYear: examYear || undefined,
       examInstitution: examInstitution || undefined,
       difficulty,
-    });
+    };
+    
+    console.log('🚀 [QuestionCreate] Enviando mutation com input:', JSON.stringify(input, null, 2));
+
+    // 🔥 Chamada da mutation com input explícito
+    createQuestionMutation.mutate(input);
   };
 
   return (
@@ -393,8 +416,13 @@ export default function QuestionCreate() {
             Cancelar
           </Button>
           <Button 
-            onClick={handleSubmit}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleSubmit(e);
+            }}
             disabled={createQuestionMutation.isPending}
+            type="button"
           >
             {createQuestionMutation.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

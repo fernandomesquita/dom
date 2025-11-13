@@ -77,6 +77,11 @@ const navItems: NavItem[] = [
     icon: HelpCircle,
     subItems: [
       {
+        title: 'Listar Questões',
+        href: '/admin/questoes',
+        icon: ListChecks,
+      },
+      {
         title: 'Nova Questão',
         href: '/admin/questoes/nova',
         icon: Plus,

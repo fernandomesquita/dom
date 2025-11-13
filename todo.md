@@ -628,3 +628,165 @@ Sobrescrever versão mais recente = perda de trabalho + retrabalho + frustraçã
 ---
 
 **Objetivo:** 🎉 **CONCLUÍDO!** Navegação do aluno melhorada
+
+---
+
+## ⚠️ DÉBITO TÉCNICO CRÍTICO
+
+### 🔐 Implementar Refresh Token Automático no Frontend
+
+**Status:** ❌ **NÃO IMPLEMENTADO** (solução temporária aplicada: JWT 7 dias)
+
+**Problema Atual:**
+- JWT configurado para expirar em 7 dias (workaround)
+- Frontend não implementa refresh token automático
+- Sistema tem endpoint `auth.refreshToken` mas não é utilizado
+- Security best practice: JWT deveria expirar em 15 minutos
+
+**O que precisa ser implementado:**
+
+#### 1. Interceptor tRPC para erro 401
+- [ ] Criar interceptor no `client/src/lib/trpc.ts`
+- [ ] Capturar erro 401 (Unauthorized)
+- [ ] Verificar se erro é por JWT expirado
+
+#### 2. Refresh Token Automático
+- [ ] Extrair refresh token do cookie
+- [ ] Chamar `trpc.auth.refreshToken.mutate({ refreshToken })`
+- [ ] Atualizar cookie com novo access token
+- [ ] Atualizar cookie com novo refresh token
+
+#### 3. Retry da Requisição Original
+- [ ] Armazenar requisição original
+- [ ] Após refresh bem-sucedido, retry da requisição
+- [ ] Retornar resultado ao usuário sem interrupção
+
+#### 4. Tratamento de Erros
+- [ ] Se refresh falhar (refresh token expirado/inválido)
+- [ ] Limpar cookies
+- [ ] Redirecionar para `/login`
+- [ ] Mostrar mensagem: "Sessão expirada, faça login novamente"
+
+#### 5. Voltar JWT para 15 minutos
+- [ ] Alterar `ACCESS_TOKEN_EXPIRY` de `'7d'` para `'15m'`
+- [ ] Testar fluxo completo de refresh automático
+- [ ] Confirmar que usuário não é deslogado após 15min
+
+**Código de Referência:**
+
+```typescript
+// client/src/lib/trpc.ts
+import { httpBatchLink } from '@trpc/client';
+import { createTRPCReact } from '@trpc/react-query';
+import type { AppRouter } from '../../../server/routers';
+
+export const trpc = createTRPCReact<AppRouter>();
+
+export const trpcClient = trpc.createClient({
+  links: [
+    httpBatchLink({
+      url: '/api/trpc',
+      async fetch(url, options) {
+        const response = await fetch(url, options);
+        
+        // Interceptar erro 401
+        if (response.status === 401) {
+          // Tentar refresh token
+          const refreshResponse = await fetch('/api/trpc/auth.refreshToken', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refreshToken: getRefreshTokenFromCookie() }),
+          });
+          
+          if (refreshResponse.ok) {
+            // Retry requisição original
+            return fetch(url, options);
+          } else {
+            // Refresh falhou - redirecionar para login
+            window.location.href = '/login';
+          }
+        }
+        
+        return response;
+      },
+    }),
+  ],
+});
+```
+
+**Prioridade:** 🔴 **ALTA** (security best practice)  
+**Estimativa:** 2-3 horas  
+**Dependências:** Nenhuma (endpoint já existe no backend)
+
+**Referências:**
+- Endpoint backend: `server/routers/auth.ts` → `refreshToken` procedure
+- Helper: `server/helpers/refreshToken.ts` → `rotateRefreshToken`
+- Documentação: Sistema já implementa refresh token rotation (single-use)
+
+---
+
+
+---
+
+## 🔍 Auditoria - Reabilitar e Otimizar
+
+**Prioridade:** 🟡 MÉDIA  
+**Estimativa:** 4-6 horas  
+**Status:** ⏸️ Temporariamente desabilitado (commit `0359119`)
+
+**Contexto:**
+Módulo de auditoria foi temporariamente desabilitado devido a problemas de performance. Endpoints retornam dados vazios até otimizações serem implementadas.
+
+**Subtarefas:**
+
+### 1. Investigar Causa Raiz
+- [ ] Analisar queries SQL geradas pelos endpoints
+- [ ] Verificar explain plan das queries mais lentas
+- [ ] Identificar gargalos (falta de índices, full table scans, etc.)
+- [ ] Medir tempo de resposta com diferentes volumes de dados
+
+### 2. Otimizar Banco de Dados
+- [ ] Adicionar índices apropriados na tabela `auditLogs`:
+  ```sql
+  CREATE INDEX idx_audit_actor_created ON auditLogs(actorId, createdAt DESC);
+  CREATE INDEX idx_audit_action_created ON auditLogs(action, createdAt DESC);
+  CREATE INDEX idx_audit_target_created ON auditLogs(targetType, createdAt DESC);
+  CREATE INDEX idx_audit_created ON auditLogs(createdAt DESC);
+  ```
+- [ ] Considerar particionamento por data (mensal/trimestral)
+- [ ] Implementar arquivamento de logs antigos (>90 dias)
+
+### 3. Otimizar Código
+- [ ] Implementar paginação cursor-based (mais eficiente que offset)
+- [ ] Adicionar cache Redis para stats (TTL: 5 minutos)
+- [ ] Limitar queries complexas (agregações) a períodos específicos
+- [ ] Adicionar timeout nas queries (max 5s)
+
+### 4. Reabilitar Endpoints
+- [ ] Renomear `_list_original` → `list` em `auditRouter_v1.ts`
+- [ ] Renomear `_getByUser_original` → `getByUser`
+- [ ] Renomear `_getByAction_original` → `getByAction`
+- [ ] Renomear `_stats_original` → `stats`
+
+### 5. Testar Performance
+- [ ] Criar script de seed com 10k+ logs
+- [ ] Testar endpoints com diferentes filtros
+- [ ] Medir tempo de resposta (target: <500ms p95)
+- [ ] Verificar uso de memória/CPU no Railway
+
+### 6. Deploy e Monitoramento
+- [ ] Deploy em staging primeiro
+- [ ] Monitorar logs do Railway por 24h
+- [ ] Verificar se erros desapareceram
+- [ ] Deploy em produção se OK
+
+**Arquivos Afetados:**
+- `server/routers/admin/auditRouter_v1.ts` - Endpoints desabilitados
+- `drizzle/schema.ts` - Adicionar índices
+- `docs/DECISOES-CRITICAS.md` - Documentação da decisão
+- `docs/AUDITORIA.md` - Documentação técnica (criar)
+
+**Referências:**
+- Commit de desabilitação: `0359119`
+- Documentação: `docs/DECISOES-CRITICAS.md` (Seção 2)
+- Código original preservado como `_*_original` procedures

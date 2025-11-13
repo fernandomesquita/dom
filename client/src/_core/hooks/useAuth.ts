@@ -14,8 +14,17 @@ export function useAuth(options?: UseAuthOptions) {
   const utils = trpc.useUtils();
 
   const meQuery = trpc.auth.me.useQuery(undefined, {
-    retry: false,
+    retry: 3,  // ✅ Tenta 3 vezes antes de desistir
+    retryDelay: 1000,  // ✅ Aguarda 1s entre tentativas
     refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,  // ✅ Cache por 5 minutos
+    gcTime: 10 * 60 * 1000,  // ✅ Mantém em cache 10 minutos (gcTime é o novo nome de cacheTime)
+    onSuccess: (data) => {
+      console.log('✅ useAuth SUCCESS:', data);
+    },
+    onError: (error) => {
+      console.error('❌ useAuth ERROR:', error);
+    },
   });
 
   const logoutMutation = trpc.auth.logout.useMutation({
@@ -44,23 +53,40 @@ export function useAuth(options?: UseAuthOptions) {
   }, [logoutMutation, utils]);
 
   const state = useMemo(() => {
-    localStorage.setItem(
-      "manus-runtime-user-info",
-      JSON.stringify(meQuery.data)
-    );
+    // 🎯 PRIORIZA LOCALSTORAGE SEMPRE!
+    let userData = null;
+    
+    // 1. Primeiro tenta localStorage (sempre disponível)
+    const cached = localStorage.getItem("manus-runtime-user-info");
+    if (cached && cached !== "null" && cached !== "undefined") {
+      try {
+        userData = JSON.parse(cached);
+        console.log('📦 useAuth usando localStorage:', userData?.email);
+      } catch (e) {
+        console.error('❌ Erro ao ler localStorage:', e);
+      }
+    }
+    
+    // 2. Se query tem dados NOVOS, atualiza
+    if (meQuery.data) {
+      userData = meQuery.data;
+      localStorage.setItem("manus-runtime-user-info", JSON.stringify(meQuery.data));
+      console.log('✅ useAuth usando query:', userData?.email);
+    }
+    
+    // 3. Se query deu erro E não tem cache, aí sim é null
+    if (meQuery.error && !userData) {
+      console.error('❌ useAuth: query falhou e sem cache');
+      localStorage.removeItem("manus-runtime-user-info");
+    }
+    
     return {
-      user: meQuery.data ?? null,
-      loading: meQuery.isLoading || logoutMutation.isPending,
-      error: meQuery.error ?? logoutMutation.error ?? null,
-      isAuthenticated: Boolean(meQuery.data),
+      user: userData,
+      loading: meQuery.isLoading && !userData, // Só loading se não tem cache
+      error: meQuery.error,
+      isAuthenticated: Boolean(userData),
     };
-  }, [
-    meQuery.data,
-    meQuery.error,
-    meQuery.isLoading,
-    logoutMutation.error,
-    logoutMutation.isPending,
-  ]);
+  }, [meQuery.data, meQuery.error, meQuery.isLoading]);
 
   useEffect(() => {
     if (!redirectOnUnauthenticated) return;

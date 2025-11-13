@@ -29,6 +29,33 @@ export const auditRouter_v1 = router({
         search: z.string().optional(), // Busca em payload
       })
     )
+    .query(async ({ input }) => {
+      console.warn('⚠️ Audit.list temporariamente desabilitado');
+      return {
+        logs: [],
+        pagination: {
+          page: input.page,
+          limit: input.limit,
+          total: 0,
+          totalPages: 0,
+        },
+      };
+    }),
+
+  // DESABILITADO TEMPORARIAMENTE
+  _list_original: adminRoleProcedure
+    .input(
+      z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+        actorId: z.string().optional(),
+        action: z.string().optional(),
+        targetType: z.string().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        search: z.string().optional(),
+      })
+    )
     .query(async ({ input, ctx }) => {
       const startTime = Date.now();
       const { page, limit, actorId, action, targetType, startDate, endDate, search } = input;
@@ -97,6 +124,19 @@ export const auditRouter_v1 = router({
         limit: z.number().min(1).max(100).default(50),
       })
     )
+    .query(async () => {
+      console.warn('⚠️ Audit.getByUser temporariamente desabilitado');
+      return [];
+    }),
+
+  // DESABILITADO TEMPORARIAMENTE
+  _getByUser_original: adminRoleProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        limit: z.number().min(1).max(100).default(50),
+      })
+    )
     .query(async ({ input, ctx }) => {
       const { userId, limit } = input;
 
@@ -135,6 +175,19 @@ export const auditRouter_v1 = router({
         limit: z.number().min(1).max(100).default(50),
       })
     )
+    .query(async () => {
+      console.warn('⚠️ Audit.getByAction temporariamente desabilitado');
+      return [];
+    }),
+
+  // DESABILITADO TEMPORARIAMENTE
+  _getByAction_original: adminRoleProcedure
+    .input(
+      z.object({
+        action: z.string(),
+        limit: z.number().min(1).max(100).default(50),
+      })
+    )
     .query(async ({ input, ctx }) => {
       const { action, limit } = input;
 
@@ -166,7 +219,18 @@ export const auditRouter_v1 = router({
   /**
    * Estatísticas de auditoria
    */
-  stats: adminRoleProcedure.query(async ({ ctx }) => {
+  stats: adminRoleProcedure.query(async () => {
+    console.warn('⚠️ Audit.stats temporariamente desabilitado');
+    return {
+      total: 0,
+      last24h: 0,
+      byAction: [],
+      byUser: [],
+    };
+  }),
+
+  // DESABILITADO TEMPORARIAMENTE
+  _stats_original: adminRoleProcedure.query(async ({ ctx }) => {
     try {
       // Total de logs
       const [{ total }] = await ctx.db

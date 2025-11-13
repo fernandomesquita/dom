@@ -1,4 +1,4 @@
-import { trpc } from "@/lib/trpc";
+import React from "react";
 import { UNAUTHED_ERR_MSG } from '@shared/const';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
@@ -8,6 +8,7 @@ import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
 import { initSentry, captureError } from "./lib/sentry";
+import { trpc } from "./lib/trpc";
 
 // Inicializar Sentry para monitoramento de erros em produção
 initSentry();
@@ -91,29 +92,18 @@ const trpcClient = trpc.createClient({
   ],
 });
 
-console.log("🔍 [DEBUG] Iniciando renderização...");
 const rootElement = document.getElementById("root");
-console.log("🔍 [DEBUG] Root element:", rootElement);
 
 if (!rootElement) {
-  console.error("❌ [DEBUG] Root element não encontrado!");
   throw new Error("Root element not found");
 }
 
-console.log("🔍 [DEBUG] Criando root...");
 const root = createRoot(rootElement);
 
-console.log("🔍 [DEBUG] Renderizando App...");
-try {
-  root.render(
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        <App />
-      </QueryClientProvider>
-    </trpc.Provider>
-  );
-  console.log("✅ [DEBUG] App renderizado com sucesso!");
-} catch (error) {
-  console.error("❌ [DEBUG] Erro ao renderizar:", error);
-  throw error;
-}
+root.render(
+  <trpc.Provider client={trpcClient} queryClient={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+  </trpc.Provider>
+);

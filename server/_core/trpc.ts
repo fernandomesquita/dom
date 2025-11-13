@@ -13,10 +13,19 @@ export const publicProcedure = t.procedure;
 const requireUser = t.middleware(async opts => {
   const { ctx, next } = opts;
 
+  console.log('🔐 PROTECTED PROCEDURE - Verificando auth:', {
+    hasUser: !!ctx.user,
+    userId: ctx.user?.id,
+    userRole: ctx.user?.role,
+    userEmail: ctx.user?.email,
+  });
+
   if (!ctx.user) {
+    console.error('❌ PROTECTED: Usuário não autenticado!');
     throw new TRPCError({ code: "UNAUTHORIZED", message: UNAUTHED_ERR_MSG });
   }
 
+  console.log('✅ PROTECTED: Usuário autenticado!');
   return next({
     ctx: {
       ...ctx,
@@ -31,16 +40,39 @@ export const adminProcedure = t.procedure.use(
   t.middleware(async opts => {
     const { ctx, next } = opts;
 
-    if (!ctx.user || (ctx.user.role !== 'MASTER' && ctx.user.role !== 'ADMINISTRATIVO')) {
-      throw new TRPCError({ code: "FORBIDDEN", message: NOT_ADMIN_ERR_MSG });
+    // ✅ LOG DE DEBUG (remover depois)
+    console.log('🔐 adminProcedure:', {
+      hasUser: !!ctx.user,
+      role: ctx.user?.role,
+      email: ctx.user?.email,
+    });
+
+    // Verificar se usuário existe
+    if (!ctx.user) {
+      console.error('❌ Sem usuário no contexto');
+      throw new TRPCError({ 
+        code: "UNAUTHORIZED", 
+        message: "Você precisa estar autenticado" 
+      });
     }
 
-    return next({
-      ctx: {
-        ...ctx,
-        user: ctx.user,
-      },
-    });
+    // ✅ MASTER pode TUDO - sem exceções!
+    if (ctx.user.role === 'MASTER') {
+      console.log('✅ MASTER tem permissão total');
+      return next({ ctx: { ...ctx, user: ctx.user } });
+    }
+
+    // Outros roles precisam ser ADMINISTRATIVO
+    if (ctx.user.role !== 'ADMINISTRATIVO') {
+      console.error('❌ Role não permitido:', ctx.user.role);
+      throw new TRPCError({ 
+        code: "FORBIDDEN", 
+        message: NOT_ADMIN_ERR_MSG 
+      });
+    }
+
+    console.log('✅ ADMINISTRATIVO tem permissão');
+    return next({ ctx: { ...ctx, user: ctx.user } });
   }),
 );
 

@@ -17,7 +17,7 @@ import "../queues/worker"; // Inicializar worker de filas
 import { initializeSocket } from "./socket";
 import { iniciarScheduler } from "../scheduler/avisos";
 import { iniciarSchedulerMetasNotificacoes } from "../scheduler/metasNotificacoes";
-import { adminGuard } from "./adminGuard";
+// import { adminGuard } from "./adminGuard"; // Removido - proteção via tRPC apenas
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -70,9 +70,18 @@ async function startServer() {
   // OAuth callback under /api/oauth/callback
   // registerOAuthRoutes(app); // OAuth desabilitado - usando autenticação simples
   
-  // Proteção de rotas admin (antes do Vite/static)
-  // Redireciona para /admin/login se não autenticado ou role inválido
-  app.use('/admin', adminGuard);
+  // ⚠️ IMPORTANTE: NÃO adicionar middleware de autenticação aqui!
+  // Este servidor serve uma SPA. Autenticação deve acontecer via:
+  // 1. tRPC procedures (backend) - protegem APIs
+  // 2. React Router + useAuth (frontend) - protegem UI
+  // 
+  // Middlewares HTTP causam redirects antes do React carregar,
+  // quebrando navegação direta e reloads.
+  // 
+  // Ver: docs/POSTMORTEM_BUG_AUTENTICACAO_ADMINGUARD.md
+  //
+  // ❌ REMOVIDO: app.use('/admin', adminGuard);
+  // Motivo: Causava redirect HTTP 302 ao digitar URL ou F5
   
   // tRPC API
   app.use(

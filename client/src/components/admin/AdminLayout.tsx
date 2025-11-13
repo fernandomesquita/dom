@@ -27,18 +27,32 @@ export function AdminLayout({ children, title, breadcrumbs, actions }: AdminLayo
   const { user, loading } = useAuth();
   const [, setLocation] = useLocation();
 
+  // ✅ LOG CRÍTICO:
+  console.log('🏛️ AdminLayout:', {
+    user,
+    loading,
+    hasUser: !!user,
+    userRole: user?.role,
+  });
+
   useEffect(() => {
+    console.log('🔄 AdminLayout useEffect:', { user, loading });
+    
     // Redirecionar se não autenticado
     if (!loading && !user) {
+      console.log('❌ Redirecionando para /login - user é null');
       setLocation('/login');
       return;
     }
 
     // Redirecionar se for ALUNO (não tem acesso ao admin)
     if (!loading && user && user.role === 'ALUNO') {
+      console.log('❌ Redirecionando para /dashboard - user é ALUNO');
       setLocation('/dashboard');
       return;
     }
+    
+    console.log('✅ AdminLayout OK - user autenticado');
   }, [user, loading, setLocation]);
 
   // Loading state

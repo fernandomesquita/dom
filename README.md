@@ -68,10 +68,32 @@ O **Sistema DOM-EARA V4** é uma plataforma web full-stack para auxiliar estudan
 
 ⚠️ **IMPORTANTE:** Este sistema **NÃO usa OAuth**. Usa autenticação simples com email e senha.
 
-- **Access Token:** JWT com validade de 15 minutos
-- **Refresh Token:** JWT com validade de 7 dias
+- **Access Token:** JWT com validade de 7 dias
+- **Refresh Token:** JWT com validade de 30 dias (planejado)
 - **Storage:** Cookies HTTP-only
 - **Validações:** CPF (opcional), idade mínima 18 anos, força de senha
+
+#### Arquitetura de Autenticação (IMPORTANTE!)
+
+❌ **NÃO use middlewares Express em rotas `/admin/*`**
+  
+O sistema é uma **SPA (Single Page Application)**. Autenticação deve acontecer em:
+
+1. **Backend APIs (tRPC):** `adminProcedure` protege endpoints
+2. **Frontend (React):** `AdminLayout` protege rotas UI
+
+**Servidor Express apenas serve arquivos estáticos!**
+
+#### Cookies Utilizados
+
+- `app_session_id`: JWT access token (7 dias)
+  - Definido em: `shared/const.ts` 
+  - Usado por: `server/_core/auth.ts`, `server/_core/context.ts`
+
+#### Histórico de Decisões
+
+- ❌ `adminGuard` removido em Nov/2025 (causava redirect HTTP em SPAs)
+- Ver: `docs/POSTMORTEM_BUG_AUTENTICACAO_ADMINGUARD.md`
 
 ### Banco de Dados
 

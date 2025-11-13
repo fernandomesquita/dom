@@ -179,8 +179,8 @@ function Router() {
 }
 
 function App() {
-  // ✅ Ativa renovação automática de token a cada 10 minutos
-  useAutoRefresh();
+  // 🔧 DESABILITADO: Token JWT já dura 7 dias, não precisa renovar automaticamente
+  // useAutoRefresh();
   
   return (
     <ThemeProvider defaultTheme="light">

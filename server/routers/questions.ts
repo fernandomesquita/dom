@@ -290,9 +290,9 @@ export const questionsRouter = router({
   create: adminProcedure
     .input(z.object({
       // uniqueCode removido - sempre gerado automaticamente
-      disciplinaId: z.string().optional(),
-      assuntoId: z.string().optional(),
-      topicoId: z.string().optional(),
+      disciplinaId: z.string().min(1, "Disciplina é obrigatória"),
+      assuntoId: z.string().min(1, "Assunto é obrigatório"),
+      topicoId: z.string().min(1, "Tópico é obrigatório"),
       
       statementText: z.string().min(10),
       statementImage: z.string().url().optional(),

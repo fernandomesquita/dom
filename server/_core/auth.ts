@@ -11,7 +11,7 @@ import { COOKIE_NAME } from '@shared/const';
  */
 
 const JWT_SECRET = ENV.jwtSecret;
-const ACCESS_TOKEN_EXPIRY = '15m'; // 15 minutos (security best practice)
+const ACCESS_TOKEN_EXPIRY = '7d'; // 7 dias - alinhado com maxAge do cookie (fix: frontend não implementa refresh automático)
 const REFRESH_TOKEN_EXPIRY = '7d'; // 7 dias
 
 export interface AccessTokenPayload {
@@ -56,11 +56,15 @@ export function generateRefreshToken(payload: Omit<RefreshTokenPayload, 'iat' | 
  */
 export function verifyAccessToken(token: string): AccessTokenPayload | null {
   try {
+    console.log('🔍 Verificando JWT...');
+    console.log('Token (primeiros 20 chars):', token.substring(0, 20) + '...');
     const decoded = jwt.verify(token, JWT_SECRET, {
       algorithms: ['HS256'],
     }) as AccessTokenPayload;
+    console.log('✅ JWT válido! User:', decoded.userId, 'Role:', decoded.role);
     return decoded;
   } catch (error) {
+    console.error('❌ JWT inválido:', error instanceof Error ? error.message : String(error));
     console.error('[Auth] Failed to verify access token:', error);
     return null;
   }
@@ -103,12 +107,19 @@ export function extractTokenFromCookie(req: Request): string | null {
  * Define o access token no cookie
  */
 export function setAccessTokenCookie(res: Response, token: string): void {
+  console.log('🍪 Setando cookie app_session_id...');
+  console.log('🍪 Token (20 chars):', token.substring(0, 20) + '...');
+  console.log('🍪 NODE_ENV:', process.env.NODE_ENV);
+  console.log('🍪 Secure:', process.env.NODE_ENV === 'production');
+  
   res.cookie(COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000, // ✅ 7 dias (604800000ms) - Fix: alinha com validade do refresh token
   });
+  
+  console.log('✅ Cookie setado!');
 }
 
 /**
