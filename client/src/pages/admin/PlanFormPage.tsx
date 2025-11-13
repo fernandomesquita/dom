@@ -91,7 +91,7 @@ function formatSlug(text: string): string {
 }
 
 export default function PlanFormPage() {
-  const [, params] = useRoute("/admin/planos/:id");
+  const [, params] = useRoute("/admin/planos/:id/editar");
   const [, setLocation] = useLocation();
   const planId = params?.id === "novo" ? null : params?.id;
   const isEditing = Boolean(planId);
