@@ -131,7 +131,7 @@ export default function MateriaisListPage() {
                   <SelectValue placeholder="Todas" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas</SelectItem>
+                  <SelectItem value="all">Todas</SelectItem>
                   {disciplinas?.map((d) => (
                     <SelectItem key={d.id} value={d.id}>
                       {d.nome}
@@ -149,7 +149,7 @@ export default function MateriaisListPage() {
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   {assuntos
                     ?.filter((a) => !disciplinaId || a.disciplinaId === disciplinaId)
                     .map((a) => (
@@ -169,7 +169,7 @@ export default function MateriaisListPage() {
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   {topicos
                     ?.filter((t) => !assuntoId || t.assuntoId === assuntoId)
                     .map((t) => (
@@ -189,7 +189,7 @@ export default function MateriaisListPage() {
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="pdf">PDF</SelectItem>
                   <SelectItem value="video">Vídeo</SelectItem>
                   <SelectItem value="link">Link</SelectItem>
