@@ -234,7 +234,7 @@ export default function ExamsAdminPage() {
           </CardContent>
         </Card>
 
-        {/* Lista de simulados */
+        {/* Lista de simulados */}
         <Card>
           <CardHeader>
             <CardTitle>Simulados Criados</CardTitle>
