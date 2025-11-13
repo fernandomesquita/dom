@@ -153,6 +153,13 @@ export const plansRouter_v1 = router({
 
   /**
    * Buscar plano por ID
+   * 
+   * TODO: DÉBITO TÉCNICO - Refatorar routers de planos
+   * Este router (admin.plans_v1) foi criado para metas_planos_estudo (instâncias)
+   * mas getById foi adaptado para buscar em plans (templates) temporariamente.
+   * Solução ideal: Criar admin.planTemplates_v1 separado para templates.
+   * Issue: https://github.com/fernandomesquita/dom/issues/[CRIAR]
+   * Estimativa refactor: 40-60 minutos
    */
   getById: staffProcedure
     .input(z.object({ id: z.string().uuid() }))
