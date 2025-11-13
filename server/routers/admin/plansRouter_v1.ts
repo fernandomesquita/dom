@@ -168,7 +168,8 @@ export const plansRouter_v1 = router({
         const db = await getRawDb();
         if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
-        const result = await db.query(
+        // ✅ FIX: db.query() retorna [rows, fields], destructure para pegar apenas rows
+        const [rows] = await db.query(
           `SELECT p.*
           FROM plans p
           WHERE p.id = ?`,
@@ -177,11 +178,11 @@ export const plansRouter_v1 = router({
 
         // 🔍 DEBUG: Logs para investigar edição de planos
         console.log('🔍 [plansRouter_v1.getById] Input ID:', input.id);
-        console.log('🔍 [plansRouter_v1.getById] Query result:', result);
-        console.log('🔍 [plansRouter_v1.getById] Result length:', result.length);
-        console.log('🔍 [plansRouter_v1.getById] First item:', result[0]);
+        console.log('🔍 [plansRouter_v1.getById] Rows:', rows);
+        console.log('🔍 [plansRouter_v1.getById] Rows length:', rows.length);
+        console.log('🔍 [plansRouter_v1.getById] First row:', rows[0]);
 
-        if (result.length === 0) {
+        if (rows.length === 0) {
           console.log('❌ [plansRouter_v1.getById] NOT FOUND!');
           throw new TRPCError({ code: 'NOT_FOUND', message: 'Plano não encontrado' });
         }
@@ -195,8 +196,8 @@ export const plansRouter_v1 = router({
           'Plan retrieved'
         );
 
-        console.log('✅ [plansRouter_v1.getById] Returning plan:', result[0]?.name || 'NO NAME');
-        return result[0];
+        console.log('✅ [plansRouter_v1.getById] Returning plan:', rows[0]?.name || 'NO NAME');
+        return rows[0];
       } catch (error) {
         ctx.logger.error({ error: String(error) }, 'Failed to get plan');
         throw error;
