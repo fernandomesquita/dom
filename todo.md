@@ -790,3 +790,9 @@ Módulo de auditoria foi temporariamente desabilitado devido a problemas de perf
 - Commit de desabilitação: `0359119`
 - Documentação: `docs/DECISOES-CRITICAS.md` (Seção 2)
 - Código original preservado como `_*_original` procedures
+
+
+## 📦 Materiais - Páginas Faltantes (12/11/2025)
+- [x] Criar MateriaisListPage.tsx (listagem de materiais com filtros) - JÁ EXISTIA
+- [x] Criar MateriaisStatsPage.tsx (estatísticas de materiais) - JÁ EXISTIA
+- [x] Adicionar links na AdminSidebar para materiais - JÁ EXISTIA
