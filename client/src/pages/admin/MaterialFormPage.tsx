@@ -17,6 +17,7 @@ import { trpc } from '@/lib/trpc';
 import { useLocation } from 'wouter';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import KTreeSelector from '@/components/KTreeSelector';
 
 interface MaterialFormPageProps {
   params?: { id?: string };
@@ -48,8 +49,11 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
   const [url, setUrl] = useState('');
   const [content, setContent] = useState('');
   const [disciplinaId, setDisciplinaId] = useState('');
+  const [disciplinaNome, setDisciplinaNome] = useState('');
   const [assuntoId, setAssuntoId] = useState('');
+  const [assuntoNome, setAssuntoNome] = useState('');
   const [topicoId, setTopicoId] = useState('');
+  const [topicoNome, setTopicoNome] = useState('');
   const [ativo, setAtivo] = useState(true);
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [category, setCategory] = useState<'base' | 'revisao' | 'promo'>('base');
@@ -58,9 +62,6 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
   const [commentsEnabled, setCommentsEnabled] = useState(true);
 
   // Queries
-  const { data: disciplinas } = trpc.disciplinas.getAll.useQuery({});
-  const { data: assuntos } = trpc.assuntos.getAll.useQuery({});
-  const { data: topicos } = trpc.topicos.getAll.useQuery({});
   
   const { data: materialData, isLoading: loadingMaterial } = trpc.materiais.getById.useQuery(
     { id: Number(materialId) },  // ✅ Converter string da URL para number
@@ -339,59 +340,33 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
             <CardTitle>Árvore do Conhecimento</CardTitle>
             <CardDescription>Vincule o material a disciplina, assunto e tópico</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="disciplina">Disciplina *</Label>
-              <Select value={disciplinaId} onValueChange={setDisciplinaId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a disciplina" />
-                </SelectTrigger>
-                <SelectContent>
-                  {disciplinas?.items?.map((d) => (
-                    <SelectItem key={d.id} value={d.id}>
-                      {d.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="assunto">Assunto *</Label>
-              <Select value={assuntoId} onValueChange={setAssuntoId} disabled={!disciplinaId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o assunto" />
-                </SelectTrigger>
-                <SelectContent>
-                  {assuntos?.items
-                    ?.filter((a) => a.disciplinaId === disciplinaId)
-                    .map((a) => (
-                      <SelectItem key={a.id} value={a.id}>
-                        {a.nome}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="topico">Tópico (Opcional)</Label>
-              <Select value={topicoId} onValueChange={setTopicoId} disabled={!assuntoId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o tópico" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Nenhum</SelectItem>
-                  {topicos?.items
-                    ?.filter((t) => t.assuntoId === assuntoId)
-                    .map((t) => (
-                      <SelectItem key={t.id} value={t.id}>
-                        {t.nome}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <CardContent>
+            <KTreeSelector
+              disciplinaId={disciplinaId}
+              disciplinaNome={disciplinaNome}
+              assuntoId={assuntoId}
+              assuntoNome={assuntoNome}
+              topicoId={topicoId || ''}
+              topicoNome={topicoNome || ''}
+              onDisciplinaChange={(id, nome) => {
+                setDisciplinaId(id);
+                setDisciplinaNome(nome);
+                setAssuntoId('');
+                setAssuntoNome('');
+                setTopicoId('');
+                setTopicoNome('');
+              }}
+              onAssuntoChange={(id, nome) => {
+                setAssuntoId(id);
+                setAssuntoNome(nome);
+                setTopicoId('');
+                setTopicoNome('');
+              }}
+              onTopicoChange={(id, nome) => {
+                setTopicoId(id);
+                setTopicoNome(nome);
+              }}
+            />
           </CardContent>
         </Card>
 
