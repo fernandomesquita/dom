@@ -63,8 +63,8 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
   const { data: topicos } = trpc.topicos.getAll.useQuery({});
   
   const { data: materialData, isLoading: loadingMaterial } = trpc.materiais.getById.useQuery(
-    { id: materialId! },
-    { enabled: isEditing }
+    { id: Number(materialId) },  // ✅ Converter string da URL para number
+    { enabled: isEditing && !!materialId && !isNaN(Number(materialId)) }
   );
 
   // Mutations
