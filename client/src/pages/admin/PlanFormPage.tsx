@@ -120,7 +120,7 @@ export default function PlanFormPage() {
   });
 
   // Carregar dados do plano se estiver editando
-  const { data: planData, isLoading: isLoadingPlan } = trpc.plansAdmin.getById.useQuery(
+  const { data: planData, isLoading: isLoadingPlan } = trpc.admin.plans_v1.getById.useQuery(
     { id: planId! },
     { enabled: isEditing }
   );
