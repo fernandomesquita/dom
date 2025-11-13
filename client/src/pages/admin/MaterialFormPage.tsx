@@ -270,7 +270,7 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
                   <SelectValue placeholder="Selecione a disciplina" />
                 </SelectTrigger>
                 <SelectContent>
-                  {disciplinas?.map((d) => (
+                  {disciplinas?.items?.map((d) => (
                     <SelectItem key={d.id} value={d.id}>
                       {d.nome}
                     </SelectItem>
@@ -286,7 +286,7 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
                   <SelectValue placeholder="Selecione o assunto" />
                 </SelectTrigger>
                 <SelectContent>
-                  {assuntos
+                  {assuntos?.items
                     ?.filter((a) => a.disciplinaId === disciplinaId)
                     .map((a) => (
                       <SelectItem key={a.id} value={a.id}>
@@ -305,7 +305,7 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Nenhum</SelectItem>
-                  {topicos
+                  {topicos?.items
                     ?.filter((t) => t.assuntoId === assuntoId)
                     .map((t) => (
                       <SelectItem key={t.id} value={t.id}>
