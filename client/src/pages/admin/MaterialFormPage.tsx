@@ -91,15 +91,35 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
   // Load material data for editing
   useEffect(() => {
     if (materialData) {
+      console.log('🟣 [MaterialFormPage] Carregando dados para edição:', materialData);
+      
+      // Dados básicos
       setTitle(materialData.title || '');
       setDescription(materialData.description || '');
-      setTipo(materialData.tipo || 'pdf');
-      setUrl(materialData.url || '');
-      setContent(materialData.content || '');
-      setDisciplinaId(materialData.disciplinaId || '');
-      setAssuntoId(materialData.assuntoId || '');
-      setTopicoId(materialData.topicoId || '');
-      setAtivo(materialData.ativo ?? true);
+      setThumbnailUrl(materialData.thumbnailUrl || '');
+      setCategory(materialData.category || 'base');
+      setIsPaid(materialData.isPaid || false);
+      setIsFeatured(materialData.isFeatured || false);
+      setCommentsEnabled(materialData.commentsEnabled || true);
+      setAtivo(materialData.isAvailable ?? true);  // ✅ isAvailable, não ativo
+      
+      // Tipo (renomeado)
+      setTipo(materialData.type || 'pdf');  // ✅ type, não tipo
+      
+      // Pegar do primeiro item (se existe)
+      if (materialData.items && materialData.items.length > 0) {
+        const firstItem = materialData.items[0];
+        setUrl(firstItem.url || '');
+        setContent(firstItem.filePath || '');
+      }
+      
+      // Pegar do primeiro link (se existe)
+      if (materialData.links && materialData.links.length > 0) {
+        const firstLink = materialData.links[0];
+        setDisciplinaId(firstLink.disciplinaId || '');
+        setAssuntoId(firstLink.assuntoId || '');
+        setTopicoId(firstLink.topicoId || '');
+      }
     }
   }, [materialData]);
 
