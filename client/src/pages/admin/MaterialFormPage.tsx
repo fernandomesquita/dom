@@ -92,7 +92,11 @@ export default function MaterialFormPage({ params }: MaterialFormPageProps) {
   // Load material data for editing
   useEffect(() => {
     if (materialData) {
-      console.log('🟣 [MaterialFormPage] Carregando dados para edição:', materialData);
+      console.log('🟪 [MaterialFormPage] Carregando dados para edição:', materialData);
+      console.log('🔍 [DEBUG] materialData COMPLETO:', JSON.stringify(materialData, null, 2));
+      console.log('🔍 [DEBUG] materialData.type:', materialData.type);
+      console.log('🔍 [DEBUG] materialData.links:', materialData.links);
+      console.log('🔍 [DEBUG] materialData.items:', materialData.items);
       
       // Dados básicos
       setTitle(materialData.title || '');
