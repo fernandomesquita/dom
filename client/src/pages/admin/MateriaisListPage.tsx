@@ -27,10 +27,10 @@ export default function MateriaisListPage() {
   const [, setLocation] = useLocation();
   
   // Filtros
-  const [disciplinaId, setDisciplinaId] = useState<string>('');
-  const [assuntoId, setAssuntoId] = useState<string>('');
-  const [topicoId, setTopicoId] = useState<string>('');
-  const [tipo, setTipo] = useState<string>('');
+  const [disciplinaId, setDisciplinaId] = useState<string>('all');
+  const [assuntoId, setAssuntoId] = useState<string>('all');
+  const [topicoId, setTopicoId] = useState<string>('all');
+  const [tipo, setTipo] = useState<string>('all');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
 
@@ -43,18 +43,18 @@ export default function MateriaisListPage() {
   const { data: materiaisData, isLoading } = trpc.materiais.list.useQuery({
     page,
     limit: 20,
-    disciplinaId: disciplinaId || undefined,
-    assuntoId: assuntoId || undefined,
-    topicoId: topicoId || undefined,
-    tipo: tipo || undefined,
+    disciplinaId: disciplinaId === 'all' ? undefined : disciplinaId,
+    assuntoId: assuntoId === 'all' ? undefined : assuntoId,
+    topicoId: topicoId === 'all' ? undefined : topicoId,
+    tipo: tipo === 'all' ? undefined : tipo,
     search: search || undefined,
   });
 
   const handleClearFilters = () => {
-    setDisciplinaId('');
-    setAssuntoId('');
-    setTopicoId('');
-    setTipo('');
+    setDisciplinaId('all');
+    setAssuntoId('all');
+    setTopicoId('all');
+    setTipo('all');
     setSearch('');
     setPage(1);
   };
@@ -131,7 +131,7 @@ export default function MateriaisListPage() {
                   <SelectValue placeholder="Todas" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas</SelectItem>
+                  <SelectItem value="all">Todas</SelectItem>
                   {disciplinas?.map((d) => (
                     <SelectItem key={d.id} value={d.id}>
                       {d.nome}
@@ -144,14 +144,14 @@ export default function MateriaisListPage() {
             {/* Assunto */}
             <div>
               <label className="text-sm font-medium mb-2 block">Assunto</label>
-              <Select value={assuntoId} onValueChange={setAssuntoId} disabled={!disciplinaId}>
+              <Select value={assuntoId} onValueChange={setAssuntoId} disabled={disciplinaId === 'all'}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   {assuntos
-                    ?.filter((a) => !disciplinaId || a.disciplinaId === disciplinaId)
+                    ?.filter((a) => disciplinaId === 'all' || a.disciplinaId === disciplinaId)
                     .map((a) => (
                       <SelectItem key={a.id} value={a.id}>
                         {a.nome}
@@ -164,14 +164,14 @@ export default function MateriaisListPage() {
             {/* Tópico */}
             <div>
               <label className="text-sm font-medium mb-2 block">Tópico</label>
-              <Select value={topicoId} onValueChange={setTopicoId} disabled={!assuntoId}>
+              <Select value={topicoId} onValueChange={setTopicoId} disabled={assuntoId === 'all'}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   {topicos
-                    ?.filter((t) => !assuntoId || t.assuntoId === assuntoId)
+                    ?.filter((t) => assuntoId === 'all' || t.assuntoId === assuntoId)
                     .map((t) => (
                       <SelectItem key={t.id} value={t.id}>
                         {t.nome}
@@ -189,7 +189,7 @@ export default function MateriaisListPage() {
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="pdf">PDF</SelectItem>
                   <SelectItem value="video">Vídeo</SelectItem>
                   <SelectItem value="link">Link</SelectItem>
