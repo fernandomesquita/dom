@@ -699,7 +699,7 @@ export const materialsRouter_v1 = router({
       }));
     }),
 
-  /**
+    /**
    * GET FAVORITES COUNT
    * Retorna quantidade de favoritos do usuário
    */
@@ -707,13 +707,43 @@ export const materialsRouter_v1 = router({
     .query(async ({ ctx }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-
       const [result] = await db.select({
         count: sql<number>`COUNT(*)`,
       })
         .from(materialFavorites)
         .where(eq(materialFavorites.userId, ctx.user.id));
-
       return result?.count || 0;
+    }),
+
+  /**
+   * GET STATS
+   * Retorna estatísticas gerais dos materiais (para dashboard admin)
+   */
+  getStats: protectedProcedure
+    .query(async ({ ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      console.log('📊 [Materiais] Buscando estatísticas...');
+
+      // Estatísticas gerais
+      const [stats] = await db.select({
+        total: sql<number>`COUNT(*)`,
+        ativos: sql<number>`SUM(CASE WHEN ${materials.isAvailable} = 1 THEN 1 ELSE 0 END)`,
+        inativos: sql<number>`SUM(CASE WHEN ${materials.isAvailable} = 0 THEN 1 ELSE 0 END)`,
+        pagos: sql<number>`SUM(CASE WHEN ${materials.isPaid} = 1 THEN 1 ELSE 0 END)`,
+        gratuitos: sql<number>`SUM(CASE WHEN ${materials.isPaid} = 0 THEN 1 ELSE 0 END)`,
+      })
+        .from(materials);
+
+      console.log('✅ [Materiais] Stats:', stats);
+
+      return {
+        total: Number(stats?.total || 0),
+        ativos: Number(stats?.ativos || 0),
+        inativos: Number(stats?.inativos || 0),
+        pagos: Number(stats?.pagos || 0),
+        gratuitos: Number(stats?.gratuitos || 0),
+      };
     }),
 });
