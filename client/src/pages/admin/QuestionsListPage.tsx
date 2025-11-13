@@ -202,7 +202,7 @@ export default function QuestionsListPage() {
             <div>
               <CardTitle>Questões Cadastradas</CardTitle>
               <CardDescription>
-                {questionsData?.total || 0} questões encontradas
+                {questionsData?.pagination.total || 0} questões encontradas
               </CardDescription>
             </div>
           </div>
@@ -215,27 +215,32 @@ export default function QuestionsListPage() {
             </div>
           ) : questionsData && questionsData.items.length > 0 ? (
             <div className="space-y-4">
-              {questionsData.items.map((question) => (
-                <Card key={question.id} className="hover:shadow-md transition-shadow">
+              {questionsData.items.map((item) => (
+                <Card key={item.question.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <Badge variant="outline">{question.uniqueCode}</Badge>
-                          {getDifficultyBadge(question.difficulty)}
+                          <Badge variant="outline">{item.question.uniqueCode}</Badge>
+                          {getDifficultyBadge(item.question.difficulty)}
                           <Badge variant="secondary">
-                            {question.questionType === 'multiple_choice' ? 'Múltipla Escolha' : 'V/F'}
+                            {item.question.questionType === 'multiple_choice' ? 'Múltipla Escolha' : 'V/F'}
                           </Badge>
+                          {item.hasAttempt && (
+                            <Badge variant={item.lastAttemptCorrect ? "default" : "destructive"}>
+                              {item.lastAttemptCorrect ? '✓ Acertou' : '✗ Errou'}
+                            </Badge>
+                          )}
                         </div>
                         <p className="text-sm text-gray-700 line-clamp-2 mb-2">
-                          {question.statementText}
+                          {item.question.statementText}
                         </p>
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          {question.examBoard && (
-                            <span>Banca: {question.examBoard}</span>
+                          {item.question.examBoard && (
+                            <span>Banca: {item.question.examBoard}</span>
                           )}
-                          {question.examYear && (
-                            <span>Ano: {question.examYear}</span>
+                          {item.question.examYear && (
+                            <span>Ano: {item.question.examYear}</span>
                           )}
                         </div>
                       </div>
@@ -261,7 +266,7 @@ export default function QuestionsListPage() {
               ))}
 
               {/* Paginação */}
-              {questionsData.total > 20 && (
+              {questionsData.pagination.total > 20 && (
                 <div className="flex items-center justify-center gap-2 pt-4">
                   <Button
                     variant="outline"
@@ -272,12 +277,12 @@ export default function QuestionsListPage() {
                     Anterior
                   </Button>
                   <span className="text-sm text-muted-foreground">
-                    Página {page} de {Math.ceil(questionsData.total / 20)}
+                    Página {page} de {Math.ceil(questionsData.pagination.total / 20)}
                   </span>
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={page >= Math.ceil(questionsData.total / 20)}
+                    disabled={page >= Math.ceil(questionsData.pagination.total / 20)}
                     onClick={() => setPage(page + 1)}
                   >
                     Próxima
