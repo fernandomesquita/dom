@@ -456,4 +456,53 @@ export const examsRouter = router({
         hasMore: input.offset + input.limit < count,
       };
     }),
+
+  /**
+   * 8. LIST_ALL - Listar todos os simulados (Admin)
+   */
+  listAll: protectedProcedure
+    .input(z.object({
+      page: z.number().min(1).default(1),
+      limit: z.number().min(1).max(100).default(20),
+      search: z.string().optional(),
+    }))
+    .query(async ({ ctx, input }) => {
+      const offset = (input.page - 1) * input.limit;
+      const conditions = [eq(exams.isActive, true)];
+
+      // Buscar simulados
+      const examsData = await ctx.db
+        .select({
+          id: exams.id,
+          title: exams.title,
+          description: exams.description,
+          totalQuestions: exams.totalQuestions,
+          timeLimit: exams.timeLimit,
+          passingScore: exams.passingScore,
+          isPublic: exams.isPublic,
+          createdAt: exams.createdAt,
+          createdBy: exams.createdBy,
+        })
+        .from(exams)
+        .where(and(...conditions))
+        .orderBy(desc(exams.createdAt))
+        .limit(input.limit)
+        .offset(offset);
+
+      // Contar total
+      const [{ total }] = await ctx.db
+        .select({ total: sql<number>`COUNT(*)` })
+        .from(exams)
+        .where(and(...conditions));
+
+      return {
+        items: examsData,
+        pagination: {
+          page: input.page,
+          limit: input.limit,
+          total,
+          totalPages: Math.ceil(total / input.limit),
+        },
+      };
+    }),
 });
