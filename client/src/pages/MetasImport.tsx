@@ -65,13 +65,37 @@ export default function MetasImport() {
   }
 
   const handleDownloadTemplate = () => {
-    // Template simples para batchUpload
-    const headers = ['tipo', 'disciplina', 'assunto', 'duracao_min', 'data_agendada'];
+    // Template para batchUpload com schema correto
     const example = [
-      { tipo: 'ESTUDO', disciplina: 'Matemática', assunto: 'Álgebra', duracao_min: 60, data_agendada: '2025-01-15' },
-      { tipo: 'QUESTÕES', disciplina: 'Português', assunto: 'Gramática', duracao_min: 45, data_agendada: '2025-01-16' },
+      { 
+        Tipo: 'ESTUDO', 
+        DisciplinaId: 'uuid-da-disciplina-aqui', 
+        AssuntoId: 'uuid-do-assunto-aqui', 
+        TopicoId: '', 
+        SubtopicoId: '', 
+        DuracaoMin: 60, 
+        DataAgendada: '2025-01-15' 
+      },
+      { 
+        Tipo: 'QUESTOES', 
+        DisciplinaId: 'uuid-da-disciplina-aqui', 
+        AssuntoId: 'uuid-do-assunto-aqui', 
+        TopicoId: 'uuid-do-topico-aqui', 
+        SubtopicoId: '', 
+        DuracaoMin: 45, 
+        DataAgendada: '2025-01-16' 
+      },
+      { 
+        Tipo: 'REVISAO', 
+        DisciplinaId: 'uuid-da-disciplina-aqui', 
+        AssuntoId: 'uuid-do-assunto-aqui', 
+        TopicoId: '', 
+        SubtopicoId: '', 
+        DuracaoMin: 30, 
+        DataAgendada: '2025-01-17' 
+      },
     ];
-    const ws = XLSX.utils.json_to_sheet(example, { header: headers });
+    const ws = XLSX.utils.json_to_sheet(example);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Metas');
     XLSX.writeFile(wb, 'template-importacao-metas.xlsx');

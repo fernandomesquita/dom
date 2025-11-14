@@ -643,12 +643,12 @@ export const goalsRouter_v1 = router({
       const success: string[] = [];
       const errors: string[] = [];
 
-      // Obter próximo order_index
-      const [maxOrder] = await db.execute(
-        'SELECT COALESCE(MAX(order_index), -1) as max_order FROM metas WHERE plano_id = ?',
+      // Obter próximo metaNumberBase
+      const [maxMeta] = await db.execute(
+        'SELECT COALESCE(MAX(meta_number_base), 0) as max_base FROM metas_cronograma WHERE plano_id = ?',
         [input.planoId]
       );
-      let orderIndex = (maxOrder as any)[0].max_order + 1;
+      let metaNumberBase = (maxMeta as any)[0].max_base + 1;
 
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
@@ -656,8 +656,8 @@ export const goalsRouter_v1 = router({
 
         try {
           // Validar campos obrigatórios
-          if (!row.Titulo || !row.Tipo || !row.Duracao) {
-            errors.push(`Linha ${rowNum}: Campos obrigatórios faltando (Titulo, Tipo, Duracao)`);
+          if (!row.Tipo || !row.DisciplinaId || !row.AssuntoId || !row.DuracaoMin || !row.DataAgendada) {
+            errors.push(`Linha ${rowNum}: Campos obrigatórios faltando (Tipo, DisciplinaId, AssuntoId, DuracaoMin, DataAgendada)`);
             continue;
           }
 
@@ -668,31 +668,62 @@ export const goalsRouter_v1 = router({
             continue;
           }
 
-          // Validar formato de duração
-          if (!durationRegex.test(row.Duracao)) {
-            errors.push(`Linha ${rowNum}: Formato de duração inválido (${row.Duracao}). Use: "1h30min" ou "45min"`);
+          // Validar duração (deve ser número inteiro)
+          const duracaoMin = parseInt(row.DuracaoMin);
+          if (isNaN(duracaoMin) || duracaoMin <= 0) {
+            errors.push(`Linha ${rowNum}: Duração inválida (${row.DuracaoMin}). Use número inteiro de minutos`);
             continue;
           }
+
+          // Validar data (formato YYYY-MM-DD)
+          const dataMatch = /^\d{4}-\d{2}-\d{2}$/.test(row.DataAgendada);
+          if (!dataMatch) {
+            errors.push(`Linha ${rowNum}: Data inválida (${row.DataAgendada}). Use formato YYYY-MM-DD`);
+            continue;
+          }
+
+          // Gerar display_number e order_key
+          const displayNumber = `#${String(metaNumberBase).padStart(3, '0')}`;
+          const orderKey = String(metaNumberBase).padStart(6, '0');
+
+          // Obter scheduled_order (ordem dentro do dia)
+          const [maxScheduled] = await db.execute(
+            'SELECT COALESCE(MAX(scheduled_order), -1) as max_order FROM metas_cronograma WHERE plano_id = ? AND scheduled_date = ?',
+            [input.planoId, row.DataAgendada]
+          );
+          const scheduledOrder = (maxScheduled as any)[0].max_order + 1;
 
           // Inserir meta
           const metaId = crypto.randomUUID();
           await db.execute(
-            `INSERT INTO metas (
-              id, plano_id, titulo, descricao, tipo, duracao, 
-              order_index, status, criado_em
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDENTE', NOW())`,
+            `INSERT INTO metas_cronograma (
+              id, plano_id, 
+              meta_number_base, meta_number_suffix, display_number, order_key,
+              ktree_disciplina_id, ktree_assunto_id, ktree_topico_id, ktree_subtopico_id,
+              tipo, duracao_planejada_min, 
+              scheduled_date, scheduled_order,
+              status, criado_em
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDENTE', NOW())`,
             [
               metaId,
               input.planoId,
-              row.Titulo,
-              row.Descricao || null,
+              metaNumberBase,
+              null, // meta_number_suffix (null para metas principais)
+              displayNumber,
+              orderKey,
+              row.DisciplinaId,
+              row.AssuntoId,
+              row.TopicoId || null,
+              row.SubtopicoId || null,
               tipo,
-              row.Duracao,
-              orderIndex++,
+              duracaoMin,
+              row.DataAgendada,
+              scheduledOrder,
             ]
           );
 
           success.push(metaId);
+          metaNumberBase++;
         } catch (error: any) {
           errors.push(`Linha ${rowNum}: ${error.message}`);
         }
