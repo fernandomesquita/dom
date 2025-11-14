@@ -27,7 +27,24 @@ export default function MetasImport() {
   const { planoId } = useParams<{ planoId: string }>();
   const [, setLocation] = useLocation();
 
-  // Validar planoId
+  // ✅ TODOS OS HOOKS PRIMEIRO (antes de qualquer return)
+  const [file, setFile] = useState<File | null>(null);
+  const [parsedMetas, setParsedMetas] = useState<ParsedMeta[]>([]);
+  const [validationResult, setValidationResult] = useState<any>(null);
+  const [skipDuplicates, setSkipDuplicates] = useState(true);
+  const [importing, setImporting] = useState(false);
+
+  const batchUploadMutation = trpc.admin.goals_v1.batchUpload.useMutation({
+    onSuccess: () => {
+      toast.success('Metas importadas com sucesso!');
+      setLocation(`/admin/metas`);
+    },
+    onError: (error) => {
+      toast.error(`Erro ao importar: ${error.message}`);
+    },
+  });
+
+  // ✅ VALIDAÇÃO DEPOIS DOS HOOKS
   if (!planoId) {
     return (
       <div className="container py-8">
@@ -46,22 +63,6 @@ export default function MetasImport() {
       </div>
     );
   }
-
-  const [file, setFile] = useState<File | null>(null);
-  const [parsedMetas, setParsedMetas] = useState<ParsedMeta[]>([]);
-  const [validationResult, setValidationResult] = useState<any>(null);
-  const [skipDuplicates, setSkipDuplicates] = useState(true);
-  const [importing, setImporting] = useState(false);
-
-  const batchUploadMutation = trpc.admin.goals_v1.batchUpload.useMutation({
-    onSuccess: () => {
-      toast.success('Metas importadas com sucesso!');
-      setLocation(`/admin/metas`);
-    },
-    onError: (error) => {
-      toast.error(`Erro ao importar: ${error.message}`);
-    },
-  });
 
   const handleDownloadTemplate = () => {
     // Template simples para batchUpload
