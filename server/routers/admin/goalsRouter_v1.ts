@@ -603,6 +603,13 @@ export const goalsRouter_v1 = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      // 🔍 DEBUG LOGS
+      console.log('🔍 [batchUpload] ========== MUTATION INICIADA ==========');
+      console.log('🔍 [batchUpload] Input completo:', JSON.stringify(input, null, 2));
+      console.log('🔍 [batchUpload] planoId:', input.planoId);
+      console.log('🔍 [batchUpload] planoId type:', typeof input.planoId);
+      console.log('🔍 [batchUpload] fileBase64 length:', input.fileBase64?.length);
+      
       const db = await getDb();
 
       if (!db) {
