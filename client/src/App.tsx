@@ -50,6 +50,8 @@ import QuestionCreate from "./pages/admin/QuestionCreate";
 import QuestionsListPage from "./pages/admin/QuestionsListPage";
 import BatchUploadPage from "./pages/admin/BatchUploadPage";
 import MetaNovaSelector from "./pages/admin/MetaNovaSelector";
+import ImportarMetasSelector from "./pages/admin/ImportarMetasSelector";
+import MetasImport from "./pages/MetasImport";
 import AuditLogsPage from "./pages/admin/AuditLogsPage";
 import AdminConfigPage from "./pages/admin/AdminConfigPage";
 import AdminPersonalizacaoPage from "./pages/admin/AdminPersonalizacaoPage";
@@ -100,7 +102,8 @@ function Router() {
       <Route path="/admin/metas/novo" component={GoalFormPage} />
       <Route path="/admin/metas/:id/editar" component={GoalFormPage} />
       <Route path="/admin/metas/nova" component={MetaNovaSelector} />
-      <Route path="/admin/metas/importar" component={BatchUploadPage} />
+      <Route path="/admin/metas/importar" component={ImportarMetasSelector} />
+      <Route path="/admin/metas/importar/:planoId" component={MetasImport} />
       
       {/* Alunos */}
       <Route path="/admin/alunos" component={StudentsPage} />
