@@ -85,6 +85,10 @@ export default function MetasImport() {
   };
 
   const handleUpload = async () => {
+    console.log('🔍 [handleUpload] Iniciando upload');
+    console.log('🔍 [handleUpload] planoId:', planoId);
+    console.log('🔍 [handleUpload] file:', file?.name);
+    
     if (!file || !planoId) {
       toast.error('Selecione um arquivo primeiro');
       return;
@@ -102,6 +106,12 @@ export default function MetasImport() {
           setImporting(false);
           return;
         }
+        
+        console.log('🔍 [handleUpload] Enviando mutation');
+        console.log('🔍 [handleUpload] Payload:', {
+          planoId: planoId,
+          fileBase64Length: base64.length,
+        });
         
         // ✅ Enviar com planoId
         batchUploadMutation.mutate({
